@@ -3,20 +3,63 @@
 import type React from "react"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Code2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+
+import { login } from '../../utilities/api/api';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    // Simulated login
-    setTimeout(() => setIsLoading(false), 1000)
+
+    try {
+      const loginPayload: ILoginPayload = {
+        email: email,
+        password: password
+      }
+      const response = await login(loginPayload);
+      if (response) {
+        toast.success("Sign up successfully", {
+          action: {
+            label: "Undo",
+            onClick: () => console.log("Undo"),
+          },
+        })
+      }
+      router.push('/projects')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message, {
+          action: {
+            label: "Undo",
+            onClick: () => console.log("Undo"),
+          },
+        })
+        console.error(err.message)
+      } else {
+        toast.error("An unknown error occurred", {
+          action: {
+            label: "Undo",
+            onClick: () => console.log("Undo"),
+          },
+        })
+        console.error("Unknown error:", err)
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -36,7 +79,7 @@ export default function LoginPage() {
             <p className="text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
-                href="/signup"
+                href="/register"
                 className="text-cyan-400 hover:text-cyan-300 hover:underline font-medium transition-colors"
               >
                 Sign up
@@ -54,6 +97,7 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
+                onChange={(event) => setEmail(event.target.value)}
                 className="bg-background border-border text-foreground placeholder:text-muted-foreground"
                 required
               />
@@ -72,6 +116,7 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
+                onChange={(event) => setPassword(event.target.value)}
                 className="bg-background border-border text-foreground placeholder:text-muted-foreground"
                 required
               />
@@ -85,32 +130,6 @@ export default function LoginPage() {
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
-
-          {/* Divider */}
-          {/* <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-muted-foreground">Or continue with</span>
-            </div>
-          </div> */}
-
-          {/* Social Buttons */}
-          {/* <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant="outline"
-              className="border-border bg-background text-foreground hover:bg-card hover:text-cyan-400 transition-colors"
-            >
-              GitHub
-            </Button>
-            <Button
-              variant="outline"
-              className="border-border bg-background text-foreground hover:bg-card hover:text-cyan-400 transition-colors"
-            >
-              Google
-            </Button>
-          </div> */}
 
           {/* Terms */}
           <p className="text-center text-xs text-muted-foreground">
