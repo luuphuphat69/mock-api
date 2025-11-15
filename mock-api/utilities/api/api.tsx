@@ -18,16 +18,58 @@ export async function login(loginPayload: ILoginPayload) {
     const res = await axios.post(`${localURL}/login`, loginPayload);
     return res.data;
   } catch (error: any) {
-    console.error("Login error:", error.response?.data || error.message);
     throw error;
   }
 }
 
 export async function logout() {
   try {
-    await axios.post(`${localURL}/logout`, {});
+    await axios.post(`${localURL}/logout`);
   } catch (error: any) {
     console.error("Logout error:", error.response?.data || error.message);
     throw error;
+  }
+}
+
+export async function me() {
+  try {
+    const res = await axios.get(`${localURL}/me`)
+    return res
+  } catch (err: unknown) {
+    throw err
+  }
+}
+
+export async function getProjectByUserID(userId: string) {
+  try {
+    const res = await axios.get(`${localURL}/projects/${userId}`)
+    return res.data;
+  } catch (err: unknown) {
+    throw err;
+  }
+}
+
+export async function addNewProject(payload: {}) {
+  try {
+    const res = await axios.post(`${localURL}/projects`, payload)
+    return res;
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function deleteProjectByID(id: string) {
+  try {
+    await axios.delete(`${localURL}/projects/${id}`);
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function patchProject(id: string, payload: {}){
+  try{
+    await axios.patch(`${localURL}/project/${id}`, payload)
+  }catch(err){
+    throw err
   }
 }

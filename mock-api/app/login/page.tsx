@@ -31,7 +31,7 @@ export default function LoginPage() {
       }
       const response = await login(loginPayload);
       if (response) {
-        toast.success("Sign up successfully", {
+        toast.success("Sign in successfully", {
           action: {
             label: "Undo",
             onClick: () => console.log("Undo"),
@@ -39,24 +39,17 @@ export default function LoginPage() {
         })
       }
       router.push('/projects')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message, {
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
-        })
-        console.error(err.message)
-      } else {
-        toast.error("An unknown error occurred", {
-          action: {
-            label: "Undo",
-            onClick: () => console.log("Undo"),
-          },
-        })
-        console.error("Unknown error:", err)
-      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "An unknown error occurred";
+
+      toast.error(errorMessage, {
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      });
+
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

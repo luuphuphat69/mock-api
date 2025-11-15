@@ -3,9 +3,10 @@ const { Schema } = mongoose;
 const crypto = require('crypto');
 
 const projectSchema = new Schema({
+    projectId: {type: String, require: true, unique: true},
     userId: { type: String, ref: "User", required: true },
     name: { type: String, required: true },
-    prefix: {type: String, required: true, unique: true},
+    prefix: {type: String, required: true},
     apiKey: { type: String, unique: true, select: false }, 
     dataLimit: { type: Number, default: 100 },
 }, { timestamps: true });

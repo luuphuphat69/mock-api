@@ -1,5 +1,6 @@
 interface IProject {
-  id: string
-  name: string
-  prefix: string
+  projectId: string;
+  name: string;
+  prefix: string;
+  userId: string;
 }

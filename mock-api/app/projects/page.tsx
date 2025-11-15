@@ -8,23 +8,32 @@ import gsap from "gsap"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 import Header from "@/components/header"
-
+import { useUser } from "../../hooks/userUser"
+import { useProjects } from "@/hooks/userProject"
+import { useRouter } from "next/navigation"
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<IProject[]>([
-    { id: "1", name: "User API", prefix: "/api/users" },
-    { id: "2", name: "Payment API", prefix: "/api/payments" },
-    { id: "3", name: "Auth API", prefix: "/api/auth" },
-  ])
+  const { projects, fetchProjects, addProject, deleteProject, patchProject } = useProjects();
+  const { user, fetchUser } = useUser()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: "", prefix: "" })
+  const router = useRouter()
 
   const gridRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const confirmModalRef = useRef<HTMLDivElement>(null)
+  const confirmOverlayRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetchUser()
+  }, [])
 
   useEffect(() => {
     if (gridRef.current) {
@@ -38,8 +47,8 @@ export default function ProjectsPage() {
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          stagger: 0.1,
+          duration: 0.4,
+          stagger: 0.05,
           ease: "power2.out",
         },
       )
@@ -70,7 +79,45 @@ export default function ProjectsPage() {
     }
   }, [isModalOpen])
 
+  useEffect(() => {
+    if (showDeleteConfirm && confirmModalRef.current && confirmOverlayRef.current) {
+      gsap.fromTo(confirmOverlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" })
+      gsap.fromTo(
+        confirmModalRef.current,
+        { opacity: 0, scale: 0.95, y: -20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" },
+      )
+    } else if (!showDeleteConfirm && confirmModalRef.current && confirmOverlayRef.current) {
+      gsap.to(confirmOverlayRef.current, {
+        opacity: 0,
+        duration: 0.2,
+        ease: "power2.in",
+      })
+      gsap.to(confirmModalRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        y: -20,
+        duration: 0.3,
+        ease: "back.in",
+      })
+    }
+  }, [showDeleteConfirm])
+
+  useEffect(() => {
+    if (user?.id) fetchProjects(user.id)
+    console.log(projects)
+  }, [user?.id])
+
   const handleAddProject = () => {
+    const countProject = projects.length;
+    if (countProject === 5 && user?.type === 'free') {
+      return toast.error("Maximum 5 projects", {
+        action: {
+          label: "Undo",
+          onClick: () => console.log("Undo"),
+        },
+      });
+    }
     setFormData({ name: "", prefix: "" })
     setIsEditMode(false)
     setEditingId(null)
@@ -80,35 +127,42 @@ export default function ProjectsPage() {
   const handleEditProject = (project: IProject) => {
     setFormData({ name: project.name, prefix: project.prefix })
     setIsEditMode(true)
-    setEditingId(project.id)
+    setEditingId(project.projectId)
     setIsModalOpen(true)
   }
 
-  const handleSaveProject = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formData.name || !formData.prefix) return
+  const handleSaveProject = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (isEditMode && editingId) {
-      setProjects(
-        projects.map((p) => (p.id === editingId ? { ...p, name: formData.name, prefix: formData.prefix } : p)),
-      )
-    } else {
-      setProjects([
-        ...projects,
-        {
-          id: Date.now().toString(),
-          name: formData.name,
-          prefix: formData.prefix,
-        },
-      ])
-    }
+  if (!formData.name || !formData.prefix || !user?.id) return;
 
-    setIsModalOpen(false)
-    setFormData({ name: "", prefix: "" })
+  if (isEditMode && editingId) {
+    await patchProject(editingId, {
+      name: formData.name,
+      prefix: formData.prefix
+    });
+    setIsModalOpen(false);
+  } else {
+    await addProject({
+      name: formData.name,
+      prefix: formData.prefix,
+      userId: user.id,
+    });
+    setIsModalOpen(false);
   }
 
+  setFormData({ name: "", prefix: "" });
+  setEditingId(null);
+  setIsEditMode(false);
+};
+
   const handleDeleteProject = (id: string) => {
-    const card = document.querySelector(`[data-project-id="${id}"]`)
+    setProjectToDelete(id)
+    setShowDeleteConfirm(true)
+  }
+
+  const handleConfirmDelete = (id: string) => {
+    const card = document.querySelector(`[data-project-id="${id}"]`);
     if (card) {
       gsap.to(card, {
         opacity: 0,
@@ -116,11 +170,13 @@ export default function ProjectsPage() {
         duration: 0.3,
         ease: "power2.in",
         onComplete: () => {
-          setProjects(projects.filter((p) => p.id !== id))
+          deleteProject(id);
+          setShowDeleteConfirm(false);
+          setProjectToDelete(null);
         },
-      })
+      });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -148,9 +204,10 @@ export default function ProjectsPage() {
         <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <div
-              key={project.id}
-              data-project-id={project.id}
+              key={project.projectId}
+              data-project-id={project.projectId}
               data-project-card
+              onClick={() => router.push(`/projects/${project.projectId}/resources`)}
               className="bg-card border border-border rounded-lg p-6 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10 group cursor-pointer"
               onMouseEnter={(e) => {
                 gsap.to(e.currentTarget, {
@@ -177,7 +234,10 @@ export default function ProjectsPage() {
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <Button
-                  onClick={() => handleEditProject(project)}
+                  onClick={(e) => {
+                    e.stopPropagation();  
+                    handleEditProject(project)}
+                  }
                   variant="outline"
                   className="flex-1 border-border bg-background text-foreground hover:bg-card hover:text-cyan-400 transition-colors"
                 >
@@ -185,9 +245,12 @@ export default function ProjectsPage() {
                   Edit
                 </Button>
                 <Button
-                  onClick={() => handleDeleteProject(project.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();  
+                    handleDeleteProject(project.projectId)}
+                  }
                   variant="outline"
-                  className="flex-1 border-border bg-background text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="flex-1 border-border bg-background text-red-400 hover:bg-red-500 transition-colors"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
@@ -270,6 +333,34 @@ export default function ProjectsPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div ref={confirmOverlayRef} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div ref={confirmModalRef} className="bg-card border border-border rounded-lg p-8 w-full max-w-md shadow-xl">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Delete Project?</h2>
+            <p className="text-muted-foreground mb-6">
+              Are you sure you want to delete this project? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowDeleteConfirm(false)}
+                variant="outline"
+                className="flex-1 border-border bg-background text-foreground hover:bg-card"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => projectToDelete && handleConfirmDelete(projectToDelete)}
+                className="flex-1 bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       )}
