@@ -1,4 +1,4 @@
-interface ProjectStore {
+interface IProjectStore {
   projects: IProject[];
   loading: boolean;
   fetchProjects: (userId: string) => Promise<void>;

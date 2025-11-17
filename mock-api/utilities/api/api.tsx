@@ -66,10 +66,55 @@ export async function deleteProjectByID(id: string) {
   }
 }
 
-export async function patchProject(id: string, payload: {}){
-  try{
+export async function patchProject(id: string, payload: {}) {
+  try {
     await axios.patch(`${localURL}/project/${id}`, payload)
-  }catch(err){
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function getKey(id: string) {
+  try {
+    const res = await axios.get(`${localURL}/project/key/${id}`)
+    return res.data;
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function addResource(projectId: string, payload: {}) {
+  try {
+    const res = await axios.post(`${localURL}/resources/${projectId}`, payload);
+    return res;
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function getResourceByProjectId(projectId: string) {
+  try {
+    const res = await axios.get(`${localURL}/resources/${projectId}`)
+    return res;
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function editResource(id: string, payload: {}) {
+  try {
+    const res = await axios.patch(`${localURL}/resources/${id}`, payload)
+    return res;
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function deleteResource(id: string) {
+  try {
+    const res = await axios.delete(`${localURL}/resources/${id}`)
+    return res;
+  } catch (err) {
     throw err
   }
 }

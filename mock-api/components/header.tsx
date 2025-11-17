@@ -1,14 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { useUser } from "../hooks/userUser"
+import { useUser } from "../hooks/useUser"
 import { logout } from "@/utilities/api/api"
 import { useRouter, usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { User, LogOut, Code2 } from "lucide-react"
-import { useProjects } from "@/hooks/userProject"
-
+import { User, LogOut } from "lucide-react"
+import { useProjects } from "@/hooks/useProject"
+import Image from 'next/image';
 export default function Header() {
   const router = useRouter()
   const pathname = usePathname()
@@ -38,8 +38,13 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
 
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <Code2 className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-br rounded-lg flex items-center justify-center">
+            <Image
+              src='/icon.png'
+              width={700}
+              height={700}
+              alt="logo"
+            />
           </div>
           <span className="font-bold text-lg">MockAPI</span>
         </Link>

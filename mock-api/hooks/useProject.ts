@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { getProjectByUserID, addNewProject, deleteProjectByID, patchProject } from "@/utilities/api/api";
 
-export const useProjects = create<ProjectStore>((set, get) => ({
+export const useProjects = create<IProjectStore>((set, get) => ({
     projects: [],
     loading: false,
 

@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const resourceSchema = new Schema({
-  projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
+  projectId: { type: String, ref: "Project", required: true },
   name: { type: String, required: true },
+  schemaFields: {type: Array, default: []},
   records: { type: Array, default: [] },
 }, { timestamps: true });
 

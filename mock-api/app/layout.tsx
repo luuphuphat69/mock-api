@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Mock API",
   description: "Mock api",
+  icons: {
+    icon: [
+      { url: './favicon.ico', sizes: '48x48' }, 
+    ],
+  }
 };
 
 export default function RootLayout({
