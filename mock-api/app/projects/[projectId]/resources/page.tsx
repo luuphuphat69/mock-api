@@ -218,7 +218,7 @@ export default function ResourcesPage() {
           isOpen={isFormOpen}
           onClose={() => setIsFormOpen(false)}
           onSubmit={handleSave}
-          initialData={editingResource ? { name: editingResource.name, schema: editingResource.schemaFields } : null}
+          initialData={editingResource ? { name: editingResource.name, schema: editingResource.schemaFields, records:[] } : null}
         />
 
         <ResourceDataModal
