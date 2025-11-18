@@ -44,7 +44,7 @@ const retrieve = {
     getKey: async(req, res) => {
         try{
             const projectId = req.params.id;
-            const keyOnly = await Project.findOne({ projectId }).select('+apiKey apiKey');
+            const keyOnly = await Project.findOne({ projectId }).select('+apiKey');
             return res.status(200).json(keyOnly);
         }catch(err){
             if(err instanceof MongoServerError)

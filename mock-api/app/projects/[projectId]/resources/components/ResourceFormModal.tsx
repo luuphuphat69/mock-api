@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { simpleFaker, faker } from '@faker-js/faker'
 import { FAKER_MODULES } from "@/app/enum/fakermodules"
 import { Spinner } from '@/components/ui/shadcn-io/spinner';
+import { useUser } from "../../../../../hooks/useUser";
 
 interface ResourceFormModalProps {
   isOpen: boolean
@@ -18,6 +19,7 @@ interface ResourceFormModalProps {
 }
 
 export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: ResourceFormModalProps) {
+
   const [formData, setFormData] = useState({
     name: "",
     schema: [{ name: "id", dataType: "string", fakeType: "" }] as ISchemaField[],
@@ -26,6 +28,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
   const [fakeModuleSearch, setFakeModuleSearch] = useState<{ [key: number]: string }>({})
   const [openFakerDropdown, setOpenFakerDropdown] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(false);
+  const { user, fetchUser } = useUser()
 
   const modalRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
@@ -34,6 +37,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
   // Initialize form on open
   useEffect(() => {
     if (isOpen) {
+      fetchUser();
       if (initialData) {
         setFormData({ name: initialData.name, schema: initialData.schema })
       } else {
@@ -79,34 +83,47 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!formData.name) return toast.error("Please enter a resource name")
-    if (formData.schema.length === 0) return toast.error("Resource must have at least 1 field")
-    if (formData.schema.some((s) => !s.name)) return toast.error("All fields must have a name")
+    if (!formData.name) return toast.error("Please enter a resource name");
+    if (formData.schema.length === 0) return toast.error("Resource must have at least 1 field");
+    if (formData.schema.some((s) => !s.name)) return toast.error("All fields must have a name");
 
-    setIsLoading(true);   // <-- start spinner
+    setIsLoading(true);
 
     try {
-      const shouldGenerate =
-        !isEditMode ||
-        (initialData && JSON.stringify(formData.schema) !== JSON.stringify(initialData.schema))
+      // Check if we are editing
+      const isEdit = !!initialData;
 
-      const payload = {
+      // Decide if we need to regenerate records
+      const schemaChanged = isEdit && JSON.stringify(formData.schema) !== JSON.stringify(initialData.schema);
+      const recordCountChanged = isEdit && generateCount !== (initialData.records?.length || 0);
+
+      const shouldGenerate = !isEdit || schemaChanged || recordCountChanged;
+
+      const payload: {
+        name: string;
+        schema: ISchemaField[];
+        records?: any[];
+      } = {
         name: formData.name,
         schema: formData.schema,
-        records: shouldGenerate ? generateFakeData(formData.schema, generateCount) : undefined
+      };
+
+      if (shouldGenerate) {
+        payload.records = generateFakeData(formData.schema, generateCount);
       }
 
-      await onSubmit(payload)
-      onClose()
+      await onSubmit(payload);
+      onClose();
     } catch (err) {
-      console.error(err)
-      toast.error("Failed to save resource")
+      console.error(err);
+      toast.error("Failed to save resource");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
 
   const handleSchemaChange = (idx: number, field: string, value: string) => {
     const newSchema = [...formData.schema]
@@ -220,10 +237,32 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
               <div className="flex items-center gap-2">
                 <Input
                   type="number"
-                  min="1"
-                  max="1000"
+                  min={1}
+                  max={1000}
                   value={generateCount}
-                  onChange={(e) => setGenerateCount(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    let value = parseInt(e.target.value)
+                    if (isNaN(value)) return
+
+                    // Free tier limit
+                    if (user?.type === 'free') {
+                      if (value > 100) {
+                        toast.error("Maximum 100 records allowed for free tier")
+                        value = 100 // clamp to 100
+                      } else if (value < 1) {
+                        value = 1 // prevent going below 1
+                      }
+                    } else {
+                      // Non-free users, still clamp min/max
+                      if (value < 1) value = 1
+                      if (value > 1000) value = 1000
+                    }
+                    setGenerateCount(value)
+                  }}
+                  onBlur={(e) => {
+                    // ensure value is valid after losing focus
+                    if (generateCount < 1) setGenerateCount(1)
+                  }}
                   className="bg-background border-border text-foreground w-24"
                 />
                 <span className="text-muted-foreground text-sm">records</span>

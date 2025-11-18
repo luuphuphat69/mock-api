@@ -14,6 +14,7 @@ import { useUser } from "../../hooks/useUser"
 import { useProjects } from "@/hooks/useProject"
 import { useRouter } from "next/navigation"
 import { LoadingScreen } from "@/components/loading-screen"
+
 export default function ProjectsPage() {
   const { projects, fetchProjects, addProject, deleteProject, patchProject } = useProjects();
   const { user, fetchUser } = useUser()
@@ -105,17 +106,22 @@ export default function ProjectsPage() {
   }, [showDeleteConfirm])
 
   useEffect(() => {
-    setIsLoading(true);
-    try {
-      if (user?.id) {
-        fetchProjects(user.id)
+    if (!user?.id) return;
+
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        await fetchProjects(user.id);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      throw err
-    } finally {
-      setIsLoading(false)
-    }
-  }, [user?.id])
+    };
+
+    load();
+  }, [user?.id]);
+
 
   const handleAddProject = () => {
     const countProject = projects.length;
@@ -145,6 +151,12 @@ export default function ProjectsPage() {
 
     if (!formData.name || !formData.prefix || !user?.id) return;
 
+    const versionRegex = /^\/v[0-9]+$/;
+
+    if (!versionRegex.test(formData.prefix)) {
+      return toast.error("Invalid API version. Only formats like /v0, /v1, /v2 are allowed.");
+    }
+
     if (isEditMode && editingId) {
       await patchProject(editingId, {
         name: formData.name,
@@ -164,6 +176,7 @@ export default function ProjectsPage() {
     setEditingId(null);
     setIsEditMode(false);
   };
+
 
   const handleDeleteProject = (id: string) => {
     setProjectToDelete(id)
@@ -316,12 +329,12 @@ export default function ProjectsPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="api-prefix" className="text-foreground font-medium">
-                    API Prefix
+                    API Version
                   </Label>
                   <Input
                     id="api-prefix"
                     type="text"
-                    placeholder="e.g., /api/v1"
+                    placeholder="e.g., /v1"
                     value={formData.prefix}
                     onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}
                     className="bg-background border-border text-foreground placeholder:text-muted-foreground"

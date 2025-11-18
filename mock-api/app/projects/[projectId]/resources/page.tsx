@@ -9,6 +9,7 @@ import gsap from "gsap"
 import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
 import { toast } from "sonner"
+import { useUser } from "../../../../hooks/useUser";
 import { addResource, deleteResource, editResource, getKey, getResourceByProjectId } from "@/utilities/api/api"
 
 // Components
@@ -21,7 +22,7 @@ export default function ResourcesPage() {
   const params = useParams()
   const projectId = params.projectId as string
   const [resources, setResource] = useState<IResource[] | null>(null)
-
+  const { user, fetchUser } = useUser()
   const [apiKey, setApiKey] = useState('')
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false)
   const [copiedKey, setCopiedKey] = useState(false)
@@ -46,17 +47,18 @@ export default function ResourcesPage() {
     }
   }
 
-  const fetchKey = async() => {
-    try{
+  const fetchKey = async () => {
+    try {
       const res = await getKey(projectId);
       setApiKey(res.apiKey)
-    }catch(err){
+    } catch (err) {
       console.error(err)
     }
   }
 
   useEffect(() => {
     fetchKey();
+    fetchUser()
     fetchResources();
   }, [projectId])
 
@@ -168,12 +170,20 @@ export default function ResourcesPage() {
 
           <div className="mb-8">
             <Button
-              onClick={() => { setEditingResource(null); setIsFormOpen(true) }}
+              onClick={() => {
+                if (resources && resources.length >= 3 && user?.type === 'free') {
+                  toast.error("Maximum 5 resources allowed for the free tier")
+                  return
+                }
+                setEditingResource(null)
+                setIsFormOpen(true)
+              }}
               className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 transition-all font-semibold"
             >
               <Plus className="w-5 h-5 mr-2" /> Add New Resource
             </Button>
           </div>
+
 
           {/* Grid */}
           <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
