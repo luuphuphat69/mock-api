@@ -1,8 +1,8 @@
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
-const localURL = "https://mock-api-server-sy5n.onrender.com/api";
-
+//const localURL = "http://localhost:8000/api";
+const localURL = "https://mock-api-server-sy5n.onrender.com/api"
 export async function register(registerPayload: IRegisterPayload) {
   try {
     const res = await axios.post(`${localURL}/register`, registerPayload);
