@@ -30,7 +30,10 @@ async function login(req, res) {
             secure: true,
             sameSite: "none",
         })
-        return res.status(200).json({ message: "Login succesfully" });
+        return res.status(200).json({
+            message: "Login succesfully",
+            token: token
+        });
     } catch (err) {
         return res.status(500).json({ message: err })
     }

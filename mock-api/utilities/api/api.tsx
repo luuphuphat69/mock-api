@@ -1,11 +1,13 @@
 import axios from "axios";
-axios.defaults.withCredentials = true;
 
-//const localURL = "http://localhost:8000/api";
-const localURL = "https://mock-api-server-sy5n.onrender.com/api"
+const api = axios.create({
+  baseURL: "https://mock-api-server-sy5n.onrender.com/api",
+  withCredentials: true,
+});
+
 export async function register(registerPayload: IRegisterPayload) {
   try {
-    const res = await axios.post(`${localURL}/register`, registerPayload);
+    const res = await api.post("/register", registerPayload);
     return res.data;
   } catch (error: any) {
     console.error("Register error:", error.response?.data || error.message);
@@ -15,7 +17,7 @@ export async function register(registerPayload: IRegisterPayload) {
 
 export async function login(loginPayload: ILoginPayload) {
   try {
-    const res = await axios.post(`${localURL}/login`, loginPayload);
+    const res = await api.post('/login', loginPayload);
     return res.data;
   } catch (error: any) {
     throw error;
@@ -24,7 +26,7 @@ export async function login(loginPayload: ILoginPayload) {
 
 export async function logout() {
   try {
-    await axios.post(`${localURL}/logout`);
+    await api.post('/logout');
   } catch (error: any) {
     console.error("Logout error:", error.response?.data || error.message);
     throw error;
@@ -33,7 +35,7 @@ export async function logout() {
 
 export async function me() {
   try {
-    const res = await axios.get(`${localURL}/me`)
+    const res = await api.get('/me')
     return res
   } catch (err: any) {
     throw err
@@ -42,7 +44,7 @@ export async function me() {
 
 export async function getProjectByUserID(userId: string) {
   try {
-    const res = await axios.get(`${localURL}/projects/${userId}`)
+    const res = await api.get(`/projects/${userId}`)
     return res.data;
   } catch (err: unknown) {
     throw err;
@@ -51,7 +53,7 @@ export async function getProjectByUserID(userId: string) {
 
 export async function addNewProject(payload: {}) {
   try {
-    const res = await axios.post(`${localURL}/projects`, payload)
+    const res = await api.post('/projects', payload)
     return res;
   } catch (err) {
     throw err
@@ -60,7 +62,7 @@ export async function addNewProject(payload: {}) {
 
 export async function deleteProjectByID(id: string) {
   try {
-    await axios.delete(`${localURL}/projects/${id}`);
+    await api.delete(`/projects/${id}`);
   } catch (err) {
     throw err;
   }
@@ -68,7 +70,7 @@ export async function deleteProjectByID(id: string) {
 
 export async function patchProject(id: string, payload: {}) {
   try {
-    await axios.patch(`${localURL}/project/${id}`, payload)
+    await api.patch(`$/project/${id}`, payload)
   } catch (err) {
     throw err
   }
@@ -76,7 +78,7 @@ export async function patchProject(id: string, payload: {}) {
 
 export async function getKey(id: string) {
   try {
-    const res = await axios.get(`${localURL}/project/key/${id}`)
+    const res = await api.get(`/project/key/${id}`)
     return res.data;
   } catch (err) {
     throw err
@@ -85,7 +87,7 @@ export async function getKey(id: string) {
 
 export async function addResource(projectId: string, payload: {}) {
   try {
-    const res = await axios.post(`${localURL}/resources/${projectId}`, payload);
+    const res = await api.post(`/resources/${projectId}`, payload);
     return res;
   } catch (err) {
     throw err
@@ -94,7 +96,7 @@ export async function addResource(projectId: string, payload: {}) {
 
 export async function getResourceByProjectId(projectId: string) {
   try {
-    const res = await axios.get(`${localURL}/resources/${projectId}`)
+    const res = await api.get(`/resources/${projectId}`)
     return res;
   } catch (err) {
     throw err
@@ -103,7 +105,7 @@ export async function getResourceByProjectId(projectId: string) {
 
 export async function editResource(id: string, payload: {}) {
   try {
-    const res = await axios.patch(`${localURL}/resources/${id}`, payload)
+    const res = await api.patch(`/resources/${id}`, payload)
     return res;
   } catch (err) {
     throw err
@@ -112,7 +114,7 @@ export async function editResource(id: string, payload: {}) {
 
 export async function deleteResource(id: string) {
   try {
-    const res = await axios.delete(`${localURL}/resources/${id}`)
+    const res = await api.delete(`/resources/${id}`)
     return res;
   } catch (err) {
     throw err
