@@ -35,7 +35,7 @@ export async function me() {
   try {
     const res = await axios.get(`${localURL}/me`)
     return res
-  } catch (err: unknown) {
+  } catch (err: any) {
     throw err
   }
 }

@@ -28,7 +28,7 @@ async function login(req, res) {
             maxAge: 2 * 60 * 60 * 1000,
             httpOnly: true,
             secure: true,
-            sameSite: 'lax'
+            sameSite: "none",
         })
         return res.status(200).json({ message: "Login succesfully" });
     } catch (err) {
