@@ -8,12 +8,11 @@ const cookieParser = require('cookie-parser');
 const router = require('../server/routes/route');
 
 app.use(cors({
-  origin: ['https://mock-api-rosy.vercel.app/', 'http://localhost:3000'],
-  credentials: true    // allow cookies
+  origin: ['https://mock-api-rosy.vercel.app', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
-app.use(cookieParser());
-app.use(morgan('common'));
 
 // Routes
 app.use('/api', router);
