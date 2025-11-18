@@ -8,56 +8,88 @@ import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "@/components/header";
 import Image from "next/image";
-gsap.registerPlugin(SplitText);
-gsap.registerPlugin(ScrollTrigger);
+
+// Register plugins
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(SplitText, ScrollTrigger);
+}
+
+// 1. Define Types
+type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+interface ResponseBody {
+  id?: number;
+  name?: string;
+  email?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+  message?: string;
+  deleted_id?: number;
+}
+
+interface MockResponse {
+  status: number;
+  time: string;
+  body: ResponseBody;
+}
 
 export default function Home() {
-  const featuresTitleRef = useRef(null);
-  const ctaTitleRef = useRef(null);
+  // 2. Fix Ref Types (Specify HTML Element types)
+  const featuresTitleRef = useRef<HTMLHeadingElement>(null);
+  const ctaTitleRef = useRef<HTMLHeadingElement>(null);
   const heroTextRef = useRef<HTMLParagraphElement>(null);
   const featureTextRef = useRef<HTMLParagraphElement>(null);
   const ctaTextRef = useRef<HTMLParagraphElement>(null);
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedMethod, setSelectedMethod] = useState('GET')
-  const [responseData, setResponseData] = useState(null)
+  // 3. Fix State Types
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedMethod, setSelectedMethod] = useState<Method>('GET');
+  const [responseData, setResponseData] = useState<MockResponse | null>(null);
 
   useEffect(() => {
     // Animate “Powerful Features”
-    gsap.fromTo(
-      featuresTitleRef.current,
-      { y: 60, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1.0,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: featuresTitleRef.current,
-          start: "top 80%", // when the section enters the viewport
-        },
-      }
-    );
+    if (featuresTitleRef.current) {
+      gsap.fromTo(
+        featuresTitleRef.current,
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.0,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: featuresTitleRef.current,
+            start: "top 80%",
+          },
+        }
+      );
+    }
 
     // Animate “Ready to test smarter?”
-    gsap.fromTo(
-      ctaTitleRef.current,
-      { y: 60, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1.0,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ctaTitleRef.current,
-          start: "top 85%",
-        },
-      }
-    );
+    if (ctaTitleRef.current) {
+      gsap.fromTo(
+        ctaTitleRef.current,
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.0,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ctaTitleRef.current,
+            start: "top 85%",
+          },
+        }
+      );
+    }
   }, []);
 
   useEffect(() => {
-    // Split hero text immediately (load-time animation)
+    if (!heroTextRef.current) return;
+
+    // Split hero text immediately
+    // Note: SplitText type is often 'any' if standard definitions aren't installed
     const heroSplit = new SplitText(heroTextRef.current, { type: "chars, words" });
     const heroChars = heroSplit.chars;
 
@@ -70,11 +102,11 @@ export default function Home() {
       delay: 0.3,
     });
 
-    // SplitText scroll animation handler
     const animateSplitOnScroll = (elementRef: React.RefObject<HTMLParagraphElement | null>) => {
-      if (!elementRef.current) return; // guard clause
+      if (!elementRef.current) return;
 
-      let splitInstance: SplitText | null = null;
+      // Explicitly type splitInstance as any to avoid TS errors with GSAP plugins
+      let splitInstance: any = null;
 
       ScrollTrigger.create({
         trigger: elementRef.current,
@@ -91,11 +123,9 @@ export default function Home() {
             });
           }
         },
-
       });
     };
 
-    // Apply to feature and CTA texts
     animateSplitOnScroll(featureTextRef);
     animateSplitOnScroll(ctaTextRef);
 
@@ -105,7 +135,8 @@ export default function Home() {
     };
   }, []);
 
-  const mockResponses = {
+  // 4. Type the Dictionary Object
+  const mockResponses: Record<Method, MockResponse> = {
     GET: {
       status: 200,
       time: '145ms',
@@ -156,33 +187,34 @@ export default function Home() {
         deleted_id: 123
       }
     }
-  }
+  };
 
   const handleSendRequest = () => {
-    setIsLoading(true)
+    setIsLoading(true);
     setTimeout(() => {
-      setResponseData(mockResponses[selectedMethod])
-      setIsLoading(false)
-    }, 1500)
-  }
+      setResponseData(mockResponses[selectedMethod]);
+      setIsLoading(false);
+    }, 1500);
+  };
 
-  const getStatusColor = (status) => {
-    if (status >= 200 && status < 300) return 'bg-green-500/30 text-green-400'
-    if (status >= 300 && status < 400) return 'bg-blue-500/30 text-blue-400'
-    if (status >= 400 && status < 500) return 'bg-yellow-500/30 text-yellow-400'
-    return 'bg-red-500/30 text-red-400'
-  }
+  // 5. Type Function Arguments
+  const getStatusColor = (status: number) => {
+    if (status >= 200 && status < 300) return 'bg-green-500/30 text-green-400';
+    if (status >= 300 && status < 400) return 'bg-blue-500/30 text-blue-400';
+    if (status >= 400 && status < 500) return 'bg-yellow-500/30 text-yellow-400';
+    return 'bg-red-500/30 text-red-400';
+  };
 
-  const getMethodColor = (method) => {
-    const colors = {
+  const getMethodColor = (method: string) => {
+    const colors: Record<string, string> = {
       GET: 'bg-cyan-500/30 text-cyan-400 border-cyan-500/50',
       POST: 'bg-green-500/30 text-green-400 border-green-500/50',
       PUT: 'bg-blue-500/30 text-blue-400 border-blue-500/50',
       PATCH: 'bg-orange-500/30 text-orange-400 border-orange-500/50',
       DELETE: 'bg-red-500/30 text-red-400 border-red-500/50'
-    }
-    return colors[method] || 'bg-muted text-muted-foreground'
-  }
+    };
+    return colors[method] || 'bg-muted text-muted-foreground';
+  };
 
   return (
     <main className="min-h-screen bg-background">
@@ -221,7 +253,7 @@ export default function Home() {
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-2 block text-center">Method</label>
                   <div className="flex gap-2 justify-center flex-wrap">
-                    {['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].map((method) => (
+                    {(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as Method[]).map((method) => (
                       <button
                         key={method}
                         onClick={() => setSelectedMethod(method)}
@@ -391,5 +423,5 @@ export default function Home() {
         </div>
       </footer>
     </main>
-  )
+  );
 }
