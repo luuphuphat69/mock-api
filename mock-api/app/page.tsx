@@ -402,7 +402,7 @@ export default function Home() {
             Join developers who are shipping faster without waiting for backend APIs.
           </p>
           <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="/app">Start Free</Link>
+            <Link href="#">Start Free</Link>
           </Button>
         </div>
       </section>

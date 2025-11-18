@@ -110,7 +110,7 @@ export default function LoginPage() {
                   <Label htmlFor="password" className="text-foreground font-medium">
                     Password
                   </Label>
-                  <Link href="/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+                  <Link href="#" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
                     Forgot?
                   </Link>
                 </div>
@@ -136,11 +136,11 @@ export default function LoginPage() {
             {/* Terms */}
             <p className="text-center text-xs text-muted-foreground">
               By signing in, you agree to our{" "}
-              <Link href="/terms" className="underline hover:text-foreground transition-colors">
+              <Link href="#" className="underline hover:text-foreground transition-colors">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="underline hover:text-foreground transition-colors">
+              <Link href="#" className="underline hover:text-foreground transition-colors">
                 Privacy Policy
               </Link>
               .
