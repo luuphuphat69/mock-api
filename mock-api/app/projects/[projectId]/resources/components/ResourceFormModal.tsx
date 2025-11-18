@@ -15,7 +15,7 @@ interface ResourceFormModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: { name: string; schema: ISchemaField[]; records?: any[] }) => Promise<void>
-  initialData?: { name: string; schema: ISchemaField[] } | null // If provided, we are in Edit Mode
+  initialData?: { name: string; schema: ISchemaField[]; records:[] } | null // If provided, we are in Edit Mode
 }
 
 export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: ResourceFormModalProps) {
