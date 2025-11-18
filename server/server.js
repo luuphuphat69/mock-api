@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const router = require('../server/routes/route');
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['https://mock-api-rosy.vercel.app/', 'http://localhost:3000'],
   credentials: true    // allow cookies
 }));
 app.use(express.json());
