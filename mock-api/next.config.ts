@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
       allowedOrigins: [
         "https://mock-api-server-sy5n.onrender.com", // backend
         "http://localhost:3000",                     // local frontend
-        "https://your-frontend-domain.com",          // prod frontend
+        "https://mock-api-rosy.vercel.app",          // prod frontend
       ],
     },
   },
