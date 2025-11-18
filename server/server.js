@@ -7,12 +7,34 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const router = require('../server/routes/route');
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://mock-api-rosy.vercel.app/'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true    // allow cookies
-}));
+const allowedOrigins = [
+  "https://mock-api-rosy.vercel.app",
+  "http://localhost:3000"
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Origin',
+    'X-Requested-With',
+    'Accept',
+    'x-client-key',
+    'x-client-token',
+    'x-client-secret',
+    'Authorization'
+  ],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('common'));
