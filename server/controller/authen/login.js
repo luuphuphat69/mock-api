@@ -29,7 +29,10 @@ async function login(req, res) {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-        })
+            domain: ".mockapi.io.vn",   // ← allow across subdomains
+            path: "/",                  // ← allow all routes
+        });
+
         return res.status(200).json({
             message: "Login succesfully",
             token: token

@@ -44,7 +44,7 @@ export async function me() {
 
 export async function getProjectByUserID(userId: string) {
   try {
-    const res = await api.get(`/projects/${userId}`)
+    const res = await api.get(`/projects/user/${userId}`)
     return res.data;
   } catch (err: unknown) {
     throw err;

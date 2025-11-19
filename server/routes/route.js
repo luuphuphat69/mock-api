@@ -26,8 +26,8 @@ router.post('/login', login);
 router.post('/logout', logout);
 
 // projects route
-router.get('/projects/:userID',verifyToken, retrieveProject.getByUserID)
-router.get('/projects/:name', verifyToken, retrieveProject.getByName)
+router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)
+router.get('/projects/name/:name', verifyToken, retrieveProject.getByName)
 router.get('/projects', verifyToken, retrieveProject.getAll)
 router.get('/project/key/:id', verifyToken, retrieveProject.getKey);
 router.post('/projects', verifyToken, addProject)
