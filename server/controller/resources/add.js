@@ -18,6 +18,7 @@ async function add(req, res){
         const newResource = await Resources.create({
             projectId: projectId,
             name: name,
+            endpoint: name.toLowerCase(),
             schemaFields: schemaFields,
             records: records
         })

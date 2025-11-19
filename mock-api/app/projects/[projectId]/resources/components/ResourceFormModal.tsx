@@ -15,7 +15,7 @@ interface ResourceFormModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: { name: string; schema: ISchemaField[]; records?: any[] }) => Promise<void>
-  initialData?: { name: string; schema: ISchemaField[]; records:[] } | null // If provided, we are in Edit Mode
+  initialData?: { name: string; schema: ISchemaField[]; records: [] } | null // If provided, we are in Edit Mode
 }
 
 export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: ResourceFormModalProps) {
@@ -157,7 +157,11 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                   <div className="grid grid-cols-2 gap-2 h-10">
                     <Input
                       value={field.name}
-                      onChange={(e) => handleSchemaChange(idx, 'name', e.target.value)}
+                      disabled={idx === 0 && field.name === "id"}
+                      onChange={(e) => {
+                        if (idx === 0 && field.name === "id") return;
+                        handleSchemaChange(idx, 'name', e.target.value);
+                      }}
                       required
                       placeholder="Field Name"
                     />
@@ -172,10 +176,23 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                         <option value="boolean">boolean</option>
                         <option value="fake">Fake</option>
                       </select>
-                      <Button type="button" onClick={() => {
-                        if (formData.schema.length <= 1) return toast.error("Keep at least 1 field")
-                        setFormData({ ...formData, schema: formData.schema.filter((_, i) => i !== idx) })
-                      }} variant="outline" className="border-border bg-background text-red-400 hover:bg-red-500 px-2">
+                      <Button type="button"
+                        onClick={() => {
+                          // Protect ONLY the default id field (index 0)
+                          if (idx === 0 && field.name === "id") {
+                            return toast.error("Default 'id' field cannot be deleted");
+                          }
+
+                          if (formData.schema.length <= 1) {
+                            return toast.error("Keep at least 1 field");
+                          }
+
+                          setFormData({
+                            ...formData,
+                            schema: formData.schema.filter((_, i) => i !== idx)
+                          });
+                        }}
+                        variant="outline" className="border-border bg-background text-red-400 hover:bg-red-500 px-2">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

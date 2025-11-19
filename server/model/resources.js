@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const resourceSchema = new Schema({
   projectId: { type: String, ref: "Project", required: true },
   name: { type: String, required: true },
+  endpoint: {type: String, default:'endpoint'},
   schemaFields: {type: Array, default: []},
   records: { type: Array, default: [] },
 }, { timestamps: true });
