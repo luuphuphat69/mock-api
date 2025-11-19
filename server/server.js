@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const router = require('../server/routes/route');
 
 const allowedOrigins = [
-  "https://mock-api-rosy.vercel.app",
+  "https://mockapi.io.vn",
   "http://localhost:3000"
 ];
 
