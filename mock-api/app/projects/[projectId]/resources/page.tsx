@@ -172,7 +172,7 @@ export default function ResourcesPage() {
             <Button
               onClick={() => {
                 if (resources && resources.length >= 3 && user?.type === 'free') {
-                  toast.error("Maximum 5 resources allowed for the free tier")
+                  toast.error("Maximum 3 resources allowed for the free tier")
                   return
                 }
                 setEditingResource(null)
