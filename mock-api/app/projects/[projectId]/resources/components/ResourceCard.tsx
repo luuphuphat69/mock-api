@@ -64,11 +64,11 @@ export function ResourceCard({ resource, onView, onEdit, onDelete }: ResourceCar
       <div className="mb-4 space-y-2">
         <p className="text-xs font-semibold text-muted-foreground">Endpoints:</p>
         {[
-          { method: "GET", path:   `http://localhost:8000/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}` },
-          { method: "POST", path:  `http://localhost:8000/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}` },
-          { method: "PUT", path:   `http://localhost:8000/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}/:id` },
-          { method: "PATCH", path: `http://localhost:8000/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}/:id` },
-          { method: "DELETE", path:`http://localhost:8000/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}/:id` },
+          { method: "GET", path:   `http://mockapi.io.vn/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}` },
+          { method: "POST", path:  `http://mockapi.io.vn/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}` },
+          { method: "PUT", path:   `http://mockapi.io.vn/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}/:id` },
+          { method: "PATCH", path: `http://mockapi.io.vn/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}/:id` },
+          { method: "DELETE", path:`http://mockapi.io.vn/mock/${resource.projectId}${prefix}/${resource.name.toLowerCase()}/:id` },
         ].map((endpoint) => {
           // 2. Retrieve the styles based on the method key
           // @ts-ignore (optional: handle typescript strict indexing if needed)
