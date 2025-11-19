@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.mockapi.io.vn",
+  baseURL: "https://api.mockapi.io.vn/api",
   withCredentials: true,
 });
 
