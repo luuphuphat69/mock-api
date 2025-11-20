@@ -25,7 +25,6 @@ export default function ResourcesPage() {
   const { user, fetchUser } = useUser()
   const [apiKey, setApiKey] = useState('')
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false)
-  const [copiedKey, setCopiedKey] = useState(false)
 
   // Modals State
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -190,6 +189,7 @@ export default function ResourcesPage() {
             {resources?.map((resource) => (
               <ResourceCard
                 key={resource._id}
+                apiKey={apiKey}
                 resource={resource}
                 onView={(res) => setViewingResource(res)}
                 onEdit={(res) => { setEditingResource(res); setIsFormOpen(true) }}
