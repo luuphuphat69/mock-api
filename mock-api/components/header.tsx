@@ -50,6 +50,12 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/docs"
+            className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+          >
+            Docs
+          </Link>
           {!loading && user ? (
             <>
               <div
