@@ -27,7 +27,7 @@ export function ResourceDataModal({ isOpen, resource, onClose }: ResourceDataMod
   if (!isOpen || !resource) return null
 
   return (
-    <div ref={overlayRef} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div ref={overlayRef} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
       <div
         ref={modalRef}
         className="bg-card border border-border rounded-lg p-8 w-full max-w-4xl shadow-xl max-h-[90vh] overflow-y-auto"
