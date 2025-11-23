@@ -30,6 +30,8 @@ export default function LoginPage() {
       }
       const response = await login(loginPayload);
       if (response) {
+        router.refresh(); // forces middleware to re-read cookie
+        setTimeout(() => router.push("/projects"), 50);
         toast.success("Sign in successfully", {
           action: {
             label: "Undo",
@@ -37,7 +39,6 @@ export default function LoginPage() {
           },
         })
       }
-      router.push("/projects")
     } catch (err: any) {
       const errorMessage = err?.response?.data?.message || "An unknown error occurred";
 

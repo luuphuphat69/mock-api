@@ -31,6 +31,7 @@ export function ResourceDataModal({ isOpen, resource, onClose }: ResourceDataMod
       <div
         ref={modalRef}
         className="bg-card border border-border rounded-lg p-8 w-full max-w-4xl shadow-xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-bold text-foreground mb-6">{resource.name} - Data Records</h2>
 
