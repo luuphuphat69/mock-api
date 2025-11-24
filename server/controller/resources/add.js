@@ -14,16 +14,16 @@ async function add(req, res) {
         // Clean name (trim spaces)
         const cleanedName = name.trim();
 
-        const isResourceExist = await Resources.exists({ name: cleanedName });
-        if (isResourceExist)
-            return res.status(400).json({ message: "Project already have this resource" });
-
         // Create endpoint: lowercase + replace spaces with hyphens
         const endpoint = cleanedName.toLowerCase().replace(/\s+/g, "-");
 
+        const isResourceExist = await Resources.exists({ endpoint: endpoint });
+        if (isResourceExist)
+            return res.status(400).json({ message: "Project already have this resource" });
+
         const newResource = await Resources.create({
             projectId: projectId,
-            name: cleanedName,
+            name: name,
             endpoint: endpoint,
             schemaFields: schemaFields,
             records: records
