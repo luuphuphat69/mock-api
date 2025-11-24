@@ -332,7 +332,7 @@ export default function DocsPage() {
                             GET /api/v1/{"{enpoint}"}?_page={"{number}"}&_limit={"{number}"}
                           </div>
                           <div className="text-gray-400 text-xs mt-1">
-                            Paginate results using _page (starting from 1) and _limit (records per page)
+                            Paginate results using _page (starting from 1) and _limit (records per page, default limit is 10)
                           </div>
                         </div>
 
