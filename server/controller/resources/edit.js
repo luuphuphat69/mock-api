@@ -6,7 +6,7 @@ async function edit(req, res) {
     try {
         const id = req.params.id; // object id of resource
         const userid = req.params.userid;
-        const projectId = req.params.projecId;
+        const projectId = req.params.projectId;
 
         const { name, schemaFields, records } = req.body;
 
