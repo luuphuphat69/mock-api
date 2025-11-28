@@ -19,9 +19,7 @@ export const useProjects = create<IProjectStore>((set, get) => ({
 
     addProject: async (newProject) => {
         try {
-            console.log(newProject);
             const res = await addNewProject(newProject);
-            console.log(res)
             set({
                 projects: [...get().projects, res.data.newProject]
             });

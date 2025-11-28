@@ -107,7 +107,7 @@ export default function ResourcesPage() {
       gsap.to(card, {
         opacity: 0, y: -20, duration: 0.3, ease: "power2.in",
         onComplete: () => {
-          deleteResource(user.id ,id).then(() => fetchResources())
+          deleteResource(user.id , projectId, id).then(() => fetchResources())
         },
       })
     }

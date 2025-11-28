@@ -123,9 +123,9 @@ export async function editResource(userid: string, id: string, payload: {}) {
   }
 }
 
-export async function deleteResource(userid: string, id: string) {
+export async function deleteResource(userid: string, projectId: string, id: string) {
   try {
-    const res = await api.delete(`/resources/${userid}/${id}`)
+    const res = await api.delete(`/resources/${userid}/${projectId}/${id}`)
     return res;
   } catch (err) {
     throw err

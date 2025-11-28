@@ -4,10 +4,11 @@ const { MongoServerError } = require('mongodb');
 
 async function deleteById(req, res) {
     try {
-        const id = req.params.id;
+        const id = req.params.id; // object id of resource
+        const projectid = req.params.projectId;
         const userid = req.params.userid;
 
-        const getUser = await Memeber.findOne({ projectId: id, userId: userid });
+        const getUser = await Memeber.findOne({ projectId: projectid, userId: userid });
         if (getUser) {
             if (getUser.role === 'owner' | getUser.permissions.canDelete) {
                 const deleted = await Resources.findByIdAndDelete(id);

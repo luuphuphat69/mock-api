@@ -40,7 +40,7 @@ router.patch('/projects/:userid/:id', verifyToken, updateProject);
 //resources route
 router.post('/resources/:userid/:projectId', verifyToken, addResource)
 router.get('/resources/:projectId', verifyToken, getResource.getByProjectId)
-router.delete('/resources/:userid/:id', verifyToken, deleteResourceById);
+router.delete('/resources/:userid/:projectId/:id', verifyToken, deleteResourceById);
 router.patch('/resources/:userid/:id', verifyToken, editResource);
 
 //user route
