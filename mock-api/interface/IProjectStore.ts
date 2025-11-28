@@ -4,7 +4,7 @@ interface IProjectStore {
   fetchProjects: (userId: string) => Promise<void>;
   addProject: (payload: {}) => Promise<void>;
   updateProject: (id: string, updates: Partial<IProject>) => void;
-  deleteProject: (id: string) => Promise<void>;
+  deleteProject: (userid:string, id: string) => Promise<void>;
   clearProjects:() => void;
-  patchProject:(id: string, payload:{}) =>Promise<void>
+  patchProject:(userid:string, id: string, payload:{}) =>Promise<void>
 }

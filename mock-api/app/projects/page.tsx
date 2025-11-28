@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { Code2, Plus, Trash2, Edit2 } from "lucide-react"
+import { Code2, Plus, Trash2, Edit2, Users } from "lucide-react"
 import gsap from "gsap"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,14 +14,17 @@ import { useUser } from "../../hooks/useUser"
 import { useProjects } from "@/hooks/useProject"
 import { useRouter } from "next/navigation"
 import { LoadingScreen } from "@/components/loading-screen"
+import ShareMemberModal from "./collaboration/ShareMemberModal"
 
 export default function ProjectsPage() {
   const { projects, fetchProjects, addProject, deleteProject, patchProject } = useProjects();
   const { user, fetchUser } = useUser()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
+  const [isCollaborateOpen, setIsCollaborateOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<IProject | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: "", prefix: "" })
   const [isLoading, setIsLoading] = useState(false);
@@ -158,7 +161,7 @@ export default function ProjectsPage() {
     }
 
     if (isEditMode && editingId) {
-      await patchProject(editingId, {
+      await patchProject(user.id, editingId, {
         name: formData.name,
         prefix: formData.prefix
       });
@@ -177,13 +180,16 @@ export default function ProjectsPage() {
     setIsEditMode(false);
   };
 
+  const handleOpenCollabSettings = (project: IProject) => {
+
+  }
 
   const handleDeleteProject = (id: string) => {
     setProjectToDelete(id)
     setShowDeleteConfirm(true)
   }
 
-  const handleConfirmDelete = (id: string) => {
+  const handleConfirmDelete = (userid: string, id: string) => {
     const card = document.querySelector(`[data-project-id="${id}"]`);
     if (card) {
       gsap.to(card, {
@@ -192,7 +198,7 @@ export default function ProjectsPage() {
         duration: 0.3,
         ease: "power2.in",
         onComplete: () => {
-          deleteProject(id);
+          deleteProject(userid, id);
           setShowDeleteConfirm(false);
           setProjectToDelete(null);
         },
@@ -272,6 +278,18 @@ export default function ProjectsPage() {
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
+                      setIsCollaborateOpen(true);
+                      setSelectedProject(project);
+                    }}
+                    variant="outline"
+                    className="flex-1 border-border bg-background text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    Share
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleDeleteProject(project.projectId)
                     }
                     }
@@ -302,6 +320,14 @@ export default function ProjectsPage() {
             </div>
           )}
         </main>
+
+        {/* Collabte modal*/}
+        {isCollaborateOpen && selectedProject && (
+          <ShareMemberModal
+            selectedProjectForSettings={selectedProject}
+            onClose={() => setIsCollaborateOpen(false)}
+          />
+        )}
 
         {/* Modal */}
         {isModalOpen && (
@@ -381,7 +407,11 @@ export default function ProjectsPage() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => projectToDelete && handleConfirmDelete(projectToDelete)}
+                  onClick={() => {
+                    if (user?.id && projectToDelete) {
+                      handleConfirmDelete(user.id, projectToDelete)
+                    }
+                  }}
                   className="flex-1 bg-red-600 text-white hover:bg-red-700"
                 >
                   Delete

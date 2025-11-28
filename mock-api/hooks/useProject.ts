@@ -35,9 +35,9 @@ export const useProjects = create<IProjectStore>((set, get) => ({
         });
     },
 
-    deleteProject: async (id: string) => {
+    deleteProject: async (userid:string, id: string) => {
         try {
-            await deleteProjectByID(id)
+            await deleteProjectByID(userid, id)
             set({ projects: get().projects.filter(p => p.projectId !== id) });
         } catch (err) {
             console.log(err);
@@ -50,9 +50,9 @@ export const useProjects = create<IProjectStore>((set, get) => ({
             loading: false
         });
     },
-    patchProject: async (id: string, payload: { name?: string; prefix?: string }) => {
+    patchProject: async (userid: string, id: string, payload: { name?: string; prefix?: string }) => {
         try {
-            const res = await patchProject(id, payload);
+            const res = await patchProject(userid, id, payload);
 
             set({
                 projects: get().projects.map((p) =>

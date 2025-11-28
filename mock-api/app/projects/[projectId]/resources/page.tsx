@@ -73,15 +73,19 @@ export default function ResourcesPage() {
 
   const handleSave = async (data: { name: string; schema: ISchemaField[]; records?: any[] }) => {
     try {
-      if (editingResource) {
-        await editResource(editingResource._id, {
+      if (editingResource && user) {
+        await editResource(user.id, editingResource._id, {
           name: data.name,
           schemaFields: data.schema,
           ...(data.records && { records: data.records }),
         })
         toast.success("Resource updated successfully!")
       } else {
-        await addResource(projectId, {
+        if (!user?.id) {
+          toast.error("You must log in first")
+          return
+        }
+        await addResource(user.id, projectId, {
           name: data.name,
           schemaFields: data.schema,
           records: data.records || [],
@@ -99,11 +103,11 @@ export default function ResourcesPage() {
 
   const handleDelete = (id: string) => {
     const card = document.querySelector(`[data-resource-id="${id}"]`)
-    if (card) {
+    if (card && user) {
       gsap.to(card, {
         opacity: 0, y: -20, duration: 0.3, ease: "power2.in",
         onComplete: () => {
-          deleteResource(id).then(() => fetchResources())
+          deleteResource(user.id ,id).then(() => fetchResources())
         },
       })
     }

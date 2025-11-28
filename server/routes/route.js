@@ -20,6 +20,9 @@ const getResource = require('../controller/resources/retrieve');
 const deleteResourceById = require('../controller/resources/delete');
 const editResource = require('../controller/resources/edit');
 
+// user controller
+const searchUser = require('../controller/user/search');
+
 //authen route
 router.post('/register', register);
 router.post('/login', login);
@@ -31,14 +34,17 @@ router.get('/projects/name/:name', verifyToken, retrieveProject.getByName)
 router.get('/projects', verifyToken, retrieveProject.getAll)
 router.get('/project/key/:id', verifyToken, retrieveProject.getKey);
 router.post('/projects', verifyToken, addProject)
-router.delete('/projects/:id', verifyToken, deleteProject)
-router.patch('/project/:id', verifyToken, updateProject);
+router.delete('/projects/:userid/:id', verifyToken, deleteProject)
+router.patch('/projects/:userid/:id', verifyToken, updateProject);
 
 //resources route
-router.post('/resources/:projectId', verifyToken, addResource)
+router.post('/resources/:userid/:projectId', verifyToken, addResource)
 router.get('/resources/:projectId', verifyToken, getResource.getByProjectId)
-router.delete('/resources/:id', verifyToken, deleteResourceById);
-router.patch('/resources/:id', verifyToken, editResource);
+router.delete('/resources/:userid/:id', verifyToken, deleteResourceById);
+router.patch('/resources/:userid/:id', verifyToken, editResource);
+
+//user route
+router.get('/user/search', verifyToken, searchUser)
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

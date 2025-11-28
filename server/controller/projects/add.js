@@ -1,5 +1,6 @@
 const Projects = require('../../model/projects');
 const User = require('../../model/user');
+const Memeber = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 const { v4: uuidv4 } = require("uuid");
 async function Add(req, res) {
@@ -21,17 +22,28 @@ async function Add(req, res) {
                 });
             }
         }
-        
-        const newProject = await Projects.create({
-            projectId: uuidv4(),
+
+        let projectId = uuidv4();
+        await Projects.create({
+            projectId,
             userId,
             name,
             prefix,
         });
 
+        await Memeber.create({
+            projectId,
+            userId,
+            role: 'owner',
+            permissions:{
+                canEdit: true,
+                canDelete: true,
+                canInvite: true
+            }
+        })
+
         return res.status(201).json({
-            message: "Project created successfully.",
-            newProject
+            message: "Project created successfully."
         });
 
     } catch (err) {

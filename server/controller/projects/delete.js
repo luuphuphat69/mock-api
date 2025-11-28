@@ -1,19 +1,35 @@
 const Project = require('../../model/projects');
+const Memeber = require('../../model/member');
+const Resources = require('../../model/resources');
 const { MongoServerError } = require('mongodb');
 
 async function deletePrj(req, res) {
     try {
         const id = req.params.id;
+        const userId = req.params.userid;
+
         if (!id)
             return res.status(400).json({ message: "Bad request: missing id" });
+        if (!userId)
+            return res.status(400).json({ message: "Bad request: missing userID" });
 
-        const result = await Project.deleteOne({ projectId: id });
+        const getUser = await Memeber.findOne({ projectId: id, userId: userId })
+        if (getUser) {
+            if (getUser.role === 'owner' || getUser.permissions.canDelete) {
+                
+                const result = await Project.deleteOne({ projectId: id, userId: userId });
+                await Memeber.deleteMany({ projectId: id });
+                await Resources.deleteMany({ projectId: id });
 
-        if (result.deletedCount === 0) {
-            return res.status(404).json({ message: "Project not found" });
+                if (result.deletedCount === 0) {
+                    return res.status(404).json({ message: "Project not found" });
+                }
+
+                return res.status(200).json({ message: "Project deleted successfully" });
+            }
+            return res.status(400).json({message: "User not have permission to do this action"});
         }
-
-        return res.status(200).json({ message: "Project deleted successfully" });
+        return res.status(404).json({message: "Not found user nor project"})
     } catch (err) {
         if (err instanceof MongoServerError) {
             return res.status(400).json({ message: err.message });

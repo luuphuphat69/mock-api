@@ -1,37 +1,44 @@
 const Resources = require('../../model/resources');
-const Project = require('../../model/projects');
+const Member = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 
 async function add(req, res) {
     try {
         const projectId = req.params.projectId;
+        const userid = req.params.userid;
         const { name, schemaFields, records } = req.body;
 
-        const isProjectExist = await Project.exists({ projectId: projectId });
-        if (!isProjectExist)
+        const isMemberExistInProject = await Member.findOne({ projectId: projectId, userId: userid });
+
+        if (!isMemberExistInProject)
             return res.status(400).json({ message: "Project not found" });
 
-        // Clean name (trim spaces)
-        const cleanedName = name.trim();
+        if (isMemberExistInProject.role === 'owner' || isMemberExistInProject.permissions.canEdit) {
 
-        // Create endpoint: lowercase + replace spaces with hyphens
-        const endpoint = cleanedName.toLowerCase().replace(/\s+/g, "-");
+            // Clean name (trim spaces)
+            const cleanedName = name.trim();
 
-        const isResourceExist = await Resources.exists({ endpoint: endpoint });
-        if (isResourceExist)
-            return res.status(400).json({ message: "Project already have this resource" });
+            // Create endpoint: lowercase + replace spaces with hyphens
+            const endpoint = cleanedName.toLowerCase().replace(/\s+/g, "-");
 
-        const newResource = await Resources.create({
-            projectId: projectId,
-            name: name,
-            endpoint: endpoint,
-            schemaFields: schemaFields,
-            records: records
-        });
+            const isResourceExist = await Resources.exists({ endpoint: endpoint });
+            if (isResourceExist)
+                return res.status(400).json({ message: "Project already have this resource" });
 
-        return res.status(200).json(
-            { message: "New resource added", resource: newResource }
-        );
+            const newResource = await Resources.create({
+                projectId: projectId,
+                name: name,
+                endpoint: endpoint,
+                schemaFields: schemaFields,
+                records: records
+            });
+
+            return res.status(200).json(
+                { message: "New resource added", resource: newResource }
+            );
+        }
+        return res.status(404).json({ message: "Project nor User not found" })
+
     } catch (err) {
         if (err instanceof MongoServerError) {
             return res.status(400).json(err);

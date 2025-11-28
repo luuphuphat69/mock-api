@@ -1,27 +1,31 @@
 const Resources = require('../../model/resources');
 const { MongoServerError } = require('mongodb');
-const mongoose = require("mongoose");
+const Member = require('../../model/member')
 
 async function edit(req, res) {
     try {
         const id = req.params.id;
+        const userid = req.params.userid;
         const { name, schemaFields, records } = req.body;
-
-        if (!mongoose.isValidObjectId(id)) {
-            return res.status(400).json({ message: "Invalid resource ID format" });
-        }
 
         const update = {};
         if (name !== undefined) update.name = name;
         if (schemaFields !== undefined) update.schemaFields = schemaFields;
         if (records !== undefined) update.records = records;
 
-        const resource = await Resources.findByIdAndUpdate(id, update, { new: true });
+        const getUser = await Member.findOne({ projectId: id, userId: userid });
+        if (getUser) {
+            if (getUser.role === 'owner' | getUser.permissions.canEdit) {
+                const resource = await Resources.findByIdAndUpdate(id, update, { new: true });
 
-        return res.status(200).json({
-            message: "Resource is updated",
-            resource
-        });
+                return res.status(200).json({
+                    message: "Resource is updated",
+                    resource
+                });
+            }
+            return res.status(400).json({ message: 'User not have permission to do this action' });
+        }
+        return res.status(400).json({ message: 'Not found user nor project' })
 
     } catch (err) {
         if (err instanceof MongoServerError)

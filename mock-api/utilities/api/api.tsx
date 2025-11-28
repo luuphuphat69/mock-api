@@ -2,6 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://api.mockapi.io.vn/api",
+  // baseURL: "http://localhost:8000/api",
   withCredentials: true,
 });
 
@@ -42,6 +43,16 @@ export async function me() {
   }
 }
 
+export async function searchUser(query: string) {
+  try {
+    const res = await api.get('/user/search', { params: { user: query } });
+    return res.data; 
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 export async function getProjectByUserID(userId: string) {
   try {
     const res = await api.get(`/projects/user/${userId}`)
@@ -60,17 +71,17 @@ export async function addNewProject(payload: {}) {
   }
 }
 
-export async function deleteProjectByID(id: string) {
+export async function deleteProjectByID(userid: string, id: string) {
   try {
-    await api.delete(`/projects/${id}`);
+    await api.delete(`/projects/${userid}/${id}`);
   } catch (err) {
     throw err;
   }
 }
 
-export async function patchProject(id: string, payload: {}) {
+export async function patchProject(userid: string, id: string, payload: {}) {
   try {
-    await api.patch(`$/project/${id}`, payload)
+    await api.patch(`$/projects/${userid}/${id}`, payload)
   } catch (err) {
     throw err
   }
@@ -85,9 +96,9 @@ export async function getKey(id: string) {
   }
 }
 
-export async function addResource(projectId: string, payload: {}) {
+export async function addResource(userid:string, projectId: string, payload: {}) {
   try {
-    const res = await api.post(`/resources/${projectId}`, payload);
+    const res = await api.post(`/resources/${userid}/${projectId}`, payload);
     return res;
   } catch (err) {
     throw err
@@ -103,20 +114,38 @@ export async function getResourceByProjectId(projectId: string) {
   }
 }
 
-export async function editResource(id: string, payload: {}) {
+export async function editResource(userid: string, id: string, payload: {}) {
   try {
-    const res = await api.patch(`/resources/${id}`, payload)
+    const res = await api.patch(`/resources/${userid}/${id}`, payload)
     return res;
   } catch (err) {
     throw err
   }
 }
 
-export async function deleteResource(id: string) {
+export async function deleteResource(userid: string, id: string) {
   try {
-    const res = await api.delete(`/resources/${id}`)
+    const res = await api.delete(`/resources/${userid}/${id}`)
     return res;
   } catch (err) {
     throw err
+  }
+}
+
+export async function sendInvite(payload: { users: IMember[]; project: IProject }) {
+  try {
+    const res = await axios.post(
+      "https://6q3ponujge.execute-api.us-east-1.amazonaws.com/default/send-invite",
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
 }
