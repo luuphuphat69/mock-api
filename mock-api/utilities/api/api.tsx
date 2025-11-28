@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://api.mockapi.io.vn/api",
-  // baseURL: "http://localhost:8000/api",
+  //baseURL: "http://localhost:8000/api",
   withCredentials: true,
 });
 
@@ -81,7 +81,7 @@ export async function deleteProjectByID(userid: string, id: string) {
 
 export async function patchProject(userid: string, id: string, payload: {}) {
   try {
-    await api.patch(`$/projects/${userid}/${id}`, payload)
+    await api.patch(`/projects/${userid}/${id}`, payload)
   } catch (err) {
     throw err
   }

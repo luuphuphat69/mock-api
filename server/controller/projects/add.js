@@ -24,7 +24,7 @@ async function Add(req, res) {
         }
 
         let projectId = uuidv4();
-        await Projects.create({
+        const newProject = await Projects.create({
             projectId,
             userId,
             name,
@@ -43,7 +43,8 @@ async function Add(req, res) {
         })
 
         return res.status(201).json({
-            message: "Project created successfully."
+            message: "Project created successfully.",
+            newProject
         });
 
     } catch (err) {

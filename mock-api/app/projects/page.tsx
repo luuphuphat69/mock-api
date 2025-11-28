@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { Spinner } from '@/components/ui/shadcn-io/spinner';
 import Header from "@/components/header"
 import { useUser } from "../../hooks/useUser"
 import { useProjects } from "@/hooks/useProject"
@@ -28,6 +29,8 @@ export default function ProjectsPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: "", prefix: "" })
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const router = useRouter()
 
   const gridRef = useRef<HTMLDivElement>(null)
@@ -160,29 +163,35 @@ export default function ProjectsPage() {
       return toast.error("Invalid API version. Only formats like /v0, /v1, /v2 are allowed.");
     }
 
-    if (isEditMode && editingId) {
-      await patchProject(user.id, editingId, {
-        name: formData.name,
-        prefix: formData.prefix
-      });
-      setIsModalOpen(false);
-    } else {
-      await addProject({
-        name: formData.name,
-        prefix: formData.prefix,
-        userId: user.id,
-      });
-      setIsModalOpen(false);
-    }
+    setIsSaving(true);
 
-    setFormData({ name: "", prefix: "" });
-    setEditingId(null);
-    setIsEditMode(false);
+    try {
+      if (isEditMode && editingId) {
+        await patchProject(user.id, editingId, {
+          name: formData.name,
+          prefix: formData.prefix
+        });
+      } else {
+        await addProject({
+          name: formData.name,
+          prefix: formData.prefix,
+          userId: user.id,
+        });
+      }
+
+      await fetchProjects(user.id);
+      setIsModalOpen(false);
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+      setFormData({ name: "", prefix: "" });
+      setEditingId(null);
+      setIsEditMode(false);
+    }
   };
 
-  const handleOpenCollabSettings = (project: IProject) => {
-
-  }
 
   const handleDeleteProject = (id: string) => {
     setProjectToDelete(id)
@@ -231,7 +240,7 @@ export default function ProjectsPage() {
           </div>
 
           {/* Projects Grid */}
-          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.length > 0 && <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
               <div
                 key={project.projectId}
@@ -302,7 +311,7 @@ export default function ProjectsPage() {
                 </div>
               </div>
             ))}
-          </div>
+          </div>}
 
           {/* Empty State */}
           {projects.length === 0 && (
@@ -379,10 +388,16 @@ export default function ProjectsPage() {
                   </Button>
                   <Button
                     type="submit"
+                    disabled={isSaving}
                     className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700"
                   >
-                    {isEditMode ? "Update" : "Create"}
+                    {isSaving ? (
+                      <Spinner className="w-5 h-5" />
+                    ) : (
+                      isEditMode ? "Update" : "Create"
+                    )}
                   </Button>
+
                 </div>
               </form>
             </div>
