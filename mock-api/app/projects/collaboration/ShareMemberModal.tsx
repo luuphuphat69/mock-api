@@ -155,7 +155,7 @@ export default function ShareMemberModal({
         </div>
 
         {/* Members Table */}
-        <div className="border border-border rounded-lg overflow-hidden mb-6">
+        {/* <div className="border border-border rounded-lg overflow-hidden mb-6">
           {selectedProjectForSettings?.members?.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -223,7 +223,7 @@ export default function ShareMemberModal({
               No members invited yet
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Footer */}
         <div className="flex gap-3">
