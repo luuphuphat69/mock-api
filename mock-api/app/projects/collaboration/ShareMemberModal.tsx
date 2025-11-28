@@ -29,7 +29,6 @@ export default function ShareMemberModal({
       try {
         setLoading(true);
         const users = await searchUser(searchMemberQuery);
-        console.log(users)
         setSearchResults(users || []);
 
       } catch (err) {
@@ -50,11 +49,12 @@ export default function ShareMemberModal({
 
   // Add user from dropdown suggestion
   const addUserFromSuggestion = (user: IMember) => {
-    if (pendingInvites.includes(user)) {
+    if (pendingInvites.some(u => u.id === user.id)) {
       toast.error("Already added");
       return;
     }
-    setPendingInvites((prev) => [...prev, user]);
+
+    setPendingInvites(prev => [...prev, user]);
     setSearchMemberQuery("");
     setSearchResults([]);
   };
@@ -116,12 +116,12 @@ export default function ShareMemberModal({
               <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-10">
                 {searchResults.map((suggestion) => (
                   <button
-                    key={suggestion.email}
+                    key={suggestion.id}
                     onClick={() => addUserFromSuggestion(suggestion)}
                     className="w-full text-left px-4 py-2 hover:bg-foreground/10 border-b border-border last:border-b-0 text-foreground hover:text-cyan-400 transition-colors"
                   >
                     <p>{suggestion.name}</p>
-                    <p style={{fontStyle:'italic'}}>{suggestion.email}</p>
+                    <p style={{ fontStyle: 'italic' }}>{suggestion.email}</p>
                   </button>
                 ))}
               </div>
@@ -137,13 +137,13 @@ export default function ShareMemberModal({
               <div className="flex flex-wrap gap-2">
                 {pendingInvites.map((user) => (
                   <div
-                    key={user.email}
-                    className="bg-cyan-500/20 border border-cyan-500/50 text-cyan-400 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                    key={user.id}
+                    className="bg-cyan-500/20 border border-cyan-500/50 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                   >
                     {user.name}
                     <button
                       onClick={() => removePendingInvite(user)}
-                      className="hover:text-cyan-200"
+                      className="hover:text-red-500"
                     >
                       ✕
                     </button>

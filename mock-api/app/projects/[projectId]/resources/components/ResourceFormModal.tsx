@@ -154,7 +154,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
               <Label>Schema</Label>
               {formData.schema.map((field, idx) => (
                 <div key={idx} className="flex flex-col gap-2">
-                  <div className="grid grid-cols-2 gap-2 h-10">
+                  <div className="grid grid-cols-2 gap-2 h-10 ">
                     <Input
                       value={field.name}
                       disabled={idx === 0 && field.name === "id"}
@@ -164,6 +164,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                       }}
                       required
                       placeholder="Field Name"
+                      className="bg-background border border-border text-foreground rounded px-3 py-2 flex-1"
                     />
                     <div className="flex gap-2">
                       <select
