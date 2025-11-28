@@ -114,9 +114,9 @@ export async function getResourceByProjectId(projectId: string) {
   }
 }
 
-export async function editResource(userid: string, id: string, payload: {}) {
+export async function editResource(userid: string, projectId: string, id: string, payload: {}) {
   try {
-    const res = await api.patch(`/resources/${userid}/${id}`, payload)
+    const res = await api.patch(`/resources/${userid}/${projectId}/${id}`, payload)
     return res;
   } catch (err) {
     throw err

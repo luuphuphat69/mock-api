@@ -4,8 +4,10 @@ const Member = require('../../model/member')
 
 async function edit(req, res) {
     try {
-        const id = req.params.id;
+        const id = req.params.id; // object id of resource
         const userid = req.params.userid;
+        const projectId = req.params.projecId;
+
         const { name, schemaFields, records } = req.body;
 
         const update = {};
@@ -13,7 +15,7 @@ async function edit(req, res) {
         if (schemaFields !== undefined) update.schemaFields = schemaFields;
         if (records !== undefined) update.records = records;
 
-        const getUser = await Member.findOne({ projectId: id, userId: userid });
+        const getUser = await Member.findOne({ projectId: projectId, userId: userid });
         if (getUser) {
             if (getUser.role === 'owner' | getUser.permissions.canEdit) {
                 const resource = await Resources.findByIdAndUpdate(id, update, { new: true });

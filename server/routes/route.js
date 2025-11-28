@@ -41,7 +41,7 @@ router.patch('/projects/:userid/:id', verifyToken, updateProject);
 router.post('/resources/:userid/:projectId', verifyToken, addResource)
 router.get('/resources/:projectId', verifyToken, getResource.getByProjectId)
 router.delete('/resources/:userid/:projectId/:id', verifyToken, deleteResourceById);
-router.patch('/resources/:userid/:id', verifyToken, editResource);
+router.patch('/resources/:userid/:projectId/:id', verifyToken, editResource);
 
 //user route
 router.get('/user/search', verifyToken, searchUser)

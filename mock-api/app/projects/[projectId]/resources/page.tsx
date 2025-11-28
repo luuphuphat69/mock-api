@@ -74,7 +74,7 @@ export default function ResourcesPage() {
   const handleSave = async (data: { name: string; schema: ISchemaField[]; records?: any[] }) => {
     try {
       if (editingResource && user) {
-        await editResource(user.id, editingResource._id, {
+        await editResource(user.id, projectId, editingResource._id, {
           name: data.name,
           schemaFields: data.schema,
           ...(data.records && { records: data.records }),
