@@ -37,8 +37,10 @@ export default function ResourcesPage() {
   const fetchResources = async () => {
     setIsLoading(true)
     try {
-      const res = await getResourceByProjectId(projectId)
-      setResource(res.data)
+      if (user) {
+        const res = await getResourceByProjectId(user?.id, projectId)
+        setResource(res.data)
+      }
     } catch (err) {
       console.error(err)
     } finally {
@@ -101,17 +103,33 @@ export default function ResourcesPage() {
     }
   }
 
-  const handleDelete = (id: string) => {
-    const card = document.querySelector(`[data-resource-id="${id}"]`)
-    if (card && user) {
-      gsap.to(card, {
-        opacity: 0, y: -20, duration: 0.3, ease: "power2.in",
-        onComplete: () => {
-          deleteResource(user.id , projectId, id).then(() => fetchResources())
-        },
-      })
-    }
+const handleDelete = async (id: string) => {
+  const card = document.querySelector(`[data-resource-id="${id}"]`) as HTMLElement;
+  if (!card || !user) return;
+
+  try {
+    await gsap.to(card, {
+      opacity: 0,
+      y: -20,
+      duration: 0.3,
+      ease: "power2.in",
+    });
+
+    await deleteResource(user.id, projectId, id);
+    await fetchResources();
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message || "Failed to delete");
+
+    // restore item if delete failed
+    gsap.to(card, {
+      opacity: 1,
+      y: 0,
+      duration: 0.3,
+      ease: "power2.out",
+    });
   }
+};
+
 
   const copyToClipboard = (text: string, type: string = "text") => {
     navigator.clipboard.writeText(text)
@@ -222,7 +240,7 @@ export default function ResourcesPage() {
           isOpen={isFormOpen}
           onClose={() => setIsFormOpen(false)}
           onSubmit={handleSave}
-          initialData={editingResource ? { name: editingResource.name, schema: editingResource.schemaFields, records:[] } : null}
+          initialData={editingResource ? { name: editingResource.name, schema: editingResource.schemaFields, records: [] } : null}
         />
 
         <ResourceDataModal

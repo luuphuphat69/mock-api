@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { getProjectByUserID, addNewProject, deleteProjectByID, patchProject } from "@/utilities/api/api";
+import { getProjectByUserID, addNewProject, deleteProjectByID, patchProject, getCollabProject } from "@/utilities/api/api";
 
 export const useProjects = create<IProjectStore>((set, get) => ({
     projects: [],
+    collabProjects:[],
     loading: false,
 
     fetchProjects: async (userId: string) => {
@@ -10,6 +11,18 @@ export const useProjects = create<IProjectStore>((set, get) => ({
         try {
             const res = await getProjectByUserID(userId);
             set({ projects: res });
+        } catch (err) {
+            console.error("Failed to fetch projects:", err);
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    fetchCollabProjects: async (userId: string) => {
+        set({loading: true});
+        try{
+            const res = await getCollabProject(userId);
+            set({collabProjects: res})
         } catch (err) {
             console.error("Failed to fetch projects:", err);
         } finally {

@@ -15,7 +15,7 @@ async function deletePrj(req, res) {
 
         const getUser = await Memeber.findOne({ projectId: id, userId: userId })
         if (getUser) {
-            if (getUser.role === 'owner' || getUser.permissions.canDelete) {
+            if (getUser.role === 'owner') {
                 
                 const result = await Project.deleteOne({ projectId: id, userId: userId });
                 await Memeber.deleteMany({ projectId: id });

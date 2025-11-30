@@ -61,6 +61,16 @@ export async function getProjectByUserID(userId: string) {
   }
 }
 
+export async function getCollabProject(userid: string){
+  try{
+    const res = await api.get(`projects/collab/${userid}`);
+    return res.data;
+  }catch(err:unknown){
+    console.log(err);
+    throw err;
+  }
+}
+
 export async function addNewProject(payload: {}) {
   try {
     const res = await api.post('/projects', payload)
@@ -104,9 +114,9 @@ export async function addResource(userid:string, projectId: string, payload: {})
   }
 }
 
-export async function getResourceByProjectId(projectId: string) {
+export async function getResourceByProjectId(userid: string, projectId: string) {
   try {
-    const res = await api.get(`/resources/${projectId}`)
+    const res = await api.get(`/resources/${userid}/${projectId}`)
     return res;
   } catch (err) {
     throw err
@@ -131,17 +141,9 @@ export async function deleteResource(userid: string, projectId: string, id: stri
   }
 }
 
-export async function sendInvite(payload: { users: {}; project: IProject }) {
+export async function sendInvite(inviterId: string, projectId: string, payload: { users: {}; project: IProject }) {
   try {
-    const res = await axios.post(
-      "https://6q3ponujge.execute-api.us-east-1.amazonaws.com/default/send-invite",
-      payload,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await api.post(`/members/send-invite/${inviterId}/${projectId}`, payload)
     return res.data;
   } catch (err) {
     console.error(err);
@@ -159,9 +161,9 @@ export async function getMembers(projectId: string){
   }
 }
 
-export async function removeMember(userid: string, projectid: string){
+export async function removeMember(requesterid: string, userid: string, projectid: string){
   try{
-    const res = await api.delete(`/members/${userid}/${projectid}`);
+    const res = await api.delete(`/members/${requesterid}/${userid}/${projectid}`);
     return res;
   }catch(err){
     console.log(err);

@@ -26,6 +26,7 @@ const searchUser = require('../controller/user/search');
 //memeber controller
 const getMembers = require('../controller/member/retrieve');
 const removeMember = require('../controller/member/remove');
+const sendInvite = require('../controller/member/sendInvite');
 
 //authen route
 router.post('/register', register);
@@ -40,10 +41,11 @@ router.get('/project/key/:id', verifyToken, retrieveProject.getKey);
 router.post('/projects', verifyToken, addProject)
 router.delete('/projects/:userid/:id', verifyToken, deleteProject)
 router.patch('/projects/:userid/:id', verifyToken, updateProject);
+router.get('/projects/collab/:userid', verifyToken, retrieveProject.getProjectAsMemberAndGuest)
 
 //resources route
 router.post('/resources/:userid/:projectId', verifyToken, addResource)
-router.get('/resources/:projectId', verifyToken, getResource.getByProjectId)
+router.get('/resources/:userid/:projectId', verifyToken, getResource.getByProjectId)
 router.delete('/resources/:userid/:projectId/:id', verifyToken, deleteResourceById);
 router.patch('/resources/:userid/:projectId/:id', verifyToken, editResource);
 
@@ -52,7 +54,8 @@ router.get('/user/search', verifyToken, searchUser)
 
 //member route
 router.get('/members/:id', verifyToken, getMembers)
-router.delete('/members/:userid/:projectid', verifyToken, removeMember)
+router.delete('/members/:requesterid/:userid/:projectid', verifyToken, removeMember)
+router.post('/members/send-invite/:inviterId/:projectId', verifyToken, sendInvite)
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

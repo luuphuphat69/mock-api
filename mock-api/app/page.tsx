@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Link from "next/link";
-import { Code2, Zap, Share2, Gauge } from "lucide-react";
+import { Code2, Zap, Share2, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -367,11 +367,11 @@ export default function Home() {
             {/* Feature 3 */}
             <div className="p-8 rounded-lg border border-border bg-background hover:border-primary/50 transition-colors group">
               <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
-                <Gauge className="w-6 h-6 text-purple-500" />
+                <Handshake className="w-6 h-6 text-purple-500" />
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Response Control</h3>
+              <h3 className="text-xl font-bold text-foreground mb-2">Collab with your teams</h3>
               <p className="text-muted-foreground">
-                Simulate latency, error codes, and custom headers to test edge cases.
+                Collab with your team to develop and main your APIs
               </p>
             </div>
 

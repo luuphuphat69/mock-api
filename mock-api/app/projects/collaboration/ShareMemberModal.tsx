@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { searchUser, sendInvite, getMembers, removeMember } from "../../../utilities/api/api";
+import { useUser } from "@/hooks/useUser";
 
 interface ISearchResult {
   id: string,
@@ -20,11 +21,9 @@ export default function ShareMemberModal({
   const [searchMemberQuery, setSearchMemberQuery] = useState("");
   const [searchResults, setSearchResults] = useState<ISearchResult[]>([]);
   const [pendingInvites, setPendingInvites] = useState<ISearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [removingMember, setRemovingMember] = useState<string | null>(null);
-  const [showRemoveMemberConfirm, setShowRemoveMemberConfirm] = useState(false);
   const [members, setMembers] = useState<IMember[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(true);
+  const { user, fetchUser } = useUser()
 
   useEffect(() => {
     const loadMembers = async () => {
@@ -41,6 +40,7 @@ export default function ShareMemberModal({
     };
 
     loadMembers();
+    fetchUser();
   }, [selectedProjectForSettings.projectId]);
 
   // Debounced user search
@@ -52,15 +52,12 @@ export default function ShareMemberModal({
 
     const delayDebounce = setTimeout(async () => {
       try {
-        setLoading(true);
         const users = await searchUser(searchMemberQuery);
         setSearchResults(users || []);
 
       } catch (err) {
         console.error(err);
         toast.error("Search failed");
-      } finally {
-        setLoading(false);
       }
     }, 300);
 
@@ -94,22 +91,22 @@ export default function ShareMemberModal({
     if (pendingInvites.length === 0)
       return toast.error("No users to invite");
 
-    sendInvite({
-      users: pendingInvites,
-      project: selectedProjectForSettings,
-    });
+    if (user) {
+      sendInvite(user.id, selectedProjectForSettings.projectId, {
+        users: pendingInvites,
+        project: selectedProjectForSettings,
+      });
+      toast.success(`Invitation mail has been sent. Please check in Inbox or Spam folder`);
 
-    // TODO: call backend invite API
-    toast.success(`Invitation mail has been sent. Please check in Inbox or Spam folder`);
-
-    setPendingInvites([]);
-    setSearchMemberQuery("");
-    onClose();
+      setPendingInvites([]);
+      setSearchMemberQuery("");
+      onClose();
+    }
   };
 
-  const handleRemoveMember = async (userid: string, projectid: string) => {
+  const handleRemoveMember = async (requesterid: string, userid: string, projectid: string) => {
     try {
-      await removeMember(userid, projectid);
+      await removeMember(requesterid, userid, projectid);
 
       setMembers(prev => prev.filter(m => m.userId !== userid));
 
@@ -218,34 +215,18 @@ export default function ShareMemberModal({
                       {member.role}
                     </td>
 
-                    <td className="px-4 py-3 text-sm">
-                      <select
-                        value={
-                          member.permissions.canEdit && member.permissions.canDelete
-                            ? "all"
-                            : member.permissions.canEdit
-                              ? "edit"
-                              : "remove"
-                        }
-                        onChange={(e) =>
-                          console.log("TODO: update perms", member.username, e.target.value)
-                        }
-                        className="bg-background border border-border text-foreground rounded px-2 py-1 text-sm cursor-pointer"
-                      >
-                        <option value="all">Allow All</option>
-                        <option value="edit">Allow Edit</option>
-                        <option value="remove">Allow Remove</option>
-                        <option value="remove">Allow Invite</option>
-                      </select>
+                    <td className="px-4 py-3 text-xs" >
+                      <p>Can delete: {member.permissions.canDelete.toString()}</p>
+                      <p>Can edit: {member.permissions.canEdit.toString()}</p>
+                      <p>Can invite: {member.permissions.canInvite.toString()}</p>
                     </td>
 
                     <td className="px-4 py-3 text-sm">
                       <Button
                         variant="outline"
                         onClick={() => {
-                          setRemovingMember(member.userId);
-                          setShowRemoveMemberConfirm(true);
-                          handleRemoveMember(member.userId, selectedProjectForSettings.projectId)
+                          if (user)
+                            handleRemoveMember(user?.id, member.userId, selectedProjectForSettings.projectId)
                         }}
                         className="border-border text-red-400 hover:bg-red-500 h-8 px-3"
                       >
