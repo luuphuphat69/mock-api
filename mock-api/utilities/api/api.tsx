@@ -1,5 +1,4 @@
 import axios from "axios";
-
 const api = axios.create({
   baseURL: "https://api.mockapi.io.vn/api",
   //baseURL: "http://localhost:8000/api",
@@ -132,7 +131,7 @@ export async function deleteResource(userid: string, projectId: string, id: stri
   }
 }
 
-export async function sendInvite(payload: { users: IMember[]; project: IProject }) {
+export async function sendInvite(payload: { users: {}; project: IProject }) {
   try {
     const res = await axios.post(
       "https://6q3ponujge.execute-api.us-east-1.amazonaws.com/default/send-invite",
@@ -147,5 +146,25 @@ export async function sendInvite(payload: { users: IMember[]; project: IProject 
   } catch (err) {
     console.error(err);
     throw err;
+  }
+}
+
+export async function getMembers(projectId: string){
+  try{
+    const res = await api.get(`/members/${projectId}`);
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+}
+
+export async function removeMember(userid: string, projectid: string){
+  try{
+    const res = await api.delete(`/members/${userid}/${projectid}`);
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err
   }
 }

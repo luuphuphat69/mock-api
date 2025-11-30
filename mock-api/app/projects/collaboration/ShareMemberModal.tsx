@@ -2,7 +2,13 @@ import { useState, useEffect, use } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { searchUser, sendInvite } from "../../../utilities/api/api";
+import { searchUser, sendInvite, getMembers, removeMember } from "../../../utilities/api/api";
+
+interface ISearchResult {
+  id: string,
+  name: string,
+  email: string
+}
 
 export default function ShareMemberModal({
   selectedProjectForSettings,
@@ -12,11 +18,30 @@ export default function ShareMemberModal({
   onClose: () => void;
 }) {
   const [searchMemberQuery, setSearchMemberQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<IMember[]>([]);
-  const [pendingInvites, setPendingInvites] = useState<IMember[]>([]);
+  const [searchResults, setSearchResults] = useState<ISearchResult[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<ISearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [removingMember, setRemovingMember] = useState<string | null>(null);
   const [showRemoveMemberConfirm, setShowRemoveMemberConfirm] = useState(false);
+  const [members, setMembers] = useState<IMember[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
+
+  useEffect(() => {
+    const loadMembers = async () => {
+      try {
+        setLoadingMembers(true);
+        const res = await getMembers(selectedProjectForSettings.projectId);
+        setMembers(res.data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load members");
+      } finally {
+        setLoadingMembers(false);
+      }
+    };
+
+    loadMembers();
+  }, [selectedProjectForSettings.projectId]);
 
   // Debounced user search
   useEffect(() => {
@@ -48,7 +73,7 @@ export default function ShareMemberModal({
   };
 
   // Add user from dropdown suggestion
-  const addUserFromSuggestion = (user: IMember) => {
+  const addUserFromSuggestion = (user: ISearchResult) => {
     if (pendingInvites.some(u => u.id === user.id)) {
       toast.error("Already added");
       return;
@@ -60,7 +85,7 @@ export default function ShareMemberModal({
   };
 
   // Remove a user from pending list
-  const removePendingInvite = (user: IMember) => {
+  const removePendingInvite = (user: ISearchResult) => {
     setPendingInvites((prev) => prev.filter((u) => u !== user));
   };
 
@@ -80,6 +105,18 @@ export default function ShareMemberModal({
     setPendingInvites([]);
     setSearchMemberQuery("");
     onClose();
+  };
+
+  const handleRemoveMember = async (userid: string, projectid: string) => {
+    try {
+      await removeMember(userid, projectid);
+
+      setMembers(prev => prev.filter(m => m.userId !== userid));
+
+      toast.success("Member is removed");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to remove member");
+    }
   };
 
   return (
@@ -155,82 +192,88 @@ export default function ShareMemberModal({
         </div>
 
         {/* Members Table */}
-        {/* <div className="border border-border rounded-lg overflow-hidden mb-6">
-          {selectedProjectForSettings?.members?.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-background border-b border-border">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Member</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Status</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Permissions</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Action</th>
-                  </tr>
-                </thead>
+        {!loadingMembers && members.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-background border-b border-border">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">ID</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Member</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Role</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Permissions</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Action</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {selectedProjectForSettings.members.map((member) => (
-                    <tr key={member.username} className="border-b border-border hover:bg-background/50">
-                      <td className="px-4 py-3 text-sm text-foreground">
-                        {member.username}
-                      </td>
+              <tbody>
+                {members.map((member) => (
+                  <tr key={member.userId} className="border-b border-border hover:bg-background/50">
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {member.userId}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {member.username}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {member.role}
+                    </td>
 
-                      <td className="px-4 py-3 text-sm">
-                        <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium">
-                          Active
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-3 text-sm">
-                        <select
-                          value={
-                            member.permissions.canEdit && member.permissions.canDelete
-                              ? "all"
-                              : member.permissions.canEdit
+                    <td className="px-4 py-3 text-sm">
+                      <select
+                        value={
+                          member.permissions.canEdit && member.permissions.canDelete
+                            ? "all"
+                            : member.permissions.canEdit
                               ? "edit"
                               : "remove"
-                          }
-                          onChange={(e) =>
-                            console.log("TODO: update perms", member.username, e.target.value)
-                          }
-                          className="bg-background border border-border text-foreground rounded px-2 py-1 text-sm cursor-pointer"
-                        >
-                          <option value="all">Allow All</option>
-                          <option value="edit">Allow Edit</option>
-                          <option value="remove">Allow Remove</option>
-                        </select>
-                      </td>
+                        }
+                        onChange={(e) =>
+                          console.log("TODO: update perms", member.username, e.target.value)
+                        }
+                        className="bg-background border border-border text-foreground rounded px-2 py-1 text-sm cursor-pointer"
+                      >
+                        <option value="all">Allow All</option>
+                        <option value="edit">Allow Edit</option>
+                        <option value="remove">Allow Remove</option>
+                        <option value="remove">Allow Invite</option>
+                      </select>
+                    </td>
 
-                      <td className="px-4 py-3 text-sm">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setRemovingMember(member.username);
-                            setShowRemoveMemberConfirm(true);
-                          }}
-                          className="border-border text-red-400 hover:bg-red-500/10 h-8 px-3"
-                        >
-                          Remove
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-6 text-center text-muted-foreground">
-              No members invited yet
-            </div>
-          )}
-        </div> */}
+                    <td className="px-4 py-3 text-sm">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setRemovingMember(member.userId);
+                          setShowRemoveMemberConfirm(true);
+                          handleRemoveMember(member.userId, selectedProjectForSettings.projectId)
+                        }}
+                        className="border-border text-red-400 hover:bg-red-500 h-8 px-3"
+                      >
+                        Remove
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : loadingMembers ? (
+          <div className="p-6 text-center text-muted-foreground">
+            Loading members...
+          </div>
+        ) : (
+          <div className="p-6 text-center text-muted-foreground">
+            No members invited yet
+          </div>
+        )}
+
 
         {/* Footer */}
         <div className="flex gap-3">
           <Button
             onClick={onClose}
             variant="outline"
-            className="flex-1 border-border bg-background text-foreground hover:bg-card"
+            className="flex-1 border-border bg-background text-foreground"
           >
             Cancel
           </Button>

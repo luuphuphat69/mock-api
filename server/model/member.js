@@ -10,6 +10,9 @@ const MemberSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    username:{
+        type: String
+    },
     role: {
         type: String,
         enum: ["owner", "member"],

@@ -1,5 +1,11 @@
 interface IMember {
-  id: string;
-  name: string;
+  userId: string;
+  username: string;
   email: string;
+  role: string;
+  permissions:{
+    canEdit: boolean,
+    canDelete: boolean,
+    canInvite: boolean
+  }
 }

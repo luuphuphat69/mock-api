@@ -291,7 +291,7 @@ export default function ProjectsPage() {
                       setSelectedProject(project);
                     }}
                     variant="outline"
-                    className="flex-1 border-border bg-background text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+                    className="flex-1 border-border bg-background text-cyan-400 hover:bg-cyan-500 transition-colors"
                   >
                     <Users className="w-4 h-4 mr-2" />
                     Share

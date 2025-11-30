@@ -23,6 +23,10 @@ const editResource = require('../controller/resources/edit');
 // user controller
 const searchUser = require('../controller/user/search');
 
+//memeber controller
+const getMembers = require('../controller/member/retrieve');
+const removeMember = require('../controller/member/remove');
+
 //authen route
 router.post('/register', register);
 router.post('/login', login);
@@ -45,6 +49,10 @@ router.patch('/resources/:userid/:projectId/:id', verifyToken, editResource);
 
 //user route
 router.get('/user/search', verifyToken, searchUser)
+
+//member route
+router.get('/members/:id', verifyToken, getMembers)
+router.delete('/members/:userid/:projectid', verifyToken, removeMember)
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

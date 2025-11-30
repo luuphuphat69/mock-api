@@ -34,6 +34,7 @@ async function Add(req, res) {
         await Memeber.create({
             projectId,
             userId,
+            username: user.name,
             role: 'owner',
             permissions:{
                 canEdit: true,
