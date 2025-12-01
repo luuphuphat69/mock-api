@@ -30,8 +30,8 @@ const sendInvite = require('../controller/member/sendInvite');
 const changeRole = require('../controller/member/edit');
 
 // logs controller
-const getLogs = require('../controller/logs/retrieve');
-const clearLogs = require('../controller/logs/clear');
+const getLogs = require('../controller/activitylogs/retrieve');
+const clearLogs = require('../controller/activitylogs/clear');
 
 //authen route
 router.post('/register', register);
