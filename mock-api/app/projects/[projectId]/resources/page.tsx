@@ -1,8 +1,6 @@
 "use client"
-
-import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { ChevronRight, Plus } from 'lucide-react'
+import { ChevronRight, Plus, Trash2, RotateCcw } from 'lucide-react'
 import Link from "next/link"
 import { useParams } from 'next/navigation'
 import gsap from "gsap"
@@ -10,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
 import { toast } from "sonner"
 import { useUser } from "../../../../hooks/useUser";
-import { addResource, deleteResource, editResource, getKey, getResourceByProjectId } from "@/utilities/api/api"
+import { addResource, deleteResource, editResource, getKey, getResourceByProjectId, getLogs, clearLogs } from "@/utilities/api/api"
 
 // Components
 import { ResourceCard } from "./components/ResourceCard"
@@ -31,6 +29,7 @@ export default function ResourcesPage() {
   const [editingResource, setEditingResource] = useState<IResource | null>(null)
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -38,7 +37,7 @@ export default function ResourcesPage() {
     setIsLoading(true)
     try {
       if (user) {
-        const res = await getResourceByProjectId(user?.id, projectId)
+        const res = await getResourceByProjectId(user.id, projectId)
         setResource(res.data)
       }
     } catch (err) {
@@ -57,11 +56,36 @@ export default function ResourcesPage() {
     }
   }
 
+  const fetchLogs = async () => {
+    try {
+      const res = await getLogs(projectId);
+
+      // Sort: B - A results in Descending order (Newest first)
+      const sortedLogs = res.data.sort((a: ILogs, b: ILogs) =>
+        new Date(b.time).getTime() - new Date(a.time).getTime()
+      );
+
+      setActivityLogs(sortedLogs);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     fetchKey();
-    fetchUser()
-    fetchResources();
-  }, [projectId])
+
+    // If user isn't loaded yet, try to fetch them
+    if (!user) {
+      fetchUser()
+    }
+
+    // Only fetch resources if we actually have the user object
+    if (user) {
+      fetchResources();
+    }
+
+    fetchLogs()
+  }, [projectId, user])
 
   // Animate grid on load
   useEffect(() => {
@@ -103,33 +127,38 @@ export default function ResourcesPage() {
     }
   }
 
-const handleDelete = async (id: string) => {
-  const card = document.querySelector(`[data-resource-id="${id}"]`) as HTMLElement;
-  if (!card || !user) return;
+  const handleDelete = async (id: string) => {
+    const card = document.querySelector(`[data-resource-id="${id}"]`) as HTMLElement;
+    if (!card || !user) return;
 
-  try {
-    await gsap.to(card, {
-      opacity: 0,
-      y: -20,
-      duration: 0.3,
-      ease: "power2.in",
-    });
+    try {
+      await gsap.to(card, {
+        opacity: 0,
+        y: -20,
+        duration: 0.3,
+        ease: "power2.in",
+      });
 
-    await deleteResource(user.id, projectId, id);
-    await fetchResources();
-  } catch (err: any) {
-    toast.error(err?.response?.data?.message || "Failed to delete");
+      await deleteResource(user.id, projectId, id);
+      await fetchResources();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to delete");
 
-    // restore item if delete failed
-    gsap.to(card, {
-      opacity: 1,
-      y: 0,
-      duration: 0.3,
-      ease: "power2.out",
-    });
+      // restore item if delete failed
+      gsap.to(card, {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+    }
+  };
+
+  const hanldeClearLog = async (projectId: string) => {
+    await clearLogs(projectId);
+    toast.success("Logs are cleared");
+    fetchLogs();
   }
-};
-
 
   const copyToClipboard = (text: string, type: string = "text") => {
     navigator.clipboard.writeText(text)
@@ -248,6 +277,56 @@ const handleDelete = async (id: string) => {
           resource={viewingResource}
           onClose={() => setViewingResource(null)}
         />
+      </div>
+
+      <div className="max-w-7xl mx-auto mt-12 mb-12">
+        <div className="bg-card border border-border rounded-lg p-6">
+          
+          {/* Header Row: Flex container to align items */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-foreground">Activity Logs</h2>
+            
+            {/* Buttons Group */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={()=> hanldeClearLog(projectId)}
+                className="p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
+                title="Clear logs"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={fetchLogs}
+                className="p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
+                title="Refresh logs"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Logs List */}
+          {activityLogs.length > 0 ? (
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {activityLogs.map((log) => (
+                <div
+                  key={log._id}
+                  className="flex items-center justify-between p-3 bg-background rounded border border-border/50"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm text-foreground font-medium">{log.action}</p>
+                    <p className="text-xs text-muted-foreground">By {log.username}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(log.time).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No activity yet</p>
+          )}
+        </div>
       </div>
     </>
   )

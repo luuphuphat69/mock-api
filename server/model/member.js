@@ -15,7 +15,7 @@ const MemberSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["owner", "member"],
+        enum: ["owner", "member", "guest"],
         required: true,
     },
     permissions: {
@@ -28,5 +28,5 @@ const MemberSchema = new mongoose.Schema({
         default: Date.now,
     }
 });
-
-module.exports = mongoose.model("Member", MemberSchema, "Member");
+const Member = mongoose.model("Members", MemberSchema, "Members")
+module.exports = Member;

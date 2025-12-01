@@ -12,7 +12,6 @@ import { toast } from "sonner"
 import { Spinner } from '@/components/ui/shadcn-io/spinner';
 import { useUser } from "../../hooks/useUser"
 import { useProjects } from "@/hooks/useProject"
-import { useRouter } from "next/navigation"
 import { LoadingScreen } from "@/components/loading-screen"
 import ShareMemberModal from "./collaboration/ShareMemberModal"
 import ProjectGrid from "./ProjectGrid"
@@ -30,8 +29,6 @@ export default function ProjectsTab() {
   const [formData, setFormData] = useState({ name: "", prefix: "" })
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  const router = useRouter()
 
   const gridRef = useRef<HTMLDivElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)

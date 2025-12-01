@@ -1,9 +1,13 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { searchUser, sendInvite, getMembers, removeMember } from "../../../utilities/api/api";
+import { searchUser, sendInvite, getMembers, removeMember, me, updateMemberRole } from "../../../utilities/api/api";
 import { useUser } from "@/hooks/useUser";
+import gsap from "gsap"
+import { X } from "lucide-react"
+import { Spinner } from '@/components/ui/shadcn-io/spinner';
+import { ro } from "@faker-js/faker";
 
 interface ISearchResult {
   id: string,
@@ -18,12 +22,53 @@ export default function ShareMemberModal({
   selectedProjectForSettings: IProject;
   onClose: () => void;
 }) {
+  const modalRef = useRef<HTMLDivElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const [closing, setClosing] = useState(false)
   const [searchMemberQuery, setSearchMemberQuery] = useState("");
   const [searchResults, setSearchResults] = useState<ISearchResult[]>([]);
   const [pendingInvites, setPendingInvites] = useState<ISearchResult[]>([]);
   const [members, setMembers] = useState<IMember[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(true);
   const { user, fetchUser } = useUser()
+
+  // Animate modal entrance
+  useEffect(() => {
+    if (modalRef.current && overlayRef.current) {
+      gsap.fromTo(
+        overlayRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3, ease: "power2.out" }
+      )
+
+      gsap.fromTo(
+        modalRef.current,
+        { opacity: 0, scale: 0.95, y: -20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
+      )
+    }
+  }, [])
+
+  // Handles animated closing
+  const handleClose = () => {
+    if (closing) return
+    setClosing(true)
+
+    gsap.to(overlayRef.current, {
+      opacity: 0,
+      duration: 0.2,
+      ease: "power2.in",
+    })
+
+    gsap.to(modalRef.current, {
+      opacity: 0,
+      scale: 0.95,
+      y: -20,
+      duration: 0.3,
+      ease: "back.in",
+      onComplete: () => onClose(),
+    })
+  }
 
   useEffect(() => {
     const loadMembers = async () => {
@@ -116,9 +161,18 @@ export default function ShareMemberModal({
     }
   };
 
+  const handleUpdateMemberRole = async(requestid: string, userid: string, projectid: string, role: string) => {
+    try{
+      await updateMemberRole(requestid, userid, projectid, role);
+      toast.success('Role is changed')
+    }catch(err:any){
+      toast.error(err.response.data.message)
+    }
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-card border border-border rounded-lg p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" ref={overlayRef}>
+      <div className="bg-card border border-border rounded-lg p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto" ref={modalRef}>
 
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -128,10 +182,10 @@ export default function ShareMemberModal({
 
           {/* FIX: use onClose instead of setShowCollabSettingsModal */}
           <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+            onClick={handleClose}
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -211,8 +265,25 @@ export default function ShareMemberModal({
                     <td className="px-4 py-3 text-sm text-foreground">
                       {member.username}
                     </td>
-                    <td className="px-4 py-3 text-sm text-foreground">
-                      {member.role}
+
+                    <td className="px-4 py-3 text-sm">
+                      <select
+                        value={member.role}
+                        onChange={(e) => {
+                          if (!user) return;
+                          handleUpdateMemberRole(
+                            user.id,
+                            member.userId,
+                            selectedProjectForSettings.projectId,
+                            e.target.value
+                          );
+                        }}
+                        className="bg-background border border-border text-foreground rounded px-2 py-1 text-sm cursor-pointer hover:border-cyan-500/50"
+                      >
+                        <option value="owner">Owner</option>
+                        <option value="member">Member</option>
+                        <option value="guest">Guest</option>
+                      </select>
                     </td>
 
                     <td className="px-4 py-3 text-xs" >
@@ -239,15 +310,14 @@ export default function ShareMemberModal({
             </table>
           </div>
         ) : loadingMembers ? (
-          <div className="p-6 text-center text-muted-foreground">
-            Loading members...
+          <div className="flex items-center justify-center p-6 text-muted-foreground">
+            <Spinner />
           </div>
         ) : (
           <div className="p-6 text-center text-muted-foreground">
             No members invited yet
           </div>
         )}
-
 
         {/* Footer */}
         <div className="flex gap-3">

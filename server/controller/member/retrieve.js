@@ -1,5 +1,5 @@
 const Member = require('../../model/member');
-const MongoServerError = require('mongodb');
+const {MongoServerError} = require('mongodb');
 
 async function getMemberByProject(req, res) {
     try {

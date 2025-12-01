@@ -28,8 +28,8 @@ export default function ProjectGrid({
       const cards = gridRef.current.querySelectorAll("[data-project-card]");
       gsap.fromTo(
         cards,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 0.3, stagger: 0.05, ease: "power4.out" }
       );
     }
   }, [projects]);

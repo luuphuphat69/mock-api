@@ -27,6 +27,11 @@ const searchUser = require('../controller/user/search');
 const getMembers = require('../controller/member/retrieve');
 const removeMember = require('../controller/member/remove');
 const sendInvite = require('../controller/member/sendInvite');
+const changeRole = require('../controller/member/edit');
+
+// logs controller
+const getLogs = require('../controller/logs/retrieve');
+const clearLogs = require('../controller/logs/clear');
 
 //authen route
 router.post('/register', register);
@@ -56,6 +61,11 @@ router.get('/user/search', verifyToken, searchUser)
 router.get('/members/:id', verifyToken, getMembers)
 router.delete('/members/:requesterid/:userid/:projectid', verifyToken, removeMember)
 router.post('/members/send-invite/:inviterId/:projectId', verifyToken, sendInvite)
+router.patch('/members/update-role/:requesterid/:userid/:projectid', verifyToken, changeRole)
+
+// logs route
+router.get('/logs/:projectid', verifyToken, getLogs)
+router.delete('/logs/:projectid', verifyToken, clearLogs);
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

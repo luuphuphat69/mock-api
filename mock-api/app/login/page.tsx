@@ -10,13 +10,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import Image from 'next/image';
+import { Eye, EyeOff } from "lucide-react";
 import { login } from '../../utilities/api/api';
 import { LoadingScreen } from "@/components/loading-screen"
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
 
+  const toggleVisibility = () => {
+    setIsVisible((prevState) => !prevState);
+  };
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,16 +120,30 @@ export default function LoginPage() {
                     Forgot?
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="bg-background border-border text-foreground placeholder:text-muted-foreground"
-                  required
-                />
-              </div>
 
+                {/* Relative wrapper for eye button */}
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={isVisible ? "text" : "password"}
+                    placeholder="••••••••"
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="bg-background border-border text-foreground placeholder:text-muted-foreground pr-10"
+                    required
+                  />
+
+                  {/* Eye button */}
+                  <button
+                    type="button"
+                    onClick={toggleVisibility}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label={isVisible ? "Hide password" : "Show password"}
+                  >
+                    {isVisible ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+              
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 transition-all font-semibold"

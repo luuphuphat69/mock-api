@@ -1,6 +1,7 @@
 const Project = require('../../model/projects');
-const Memeber = require('../../model/member');
+const Member = require('../../model/member');
 const Resources = require('../../model/resources');
+const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 
 async function deletePrj(req, res) {
@@ -13,13 +14,15 @@ async function deletePrj(req, res) {
         if (!userId)
             return res.status(400).json({ message: "Bad request: missing userID" });
 
-        const getUser = await Memeber.findOne({ projectId: id, userId: userId })
+        const getUser = await Member.findOne({ projectId: id, userId: userId })
         if (getUser) {
             if (getUser.role === 'owner') {
                 
                 const result = await Project.deleteOne({ projectId: id, userId: userId });
-                await Memeber.deleteMany({ projectId: id });
+
+                await Member.deleteMany({ projectId: id });
                 await Resources.deleteMany({ projectId: id });
+                await Logs.deleteMany({projectId: id});
 
                 if (result.deletedCount === 0) {
                     return res.status(404).json({ message: "Project not found" });

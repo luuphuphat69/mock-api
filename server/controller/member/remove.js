@@ -1,5 +1,6 @@
 const Member = require('../../model/member');
 const { MongoServerError } = require('mongodb');
+
 async function removeMember(req, res) {
     try {
         const requesterId = req.params.requesterid;

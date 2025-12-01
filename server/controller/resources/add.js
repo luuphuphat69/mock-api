@@ -1,5 +1,6 @@
 const Resources = require('../../model/resources');
 const Member = require('../../model/member');
+const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 
 async function add(req, res) {
@@ -32,6 +33,14 @@ async function add(req, res) {
                 schemaFields: schemaFields,
                 records: records
             });
+
+            await Logs.create({
+                projectId: projectId,
+                userId: userid,
+                resourceName: name,
+                username: isMemberExistInProject.username,
+                action: `Create new resource ${name}`
+            })
 
             return res.status(200).json(
                 { message: "New resource added", resource: newResource }

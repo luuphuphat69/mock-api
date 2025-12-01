@@ -371,7 +371,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">Collab with your teams</h3>
               <p className="text-muted-foreground">
-                Collab with your team to develop and main your APIs
+                Collab with your team to develop and maintain your APIs
               </p>
             </div>
 

@@ -3,6 +3,7 @@ const User = require('../../model/user');
 const Memeber = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 const { v4: uuidv4 } = require("uuid");
+const Logs = require('../../model/logs');
 async function Add(req, res) {
 
     const { userId, name, prefix } = req.body;
@@ -24,6 +25,7 @@ async function Add(req, res) {
         }
 
         let projectId = uuidv4();
+
         const newProject = await Projects.create({
             projectId,
             userId,
@@ -41,6 +43,13 @@ async function Add(req, res) {
                 canDelete: true,
                 canInvite: true
             }
+        })
+
+        await Logs.create({
+            projectId: projectId,
+            userId: userId,
+            username: user.name,
+            action: `Create new project ${name}`
         })
 
         return res.status(201).json({

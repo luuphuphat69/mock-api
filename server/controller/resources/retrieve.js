@@ -1,4 +1,3 @@
-const Project = require('../../model/projects');
 const Resources = require('../../model/resources');
 const Members = require('../../model/member');
 const {MongoServerError} = require('mongodb');

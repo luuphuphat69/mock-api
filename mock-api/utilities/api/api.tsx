@@ -170,3 +170,35 @@ export async function removeMember(requesterid: string, userid: string, projecti
     throw err
   }
 }
+
+export async function updateMemberRole(requesterid: string, userid: string, projectid: string, role: string){
+  try{
+    const res = await api.patch(`/members/update-role/${requesterid}/${userid}/${projectid}`,
+      {role: role.toLowerCase()}
+    )
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function getLogs(projectId: string){
+  try{
+    const res = await api.get(`/logs/${projectId}`)
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+}
+
+export async function clearLogs(projectId: string){
+  try{
+    const res = await api.delete(`/logs/${projectId}`)
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+}
