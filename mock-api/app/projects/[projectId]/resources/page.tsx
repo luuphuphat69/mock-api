@@ -265,12 +265,7 @@ export default function ResourcesPage() {
             <div className="text-center py-12">
               <Plus className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h2 className="text-xl font-semibold text-foreground mb-2">No resources yet</h2>
-              <Button
-                onClick={() => { setEditingResource(null); setIsFormOpen(true) }}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white"
-              >
-                Create Resource
-              </Button>
+              <p className="text-muted-foreground mb-6">Create your first resource to get started</p>
             </div>
           )}
         </main>
