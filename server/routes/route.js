@@ -7,6 +7,7 @@ const verifyToken = require('../middleware/verifyToken');
 const register = require('../controller/authen/register');
 const login = require('../controller/authen/login');
 const logout = require('../controller/authen/logout');
+const ResetPassword = require('../controller/authen/resetpass');
 
 // project controller
 const addProject = require('../controller/projects/add');
@@ -37,6 +38,7 @@ const clearLogs = require('../controller/activitylogs/clear');
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
+router.post('/reset-password', ResetPassword)
 
 // projects route
 router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)

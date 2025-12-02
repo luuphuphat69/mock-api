@@ -2,13 +2,14 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Link from "next/link";
-import { Code2, Zap, Share2, Handshake } from "lucide-react";
+import { Code2, Zap, Share2, Handshake, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "@/components/header";
 import Image from "next/image";
 import Head from 'next/head';
+
 // Register plugins
 if (typeof window !== "undefined") {
   gsap.registerPlugin(SplitText, ScrollTrigger);
@@ -428,8 +429,9 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">© 2025 MockAPI. Test APIs like a pro.</p>
               <a
                 href="mailto:luuphuphat69@gmail.com"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
               >
+                <Mail className="w-4 h-4" />
                 luuphuphat69@gmail.com
               </a>
             </div>

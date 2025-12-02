@@ -1,6 +1,6 @@
 const User = require('../../model/user');
 const { v4: uuidv4 } = require("uuid");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { MongoServerError } = require('mongodb');
 const saltRounds = 10;
 

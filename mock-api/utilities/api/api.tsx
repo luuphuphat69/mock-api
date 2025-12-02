@@ -202,3 +202,13 @@ export async function clearLogs(requestid: string, projectId: string){
     throw err;
   }
 }
+
+export async function requestResetPassword(email: string){
+  try{
+    const res = await api.post(`/reset-password?email=${email}`)
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
