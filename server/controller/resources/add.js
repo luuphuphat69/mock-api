@@ -22,7 +22,7 @@ async function add(req, res) {
             // Create endpoint: lowercase + replace spaces with hyphens
             const endpoint = cleanedName.toLowerCase().replace(/\s+/g, "-");
 
-            const isResourceExist = await Resources.exists({ endpoint: endpoint });
+            const isResourceExist = await Resources.exists({projectId: projectId ,endpoint: endpoint });
             if (isResourceExist)
                 return res.status(400).json({ message: "Project already have this resource" });
 
