@@ -43,7 +43,7 @@ export default function Header() {
                 <User className="w-4 h-4 text-cyan-500" />
                 <span>{user.name}</span>
               </div>
-              <Button onClick={handleSignOut} variant="outline" className="hover:text-red-400 hover:border-red-400" >
+              <Button onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" /> Sign Out </Button>
             </>)
             : (<>

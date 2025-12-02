@@ -249,13 +249,6 @@ export default function ProjectsTab() {
               <Code2 className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h2 className="text-xl font-semibold text-foreground mb-2">No projects yet</h2>
               <p className="text-muted-foreground mb-6">Create your first project to get started</p>
-              <Button
-                onClick={handleAddProject}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Project
-              </Button>
             </div>
           )}
         </main>

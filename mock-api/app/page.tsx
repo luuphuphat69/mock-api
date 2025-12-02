@@ -419,7 +419,15 @@ export default function Home() {
             />
             <span className="font-bold text-foreground">MockAPI</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2025 MockAPI. Test APIs like a pro.</p>
+                    <div className="flex items-center gap-6">
+            <p className="text-sm text-muted-foreground">© 2025 MockAPI. Test APIs like a pro.</p>
+            <a
+              href="mailto:luuphuphat69@gmail.com"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              luuphuphat69@gmail.com
+            </a>
+          </div>
         </div>
       </footer>
     </main>

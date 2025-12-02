@@ -65,7 +65,7 @@ router.patch('/members/update-role/:requesterid/:userid/:projectid', verifyToken
 
 // logs route
 router.get('/logs/:projectid', verifyToken, getLogs)
-router.delete('/logs/:projectid', verifyToken, clearLogs);
+router.delete('/logs/:requestid/:projectid', verifyToken, clearLogs);
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

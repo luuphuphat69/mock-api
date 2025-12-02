@@ -9,7 +9,7 @@ import Header from "@/components/header"
 import { toast } from "sonner"
 import { useUser } from "../../../../hooks/useUser";
 import { addResource, deleteResource, editResource, getKey, getResourceByProjectId, getLogs, clearLogs } from "@/utilities/api/api"
-
+import { Spinner } from "@/components/ui/shadcn-io/spinner"
 // Components
 import { ResourceCard } from "./components/ResourceCard"
 import { ResourceFormModal } from "./components/ResourceFormModal"
@@ -28,7 +28,11 @@ export default function ResourcesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<IResource | null>(null)
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  // Loading States
+  const [isLoading, setIsLoading] = useState(false) // For resources/full page
+  const [isLogsLoading, setIsLogsLoading] = useState(false) // New state for logs
+  
   const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
   const gridRef = useRef<HTMLDivElement>(null)
@@ -57,6 +61,7 @@ export default function ResourcesPage() {
   }
 
   const fetchLogs = async () => {
+    setIsLogsLoading(true) // Start loading
     try {
       const res = await getLogs(projectId);
 
@@ -68,6 +73,8 @@ export default function ResourcesPage() {
       setActivityLogs(sortedLogs);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLogsLoading(false) // End loading
     }
   }
 
@@ -154,10 +161,14 @@ export default function ResourcesPage() {
     }
   };
 
-  const hanldeClearLog = async (projectId: string) => {
-    await clearLogs(projectId);
-    toast.success("Logs are cleared");
-    fetchLogs();
+  const hanldeClearLog = async (requestid: string, projectId: string) => {
+    try {
+      await clearLogs(requestid, projectId);
+      toast.success("Logs are cleared");
+      fetchLogs();
+    } catch (err: any) {
+      toast.error(err.response.data.message)
+    }
   }
 
   const copyToClipboard = (text: string, type: string = "text") => {
@@ -281,15 +292,19 @@ export default function ResourcesPage() {
 
       <div className="max-w-7xl mx-auto mt-12 mb-12">
         <div className="bg-card border border-border rounded-lg p-6">
-          
+
           {/* Header Row: Flex container to align items */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-foreground">Activity Logs</h2>
-            
+
             {/* Buttons Group */}
             <div className="flex items-center gap-2">
               <button
-                onClick={()=> hanldeClearLog(projectId)}
+                onClick={() => {
+                  if (user) {
+                    hanldeClearLog(user.id, projectId)
+                  }
+                }}
                 className="p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
                 title="Clear logs"
               >
@@ -297,16 +312,21 @@ export default function ResourcesPage() {
               </button>
               <button
                 onClick={fetchLogs}
-                className="p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
+                disabled={isLogsLoading}
+                className={`p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground ${isLogsLoading ? 'opacity-50' : ''}`}
                 title="Refresh logs"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className={`w-4 h-4 ${isLogsLoading ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
 
           {/* Logs List */}
-          {activityLogs.length > 0 ? (
+          {isLogsLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <Spinner />
+            </div>
+          ) : activityLogs.length > 0 ? (
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {activityLogs.map((log) => (
                 <div

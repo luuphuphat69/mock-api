@@ -193,9 +193,9 @@ export async function getLogs(projectId: string){
   }
 }
 
-export async function clearLogs(projectId: string){
+export async function clearLogs(requestid: string, projectId: string){
   try{
-    const res = await api.delete(`/logs/${projectId}`)
+    const res = await api.delete(`/logs/${requestid}/${projectId}`)
     return res;
   }catch(err){
     console.log(err);
