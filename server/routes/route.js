@@ -8,6 +8,7 @@ const register = require('../controller/authen/register');
 const login = require('../controller/authen/login');
 const logout = require('../controller/authen/logout');
 const ResetPassword = require('../controller/authen/resetpass');
+const ChangePassword = require('../controller/authen/changepass');
 
 // project controller
 const addProject = require('../controller/projects/add');
@@ -39,6 +40,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/reset-password', ResetPassword)
+router.post('/change-password/:id', ChangePassword);
 
 // projects route
 router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)

@@ -33,6 +33,20 @@ export async function logout() {
   }
 }
 
+export async function changePass(userid: string, currentPassword: string, newPassword: string) {
+  try {
+    const res = await api.post(`/change-password/${userid}`,
+      {
+        currentPassword: currentPassword,
+        newPassword: newPassword
+      });
+    return res;
+  } catch (err) {
+    console.log(err);
+    throw err
+  }
+}
+
 export async function me() {
   try {
     const res = await api.get('/me')
