@@ -113,9 +113,9 @@ export default function Home() {
           if (!splitInstance && elementRef.current) {
             splitInstance = new SplitText(elementRef.current, { type: "chars, words" });
             gsap.from(splitInstance.chars, {
-              y: 20,
+              y: 10,
               opacity: 0,
-              duration: 0.5,
+              duration: 0.2,
               ease: "power4.out",
               stagger: 0.05,
             });
