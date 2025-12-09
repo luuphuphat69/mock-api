@@ -17,7 +17,6 @@ export function proxy(req: NextRequest) {
     console.log("[Proxy] ❌ No token — redirect");
     return NextResponse.redirect(new URL("/", req.url));
   }
-
   return NextResponse.next();
 }
 

@@ -226,3 +226,33 @@ export async function requestResetPassword(email: string){
     throw err
   }
 }
+
+export async function getGeneralMetrics(projectId: string){
+  try{
+    const res = await api.get(`/metrics/general/${projectId}`)
+    return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function getMethodMetrics(projectId: string, method: string){
+  try{
+    const res = await api.get(`/metrics/method/${projectId}?method=${method}`)
+    return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function getMonthlyMetrics(projectId: string, month:number, year: number){
+  try{
+    const res = await api.get(`/metrics/monthly/${projectId}?month=${month}&year=${year}`)
+    return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}

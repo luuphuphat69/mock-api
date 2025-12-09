@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { Button } from "@/components/ui/button";
-import { Edit2, Users, Trash2 } from "lucide-react";
+import { Edit2, Users, Trash2, BarChart3 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface ProjectGridProps {
@@ -60,7 +60,7 @@ export default function ProjectGrid({
             </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={(e) => {
                 e.stopPropagation();
@@ -70,6 +70,18 @@ export default function ProjectGrid({
               className="flex-1 border-border bg-background"
             >
               <Edit2 className="w-4 h-4 mr-2" /> Edit
+            </Button>
+
+            <Button
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/projects/${project.projectId}/metrics`)
+              }}
+              variant="outline"
+              className="flex-1 border-border bg-background text-blue-400 hover:bg-blue-500 transition-colors"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Metrics
             </Button>
 
             <Button

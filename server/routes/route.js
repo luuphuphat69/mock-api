@@ -35,6 +35,16 @@ const changeRole = require('../controller/member/edit');
 const getLogs = require('../controller/activitylogs/retrieve');
 const clearLogs = require('../controller/activitylogs/clear');
 
+// mock logs controller
+const getMockLogs = require('../controller/mock-logs/get');
+
+// metrics controller
+const getGeneralMetrics = require('../controller/metrics/getGeneral');
+const getMethodMetrics = require('../controller/metrics/getMethods');
+const getByTimeline = require('../controller/metrics/getByTimeline');
+
+// ------------------------ route begin ------------------------
+
 //authen route
 router.post('/register', register);
 router.post('/login', login);
@@ -70,6 +80,15 @@ router.patch('/members/update-role/:requesterid/:userid/:projectid', verifyToken
 // logs route
 router.get('/logs/:projectid', verifyToken, getLogs)
 router.delete('/logs/:requestid/:projectid', verifyToken, clearLogs);
+
+// mock logs route
+router.get('/mock-logs/project/:projectId', getMockLogs.byProject)
+router.get('/mock-logs/method/:projectId', getMockLogs.byMethod);
+
+//metrics route
+router.get('/metrics/general/:projectId', getGeneralMetrics)
+router.get('/metrics/method/:projectId', getMethodMetrics)
+router.get('/metrics/monthly/:projectId', getByTimeline)
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axios from "axios"
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+
 interface APITestModalProps {
   url: string
   apiKey: string
@@ -68,7 +69,6 @@ export default function APITestModal({
       }
 
       const ms = performance.now() - start;
-
       setState(s => ({
         ...s,
         isLoading: false,
@@ -81,7 +81,6 @@ export default function APITestModal({
     } 
     catch (err: any) {
       const ms = performance.now() - start;
-
       setState(s => ({
         ...s,
         isLoading: false,
