@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import axios from "axios"
 import { register } from '../../utilities/api/api';
 import { LoadingScreen } from "@/components/loading-screen"
+import Header from "@/components/header"
 
 export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false)
@@ -59,6 +60,7 @@ export default function RegisterPage() {
     return (
         <>
             <LoadingScreen isVisible={isLoading} />
+            <Header/>
             <div className="min-h-screen bg-background flex items-center justify-center p-4">
                 <div className="w-full max-w-md">
                     {/* Logo and Back Link */}
