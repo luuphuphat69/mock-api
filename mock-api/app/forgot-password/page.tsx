@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from 'sonner'
 import { requestResetPassword } from "@/utilities/api/api"
 import { useRouter } from "next/navigation"
+import Header from "@/components/header"
 
 export default function ForgotPasswordPage() {
     const [isLoading, setIsLoading] = useState(false)
@@ -41,6 +42,7 @@ export default function ForgotPasswordPage() {
     return (
         <>
             <LoadingScreen isVisible={isLoading} />
+            <Header/>
             <div className="min-h-screen bg-background flex items-center justify-center p-4">
                 <div className="w-full max-w-md">
                     {/* Logo and Back Link */}

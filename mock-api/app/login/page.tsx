@@ -13,6 +13,7 @@ import Image from 'next/image';
 import { Eye, EyeOff } from "lucide-react";
 import { login } from '../../utilities/api/api';
 import { LoadingScreen } from "@/components/loading-screen"
+import Header from "@/components/header"
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
@@ -66,6 +67,7 @@ export default function LoginPage() {
   return (
     <>
       <LoadingScreen isVisible={isLoading} />
+      <Header/>
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           {/* Logo and Back Link */}

@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { useUser } from "@/hooks/useUser"
 import { PasswordInput } from "@/components/passwordInput"
 import { changePass } from "@/utilities/api/api"
+import Header from "@/components/header"
 
 export default function ChangePasswordPage() {
     const router = useRouter()
@@ -63,7 +64,7 @@ export default function ChangePasswordPage() {
     return (
         <>
             <LoadingScreen isVisible={isLoading} />
-
+            <Header/>
             <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-24">
                 <div className="w-full max-w-md">
 
