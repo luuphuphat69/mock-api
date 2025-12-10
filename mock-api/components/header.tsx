@@ -31,7 +31,7 @@ export default function Header() {
       console.error("Logout error:", err)
     }
   }
-  if (pathname === "/login") return null
+
   return (
     <header className="fixed top-0 w-full border-b bg-background/90 backdrop-blur z-50">
       <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
