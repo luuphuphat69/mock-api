@@ -192,7 +192,7 @@ export default function ResourcesPage() {
           <div className="mb-8 flex items-center gap-2 text-muted-foreground">
             <Link href="/projects" className="hover:text-cyan-400 transition-colors font-medium">Projects</Link>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-foreground font-medium">{projectId}</span>
+            <span className="text-foreground font-medium">Resources</span>
           </div>
 
           <div className="mb-8 flex items-start justify-between">

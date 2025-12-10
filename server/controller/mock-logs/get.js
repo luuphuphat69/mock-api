@@ -25,7 +25,7 @@ const getMockLogs = {
                 }
 
                 if (fromDate > toDate) {
-                    return res.status(400).json({ message: "_from cannot be greater than _to" });
+                    return res.status(400).json({ message: "FROM date cannot be greater than TO date" });
                 }
 
                 filter.timestamp = {

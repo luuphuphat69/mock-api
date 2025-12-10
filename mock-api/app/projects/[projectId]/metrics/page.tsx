@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, ChevronRight } from "lucide-react"
 import gsap from "gsap"
@@ -50,6 +50,7 @@ export default function MetricsPage() {
   const [methodMetrics, setMethodMetrics] = useState<MethodMetric[]>([]);
   const httpMethods: HttpMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE"];
   const [monthlyData, setMonthlyData] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const loadMonthly = async () => {
@@ -165,7 +166,7 @@ export default function MetricsPage() {
                   Projects
                 </Link>
                 <ChevronRight className="w-4 h-4" />
-                <span className="text-foreground font-medium">{projectId}</span>
+                <span className="text-foreground font-medium">Metrics</span>
               </div>
 
               {/* Title */}
@@ -191,7 +192,8 @@ export default function MetricsPage() {
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           {/* Total Requests */}
-          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-cyan-500/50 transition-all">
+          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-cyan-500/50 transition-all"
+            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}>
             <p className="text-sm text-muted-foreground mb-2">Total Requests</p>
             {isLoading ? <Spinner /> : (<>
               <p className="text-3xl font-bold text-cyan-400">
@@ -205,7 +207,8 @@ export default function MetricsPage() {
           </div>
 
           {/* Success Rate */}
-          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-green-500/50 transition-all">
+          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-green-500/50 transition-all"
+            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}>
             <p className="text-sm text-muted-foreground mb-2">Success Rate</p>
             {isLoading ? <Spinner /> : (<>          <p className="text-3xl font-bold text-green-400">
               {metrics.current.successRate}%
@@ -218,7 +221,8 @@ export default function MetricsPage() {
           </div>
 
           {/* Errors */}
-          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-red-500/50 transition-all">
+          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-red-500/50 transition-all"
+            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}>
             <p className="text-sm text-muted-foreground mb-2">Total Errors</p>
             {isLoading ? <Spinner /> : (
               <>
@@ -254,6 +258,7 @@ export default function MetricsPage() {
                 <div
                   key={item.method}
                   data-chart
+                  onClick={() => router.push(`/projects/${projectId}/mock-logs`)}
                   style={{ animationDelay: `${index * 100}ms` }}
                   className="bg-card border border-border rounded-lg p-4 hover:border-cyan-500/50 transition-all"
                 >

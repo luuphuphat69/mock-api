@@ -256,3 +256,13 @@ export async function getMonthlyMetrics(projectId: string, month:number, year: n
     throw err
   }
 }
+
+export async function getMockLogs (projectId: string, queryString: string){
+  try{
+    const res = await api.get(`/mock-logs/project/${projectId}?${queryString}`)
+    return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
