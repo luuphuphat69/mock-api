@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { User, LogOut, ChevronDown } from "lucide-react"
 import { useProjects } from "@/hooks/useProject"
 import Image from 'next/image';
+
 export default function Header() {
   const router = useRouter()
-  const pathname = usePathname()
   const { user, loading, fetchUser, clearUser } = useUser()
   const { clearProjects } = useProjects();
   const [showDropdown, setShowDropdown] = useState(false)
@@ -35,15 +35,14 @@ export default function Header() {
   return (
     <header className="fixed top-0 w-full border-b bg-background/90 backdrop-blur z-50">
       <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        <Link title="logo" href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br rounded-lg flex items-center justify-center">
-            <Image src='/icon.png' width={700} height={700} alt="logo" />
+            <Image title="logo" src='/icon.png' width={700} height={700} alt="logo" />
           </div>
           <span className="font-bold text-lg">MockAPI</span>
         </Link>
         <div className="flex items-center gap-4">
-          <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium" > Docs </Link>
-          
+          <Link title="docs" href="/docs" className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium" > Docs </Link>
           {!loading && user ? (
             <div className="flex items-center gap-4">
               <div ref={dropdownRef} className="relative">
@@ -102,6 +101,7 @@ export default function Header() {
               <Link
                 ref={signInRef}
                 href="/login"
+                title="login"
                 className="text-muted-foreground hover:text-foreground transition-colors relative px-3 py-2 rounded-md overflow-hidden"
                 style={{
                   background: "linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.2) 100%)",
@@ -121,7 +121,7 @@ export default function Header() {
                   backgroundPosition: "0% center",
                 }}
               >
-                <Link href="/login">Get Started</Link>
+                <Link title="get started" href="/login">Get Started</Link>
               </Button>
             </>
           )}

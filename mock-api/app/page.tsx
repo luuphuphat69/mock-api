@@ -216,17 +216,9 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Mockapi – Test APIs Like a Pro</title>
-        <meta name="description" content="Create mock endpoints, test APIs, share with your team. Build faster with no backend required." />
-        <link rel="canonical" href="https://mockapi.io.vn" />
-      </Head>
-
-
       <main className="min-h-screen bg-background">
         {/* Navigation Header */}
         <Header />
-
         {/* Hero Section */}
         <section className="pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center">
           <div className="space-y-6 mb-12">
@@ -244,11 +236,11 @@ export default function Home() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="/projects">Start Testing Now</Link>
+              <Link title="start testing now" href="/projects">Start Testing Now</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="#features">Explore Features</Link>
-            </Button>
+              <Link title="explore feature" href="/login">Explore Features</Link>
+            </Button> 
           </div>
 
           <div className="w-full rounded-xl border border-border bg-card overflow-hidden shadow-2xl">
@@ -408,7 +400,7 @@ export default function Home() {
               Join developers who are shipping faster without waiting for backend APIs.
             </p>
             <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="#">Start Free</Link>
+              <Link title="start free" href="/login">Start Free</Link>
             </Button>
           </div>
         </section>
@@ -419,6 +411,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <Image
                 src='/icon.png'
+                title="logo"
                 width={50}
                 height={50}
                 alt="logo"
