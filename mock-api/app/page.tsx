@@ -422,6 +422,7 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">© 2025 MockAPI. Test APIs like a pro.</p>
               <a
                 href="mailto:luuphuphat69@gmail.com"
+                title="mailto"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
               >
                 <Mail className="w-4 h-4" />
