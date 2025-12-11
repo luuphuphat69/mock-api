@@ -14,20 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mockapi – Test APIs Like a Pro",
-  description: "Create mock endpoints, test APIs and share with your team. Build faster with no backend required. Using metrics table to check your APIs performance",
-  keywords: ["mockapi", "mockapi.io", "mockapi io", "mock api", "www.mockapi.io", "mockapi.oi", "mock api io", "mock api.io"],
-  icons: {
-    icon: [
-      { url: './favicon.ico', sizes: '48x48' }, 
-    ],
-  },
-  robots: 'index, follow',
-  authors: [{name: 'luuphuphat69', url: 'https://mockapi.io.vn'}],
+  title: "MockAPI – Build Mock Endpoints Effortlessly",
+  description:
+    "Create mock routes, simulate responses, and collaborate with your team. Speed up development without backend dependencies. Track performance with built-in analytics.",
+  keywords: [
+    "mockapi tool",
+    "mock endpoints generator",
+    "API simulation",
+    "mock routes",
+    "mock server",
+    "api prototype"
+  ],
   publisher: "luuphuphat69",
-  alternates: {
-    canonical: 'https://mockapi.io.vn',
+  authors: [{ name: "luuphuphat69", url: "https://mockapi.io.vn" }],
+  icons: {
+    icon: [{ url: "./favicon.ico", sizes: "48x48" }],
   },
+  robots: "index, follow",
+  alternates: { canonical: "https://mockapi.io.vn" },
 };
 
 export default function RootLayout({

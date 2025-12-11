@@ -223,23 +223,21 @@ export default function Home() {
         <section className="pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center">
           <div className="space-y-6 mb-12">
             <h1 className="text-5xl sm:text-6xl font-bold text-foreground leading-tight text-balance">
-              Test APIs Like a Pro
+              Create and Explore Mock Endpoints Instantly
             </h1>
             <p
               ref={heroTextRef}
               className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance text"
             >
-              Send requests, mock endpoints, and test your frontend code without
-              waiting for backend development. It&apos;s Postman for the impatient
-              developer.
+            Build mock routes, preview responses, and develop your frontend smoothly—no backend setup required. A faster, simpler way to validate your integration flows.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link title="start testing now" href="/projects">Start Testing Now</Link>
+              <Link title="start testing now" href="/projects">Start Building</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link title="explore feature" href="/login">Explore Features</Link>
+              <Link title="explore feature" href="/login">View Features</Link>
             </Button> 
           </div>
 
@@ -334,9 +332,9 @@ export default function Home() {
                 ref={featuresTitleRef}
                 className="text-4xl font-bold text-foreground mb-4 opacity-0"
               >
-                Powerful Features
+                Tools That Accelerate Your Workflow
               </h2>
-              <p ref={featureTextRef} className="text-lg text-muted-foreground">Everything you need to test APIs efficiently</p>
+              <p ref={featureTextRef} className="text-lg text-muted-foreground">A complete toolkit for building, sharing, and validating your services.</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -345,9 +343,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-cyan-500/30 transition-colors">
                   <Zap className="w-6 h-6 text-cyan-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Create Mock Endpoints</h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">Design Mock Endpoints</h3>
                 <p className="text-muted-foreground">
-                  Instantly create mock endpoints with custom response JSON. No backend needed.
+                  Create flexible routes with customizable JSON responses. Perfect for prototyping and quick experiments.
                 </p>
               </div>
 
@@ -356,9 +354,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
                   <Code2 className="w-6 h-6 text-blue-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">HTTP Methods</h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">Works With Every HTTP Method</h3>
                 <p className="text-muted-foreground">
-                  Support for GET, POST, PUT, DELETE, PATCH and more. Test any request type.
+                  Simulate GET, POST, PUT, PATCH, DELETE, and more with accurate response handling.
                 </p>
               </div>
 
@@ -367,9 +365,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
                   <Handshake className="w-6 h-6 text-purple-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Collab with your teams</h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">Team Collaboration Ready</h3>
                 <p className="text-muted-foreground">
-                  Collab with your team to develop and maintain your APIs
+                  Share collections and work together on mock services during development and testing.
                 </p>
               </div>
 
@@ -378,9 +376,9 @@ export default function Home() {
                 <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-500/30 transition-colors">
                   <Share2 className="w-6 h-6 text-orange-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Shareable URLs</h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">Shareable Links</h3>
                 <p className="text-muted-foreground">
-                  Generate shareable mock URLs to collaborate with your team seamlessly.
+                Generate clean URLs that teammates can access instantly for demos or QA sessions.
                 </p>
               </div>
             </div>
@@ -394,13 +392,13 @@ export default function Home() {
               ref={ctaTitleRef}
               className="text-3xl font-bold text-foreground opacity-0"
             >
-              Ready to test smarter?
+              Build Faster. Ship Confidently.
             </h2>
             <p ref={ctaTextRef} className="text-lg text-muted-foreground">
-              Join developers who are shipping faster without waiting for backend APIs.
+              Develop without waiting on backend services. Join thousands of builders creating better workflows.
             </p>
             <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link title="start free" href="/login">Start Free</Link>
+              <Link title="start free" href="/login">Start for Free</Link>
             </Button>
           </div>
         </section>
@@ -419,7 +417,7 @@ export default function Home() {
               <span className="font-bold text-foreground">MockAPI</span>
             </div>
             <div className="flex items-center gap-6">
-              <p className="text-sm text-muted-foreground">© 2025 MockAPI. Test APIs like a pro.</p>
+              <p className="text-sm text-muted-foreground">© 2025 MockAPI. Build seamless integration workflows.</p>
               <a
                 href="mailto:luuphuphat69@gmail.com"
                 title="mailto"
