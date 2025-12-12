@@ -244,7 +244,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                 type="button"
                 onClick={() => setFormData({ ...formData, schema: [...formData.schema, { name: "", dataType: "string", fakeType: "" }] })}
                 variant="outline"
-                className="w-full border-border bg-background text-cyan-400 hover:bg-card"
+                className="w-full border-border bg-background text-cyan-400 hover:bg-cyan-500"
               >
                 <Plus className="w-4 h-4 mr-2" /> Add Field
               </Button>
