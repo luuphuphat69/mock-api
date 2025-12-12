@@ -24,22 +24,22 @@ async function login(req, res) {
         }
 
         const token = jwt.sign(userPayload, process.env.PRIVATE_KEY, { expiresIn: '2h' });
-        res.cookie('token', token, {
-            maxAge: 2 * 60 * 60 * 1000,
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            domain: ".mockapi.io.vn",   // ← allow across subdomains
-            path: "/",                  // ← allow all routes
-        });
         // res.cookie('token', token, {
         //     maxAge: 2 * 60 * 60 * 1000,
         //     httpOnly: true,
-        //     secure: false,
-        //     sameSite: "lax",
-        //     domain: ".localhost",  
-        //     path: "/",                 
+        //     secure: true,
+        //     sameSite: "none",
+        //     domain: ".mockapi.io.vn",   // ← allow across subdomains
+        //     path: "/",                  // ← allow all routes
         // });
+        res.cookie('token', token, {
+            maxAge: 2 * 60 * 60 * 1000,
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            domain: ".localhost",  
+            path: "/",                 
+        });
         return res.status(200).json({
             message: "Login succesfully",
             token: token
