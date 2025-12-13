@@ -313,33 +313,32 @@ export default function ResourcesPage() {
               </button>
             </div>
           </div>
-
-          {/* Logs List */}
-          {isLogsLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <Spinner />
-            </div>
-          ) : activityLogs.length > 0 ? (
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {activityLogs.map((log) => (
-                <div
-                  key={log._id}
-                  className="flex items-center justify-between p-3 bg-background rounded border border-border/50"
-                >
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground font-medium">{log.action}</p>
-                    <p className="text-xs text-muted-foreground">By {log.username}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(log.time).toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No activity yet</p>
-          )}
         </div>
+        {/* Logs List */}
+        {isLogsLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <Spinner />
+          </div>
+        ) : activityLogs.length > 0 ? (
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {activityLogs.map((log) => (
+              <div
+                key={log._id}
+                className="flex items-center justify-between p-3 bg-background rounded border border-border/50"
+              >
+                <div className="flex-1">
+                  <p className="text-sm text-foreground font-medium">{log.action}</p>
+                  <p className="text-xs text-muted-foreground">By {log.username}</p>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(log.time).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No activity yet</p>
+        )}
       </div>
     </>
   )
