@@ -28,11 +28,11 @@ export default function ResourcesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<IResource | null>(null)
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
-  
+
   // Loading States
   const [isLoading, setIsLoading] = useState(false) // For resources/full page
   const [isLogsLoading, setIsLogsLoading] = useState(false) // New state for logs
-  
+
   const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
   const gridRef = useRef<HTMLDivElement>(null)
@@ -283,9 +283,7 @@ export default function ResourcesPage() {
           resource={viewingResource}
           onClose={() => setViewingResource(null)}
         />
-      </div>
 
-      <div className="max-w-7xl mx-auto mt-12 mb-12">
         <div className="bg-card border border-border rounded-lg p-6">
 
           {/* Header Row: Flex container to align items */}
