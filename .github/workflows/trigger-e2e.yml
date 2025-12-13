@@ -39,11 +39,9 @@ jobs:
             -w "%{http_code}" -s -o /dev/null
           )
 
-          # 4. Check the HTTP status code
-          # The API returns 202 Accepted for a successful dispatch.
-          if [ "$HTTP_STATUS" -ne "202" ]; then
+          if [ "$HTTP_STATUS" -ne "202" ] && [ "$HTTP_STATUS" -ne "204" ]; then
             echo "::error::GitHub API returned status code $HTTP_STATUS. Dispatch failed."
             exit 1
           else
-            echo "Successfully dispatched event! HTTP Status: 202 Accepted."
+            echo "Successfully dispatched event! HTTP Status: $HTTP_STATUS."
           fi
