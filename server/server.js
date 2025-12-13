@@ -9,7 +9,8 @@ const router = require('../server/routes/route');
 
 const allowedOrigins = [
   "https://mockapi.io.vn",
-  "http://localhost:3000"
+  "http://localhost:3000",
+  "https://previewenv.mockapi.io.vn"
 ];
 
 const corsOptions = {
