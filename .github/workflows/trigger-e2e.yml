@@ -6,7 +6,7 @@ on:
 jobs:
   dispatch_tests:
     runs-on: ubuntu-latest
-    
+    environment: Preview
     # 2. Only run if the deployment succeeded and is for the target environment (e.g., preview)
     if: |
       github.event.deployment_status.state == 'success' && 
