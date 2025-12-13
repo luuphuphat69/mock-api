@@ -1,25 +1,22 @@
 name: Trigger E2E Tests After Vercel Deploy (Static URL)
 on:
-  # 1. Listen for the deployment_status event emitted by Vercel
   deployment_status:
 
 jobs:
   dispatch_tests:
     runs-on: ubuntu-latest
     environment: Preview
-    # 2. Only run if the deployment succeeded and is for the target environment (e.g., preview)
+
     if: |
       github.event.deployment_status.state == 'success' && 
       contains(github.event.deployment_status.environment, 'Preview')
     
     steps:
-      # 1. Simple Confirmation Message (Optional, for logging)
       - name: Deployment Success Confirmation
         run: |
           echo "Vercel deployment success detected for Preview environment."
           echo "Fixed testing URL is: https://previewenv.mockapi.io.vn"
           
-      # 2. Trigger the E2E workflow in the Test Repo
       - name: 📢 Dispatch E2E Test Workflow
         uses: peter-evans/repository-dispatch@v3
         with:
@@ -30,5 +27,4 @@ jobs:
             {
               "ref": "${{ github.ref }}",
               "sha": "${{ github.event.deployment.sha }}"
-              # Removed vercel_url
             }
