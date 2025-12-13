@@ -112,7 +112,7 @@ export async function patchProject(userid: string, id: string, payload: {}) {
 
 export async function getKey(id: string) {
   try {
-    const res = await api.get(`/project/key/${id}`)
+    const res = await api.get(`/projects/key/${id}`)
     return res.data;
   } catch (err) {
     throw err
@@ -261,6 +261,16 @@ export async function getMockLogs (projectId: string, queryString: string){
   try{
     const res = await api.get(`/mock-logs/project/${projectId}?${queryString}`)
     return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function renewKey(requestId: string, projectId: string){
+    try{
+    const res = await api.patch(`/projects/key/renew/${requestId}/${projectId}`)
+    return res;
   }catch(err){
     console.log(err);
     throw err

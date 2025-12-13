@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { ChevronRight, Plus, Trash2, RotateCcw } from 'lucide-react'
+import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw } from 'lucide-react'
 import Link from "next/link"
 import { useParams } from 'next/navigation'
 import gsap from "gsap"
@@ -15,6 +15,7 @@ import { ResourceCard } from "./components/ResourceCard"
 import { ResourceFormModal } from "./components/ResourceFormModal"
 import { ResourceDataModal } from "./components/ResourceDataModal"
 import { LoadingScreen } from "@/components/loading-screen"
+import { RenewKeyConfirmModal } from "./components/RenewApiConfirmModal"
 
 export default function ResourcesPage() {
   const params = useParams()
@@ -28,11 +29,11 @@ export default function ResourcesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<IResource | null>(null)
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
-  
+
   // Loading States
   const [isLoading, setIsLoading] = useState(false) // For resources/full page
   const [isLogsLoading, setIsLogsLoading] = useState(false) // New state for logs
-  
+  const [showRenewConfirm, setShowRenewConfirm] = useState(false)
   const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
   const gridRef = useRef<HTMLDivElement>(null)
@@ -101,6 +102,7 @@ export default function ResourcesPage() {
       gsap.fromTo(cards, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" })
     }
   }, [resources])
+
 
   // --- Handlers ---
 
@@ -225,6 +227,13 @@ export default function ResourcesPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 </button>
+                <button
+                  onClick={() => setShowRenewConfirm(true)}
+                  className="text-cyan-400 hover:text-cyan-300 transition-colors p-2 hover:bg-cyan-500/10 rounded"
+                  title="Renew API key"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -244,7 +253,6 @@ export default function ResourcesPage() {
               <Plus className="w-5 h-5 mr-2" /> Add New Resource
             </Button>
           </div>
-
 
           {/* Grid */}
           <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -343,6 +351,17 @@ export default function ResourcesPage() {
           )}
         </div>
       </div>
+
+      <RenewKeyConfirmModal
+        isOpen={showRenewConfirm}
+        projectId={projectId}
+        onClose={() => setShowRenewConfirm(false)}
+        onConfirm={async () => {
+          setShowRenewConfirm(false)
+          toast.success("API key renewed")
+          fetchKey()
+        }}
+      />
     </>
   )
 }

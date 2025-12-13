@@ -15,6 +15,7 @@ const addProject = require('../controller/projects/add');
 const retrieveProject = require('../controller/projects/retrieve');
 const deleteProject = require('../controller/projects/delete');
 const updateProject = require('../controller/projects/update');
+const renewApiKey = require('../controller/projects/renewApiKey');
 
 // resource controller
 const addResource = require('../controller/resources/add');
@@ -56,7 +57,8 @@ router.post('/change-password/:id', ChangePassword);
 router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)
 router.get('/projects/name/:name', verifyToken, retrieveProject.getByName)
 router.get('/projects', verifyToken, retrieveProject.getAll)
-router.get('/project/key/:id', verifyToken, retrieveProject.getKey);
+router.get('/projects/key/:id', verifyToken, retrieveProject.getKey);
+router.patch('/projects/key/renew/:requestid/:projectid', renewApiKey)
 router.post('/projects', verifyToken, addProject)
 router.delete('/projects/:userid/:id', verifyToken, deleteProject)
 router.patch('/projects/:userid/:id', verifyToken, updateProject);
