@@ -1,5 +1,6 @@
 name: Trigger E2E Tests After Vercel Deploy (Static URL)
 on:
+  # Listens for the deployment_status event emitted by Vercel
   deployment_status:
 
 jobs:
@@ -7,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Preview
 
+    # Only run if the deployment succeeded and is for the target environment
     if: |
       github.event.deployment_status.state == 'success' && 
       contains(github.event.deployment_status.environment, 'Preview')
@@ -15,16 +17,33 @@ jobs:
       - name: Deployment Success Confirmation
         run: |
           echo "Vercel deployment success detected for Preview environment."
-          echo "Fixed testing URL is: https://previewenv.mockapi.io.vn"
           
-      - name: 📢 Dispatch E2E Test Workflow
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          repository: luuphuphat69/mock-api 
-          token: ${{ secrets.PAT_TEST_DISPATCH }} 
-          event-type: trigger-e2e-run
-          client-payload: |
-            {
-              "ref": "${{ github.ref }}",
-              "sha": "${{ github.event.deployment.sha }}"
-            }
+      - name: 📢 Dispatch E2E Test Workflow via GitHub API (cURL)
+        # Use a run step to call the GitHub REST API directly
+        run: |
+
+          API_URL="https://api.github.com/repos/luuphuphat69/mockapi-e2e-test/dispatches"
+          
+          PAYLOAD=$(jq -n \
+            --arg ref "${{ github.ref }}" \
+            --arg sha "${{ github.event.deployment.sha }}" \
+            '{ref: $ref, sha: $sha}'
+          )
+
+          echo "Sending dispatch event to: $API_URL"
+          HTTP_STATUS=$(curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.PAT_TEST_DISPATCH }}" \
+            "$API_URL" \
+            -d "{\"event_type\": \"trigger-e2e-run\", \"client_payload\": $PAYLOAD }" \
+            -w "%{http_code}" -s -o /dev/null
+          )
+
+          # 4. Check the HTTP status code
+          # The API returns 202 Accepted for a successful dispatch.
+          if [ "$HTTP_STATUS" -ne "202" ]; then
+            echo "::error::GitHub API returned status code $HTTP_STATUS. Dispatch failed."
+            exit 1
+          else
+            echo "Successfully dispatched event! HTTP Status: 202 Accepted."
+          fi

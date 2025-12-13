@@ -28,11 +28,11 @@ export default function ResourcesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<IResource | null>(null)
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
-
+  
   // Loading States
   const [isLoading, setIsLoading] = useState(false) // For resources/full page
   const [isLogsLoading, setIsLogsLoading] = useState(false) // New state for logs
-
+  
   const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
   const gridRef = useRef<HTMLDivElement>(null)
@@ -283,7 +283,9 @@ export default function ResourcesPage() {
           resource={viewingResource}
           onClose={() => setViewingResource(null)}
         />
+      </div>
 
+      <div className="max-w-7xl mx-auto mt-12 mb-12">
         <div className="bg-card border border-border rounded-lg p-6">
 
           {/* Header Row: Flex container to align items */}
@@ -313,32 +315,33 @@ export default function ResourcesPage() {
               </button>
             </div>
           </div>
-        </div>
-        {/* Logs List */}
-        {isLogsLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <Spinner />
-          </div>
-        ) : activityLogs.length > 0 ? (
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {activityLogs.map((log) => (
-              <div
-                key={log._id}
-                className="flex items-center justify-between p-3 bg-background rounded border border-border/50"
-              >
-                <div className="flex-1">
-                  <p className="text-sm text-foreground font-medium">{log.action}</p>
-                  <p className="text-xs text-muted-foreground">By {log.username}</p>
+
+          {/* Logs List */}
+          {isLogsLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <Spinner />
+            </div>
+          ) : activityLogs.length > 0 ? (
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {activityLogs.map((log) => (
+                <div
+                  key={log._id}
+                  className="flex items-center justify-between p-3 bg-background rounded border border-border/50"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm text-foreground font-medium">{log.action}</p>
+                    <p className="text-xs text-muted-foreground">By {log.username}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(log.time).toLocaleString()}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(log.time).toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No activity yet</p>
-        )}
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No activity yet</p>
+          )}
+        </div>
       </div>
     </>
   )
