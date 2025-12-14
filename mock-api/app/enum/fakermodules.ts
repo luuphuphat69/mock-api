@@ -249,11 +249,4 @@ export const FAKER_MODULES = [
 "team.noun",
 "team.verb",
 "team.adjective",
-
-//
-// HELPERS / DATATYPE (Fundamental Utilities)
-//
-"helpers.boolean",
-"helpers.arrayElement",
-"helpers.enumValue"
-];
+]
