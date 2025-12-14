@@ -20,11 +20,11 @@ const retrieve = {
         }
     },
 
-    getByName: async (req, res) => {
+    getById: async (req, res) => {
         try {
-            const name = req.params.name
-            const projects = new Project.find({ name });
-            return res.status(200).json(projects);
+            const id = req.params.id
+            const project = await Project.findOne({ projectId: id});
+            return res.status(200).json(project);
         } catch (err) {
             if (err instanceof MongoServerError)
                 return res.status(400).json({ message: err })
@@ -42,17 +42,7 @@ const retrieve = {
             return res.status(500).json({ message: err });
         }
     },
-    getKey: async (req, res) => {
-        try {
-            const projectId = req.params.id;
-            const keyOnly = await Project.findOne({ projectId }).select('+apiKey');
-            return res.status(200).json(keyOnly);
-        } catch (err) {
-            if (err instanceof MongoServerError)
-                return res.status(400).json({ message: err });
-            return res.status(500).json({ message: err });
-        }
-    },
+    
     getProjectAsMemberAndGuest: async (req, res) => {
         try {
             const userId = req.params.userid;

@@ -75,6 +75,15 @@ export async function getProjectByUserID(userId: string) {
   }
 }
 
+export async function getProjectById(projectId: string){
+    try {
+    const res = await api.get(`/projects/${projectId}`)
+    return res;
+  } catch (err: unknown) {
+    throw err;
+  }
+}
+
 export async function getCollabProject(userid: string){
   try{
     const res = await api.get(`projects/collab/${userid}`);
@@ -105,15 +114,6 @@ export async function deleteProjectByID(userid: string, id: string) {
 export async function patchProject(userid: string, id: string, payload: {}) {
   try {
     await api.patch(`/projects/${userid}/${id}`, payload)
-  } catch (err) {
-    throw err
-  }
-}
-
-export async function getKey(id: string) {
-  try {
-    const res = await api.get(`/projects/key/${id}`)
-    return res.data;
   } catch (err) {
     throw err
   }

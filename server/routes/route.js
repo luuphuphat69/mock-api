@@ -55,9 +55,8 @@ router.post('/change-password/:id', ChangePassword);
 
 // projects route
 router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)
-router.get('/projects/name/:name', verifyToken, retrieveProject.getByName)
+router.get('/projects/:id', verifyToken, retrieveProject.getById)
 router.get('/projects', verifyToken, retrieveProject.getAll)
-router.get('/projects/key/:id', verifyToken, retrieveProject.getKey);
 router.patch('/projects/key/renew/:requestid/:projectid', renewApiKey)
 router.post('/projects', verifyToken, addProject)
 router.delete('/projects/:userid/:id', verifyToken, deleteProject)

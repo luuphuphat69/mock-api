@@ -11,7 +11,7 @@ interface RenewKeyConfirmModalProps {
     isOpen: boolean
     projectId: string
     onClose: () => void
-    onConfirm: () => void
+    onConfirm: (newKey: string) => void
 }
 
 export const RenewKeyConfirmModal: React.FC<RenewKeyConfirmModalProps> = ({
@@ -51,8 +51,9 @@ export const RenewKeyConfirmModal: React.FC<RenewKeyConfirmModalProps> = ({
 
         try {
             setIsSubmitting(true)
-            await renewKey(user.id, projectId)
-            onConfirm()
+            const response = await renewKey(user.id, projectId)
+            const newKey = response.data.newKey
+            onConfirm(newKey)
         } catch (err) {
             console.error(err)
             toast.error("Failed to renew API key")
@@ -83,6 +84,7 @@ export const RenewKeyConfirmModal: React.FC<RenewKeyConfirmModalProps> = ({
                     Are you sure you want to renew your API key? This action is irreversible
                     and will invalidate the current key immediately.
                 </p>
+                <p className="text-muted-foreground mb-6">New API key can only be shown for <span style={{ color: 'red' }}>1 times</span>, please remember it.</p>
 
                 <div className="flex gap-3 justify-end">
                     <Button

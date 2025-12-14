@@ -20,13 +20,13 @@ async function renewApiKey(req, res) {
     if (requester.role !== 'owner') {
       return res.status(403).json({ message: "Only owner can renew API key" });
     }
-
+    const newKey = crypto.randomBytes(32).toString('hex')
     await Projects.findOneAndUpdate(
       { projectId: projectId },
-      { $set: { apiKey: crypto.randomBytes(32).toString('hex') } }
+      { $set: { apiKey: newKey} }
     );
 
-    return res.status(200).json({ message: "API key renewed" });
+    return res.status(200).json({ message: "API key renewed", newKey });
 
   } catch (err) {
     console.error(err);
