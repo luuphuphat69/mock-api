@@ -204,4 +204,56 @@ export const FAKER_MODULES = [
   //
   "science.chemicalElement",
   "science.unit",
+
+  //
+// COMPUTER
+//
+"computer.platform",
+"computer.os",
+"computer.arch",
+"computer.mac",
+"computer.type",
+
+//
+// GAME
+//
+"game.title",
+"game.genre",
+"game.score",
+"game.platform",
+
+//
+// SCIENCE & MEDICINE
+//
+"science.chemicalFormula",
+"science.reaction",
+"science.prime",
+"science.method",
+"science.field",
+
+//
+// WORD / TEXT UTILITIES
+//
+"word.noun",
+"word.verb",
+"word.adjective",
+"word.adverb",
+"word.conjunction",
+"word.preposition",
+"word.interjection",
+
+//
+// TEAM
+//
+"team.name",
+"team.noun",
+"team.verb",
+"team.adjective",
+
+//
+// HELPERS / DATATYPE (Fundamental Utilities)
+//
+"helpers.boolean",
+"helpers.arrayElement",
+"helpers.enumValue"
 ];
