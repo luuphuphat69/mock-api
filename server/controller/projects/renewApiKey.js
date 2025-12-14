@@ -9,7 +9,7 @@ async function renewApiKey(req, res) {
     const projectId = req.params.projectid;
 
     const requester = await Member.findOne({
-      projectId,
+      projectId: projectId,
       userId: requestId
     });
 
