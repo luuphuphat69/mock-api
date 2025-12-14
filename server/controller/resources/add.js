@@ -2,6 +2,7 @@ const Resources = require('../../model/resources');
 const Member = require('../../model/member');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
+const User = require('../../model/user');
 
 async function add(req, res) {
     try {
@@ -9,12 +10,17 @@ async function add(req, res) {
         const userid = req.params.userid;
         const { name, schemaFields, records } = req.body;
 
-        const isMemberExistInProject = await Member.findOne({ projectId: projectId, userId: userid });
-
-        if (!isMemberExistInProject)
+        const memberExistInProject = await Member.findOne({ projectId: projectId, userId: userid });
+        const totalResourcesOfProject = await Resources.countDocuments({projectId: projectId});
+        const userInfo = await User.findOne({id: userid});
+        
+        if(totalResourcesOfProject === 3 && userInfo.type ==='free')
+            return res.status(400).json({message: 'Maximum 3 resources for free tier'})
+        
+        if (!memberExistInProject)
             return res.status(400).json({ message: "Project not found" });
 
-        if (isMemberExistInProject.role === 'owner' || isMemberExistInProject.permissions.canEdit) {
+        if (memberExistInProject.role === 'owner' || memberExistInProject.permissions.canEdit) {
 
             // Clean name (trim spaces)
             const cleanedName = name.trim();
