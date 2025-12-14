@@ -2,14 +2,13 @@
 
 import { Edit2, Trash2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import { getKey } from '@/utilities/api/api'
 import { useEffect, useState } from "react"
 import APITestModal, { Method } from './APITestModal'
 
 
 interface ResourceCardProps {
   resource: IResource
-  apiKey: string
+  version: string
   onView: (resource: IResource) => void
   onEdit: (resource: IResource) => void
   onDelete: (id: string) => void
@@ -23,25 +22,15 @@ const methodStyles = {
   DELETE: { text: "text-red-400", border: "hover:border-red-500/50" },
 }
 
-export function ResourceCard({ resource, apiKey, onView, onEdit, onDelete }: ResourceCardProps) {
-  const [prefix, setPrefix] = useState("")
+export function ResourceCard({ resource, version, onView, onEdit, onDelete }: ResourceCardProps) {
   const [isAPITestModalOpen, setIsAPITestModalOpen] = useState(false);
   const [testUrl, setTestUrl] = useState("");
   const [testMethod, setTestMethod] = useState<Method>("GET");
-
-  useEffect(() => {
-    const fetchPrefix = async () => {
-      const res = await getKey(resource.projectId)
-      setPrefix(res.prefix || "")
-    }
-    fetchPrefix()
-  }, [resource.projectId])
 
   return (
     <>
       {isAPITestModalOpen && (
         <APITestModal
-          apiKey={apiKey}
           url={testUrl}
           method={testMethod}
           resource={resource}
@@ -74,11 +63,11 @@ export function ResourceCard({ resource, apiKey, onView, onEdit, onDelete }: Res
         <div className="mb-4 space-y-2">
           <p className="text-xs font-semibold text-muted-foreground">Endpoints:</p>
           {[
-            { method: "GET", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${prefix}/${resource.endpoint}`, apiKey },
-            { method: "POST", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${prefix}/${resource.endpoint}`, apiKey },
-            { method: "PUT", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${prefix}/${resource.endpoint}/:id`, apiKey },
-            { method: "PATCH", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${prefix}/${resource.endpoint}/:id`, apiKey },
-            { method: "DELETE", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${prefix}/${resource.endpoint}/:id`, apiKey },
+            { method: "GET", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}`},
+            { method: "POST", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}`},
+            { method: "PUT", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}/:id`},
+            { method: "PATCH", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}/:id`},
+            { method: "DELETE", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}/:id`},
           ].map((endpoint) => {
             // 2. Retrieve the styles based on the method key
             // @ts-ignore (optional: handle typescript strict indexing if needed)

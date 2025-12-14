@@ -9,7 +9,6 @@ export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
 interface APITestModalProps {
   url: string
-  apiKey: string
   method: Method
   resource: IResource
   onClose: () => void
@@ -30,7 +29,6 @@ interface IApiTestState {
 
 export default function APITestModal({
   url,
-  apiKey,
   method,
   resource,
   onClose
@@ -44,8 +42,9 @@ export default function APITestModal({
     isLoading: false,
     response: null
   });
+  const [inputApiKey, setInputApiKey] = useState('')
 
-  const sendRequest = async () => {
+  const sendRequest = async (apiKey: string) => {
     const start = performance.now();
     setState(s => ({ ...s, isLoading: true, response: null }));
 
@@ -123,6 +122,15 @@ export default function APITestModal({
           />
         </div>
 
+        <Label className="mt-4 mb-2">X-API-KEY</Label>
+        <input
+          type="text"
+          value={inputApiKey}
+          onChange={(e) => setInputApiKey(e.target.value)}
+          placeholder="Enter your API key"
+          className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+
         {/* Body */}
         {["POST", "PUT", "PATCH"].includes(method) && (
           <div className="mt-4 space-y-2">
@@ -137,7 +145,7 @@ export default function APITestModal({
 
         {/* Send Button */}
         <Button
-          onClick={sendRequest}
+          onClick={() => sendRequest(inputApiKey)}
           disabled={state.isLoading}
           className="mt-6 w-full bg-cyan-600 text-white"
         >
@@ -168,7 +176,6 @@ export default function APITestModal({
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

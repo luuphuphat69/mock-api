@@ -31,6 +31,9 @@ export const FAKER_MODULES = [
   "location.longitude",
   "location.latitude",
   "location.nearbyGPSCoordinate",
+  "location.stateAbbr",
+  "location.timeZone",
+  "location.direction",
 
   //
   // INTERNET
@@ -98,6 +101,8 @@ export const FAKER_MODULES = [
   "date.future",
   "date.past",
   "date.birthdate",
+  "date.month",
+  "date.weekday",
 
   //
   // STRING & NUMBER
@@ -108,6 +113,11 @@ export const FAKER_MODULES = [
   "number.int",
   "number.float",
   "number.bigInt",
+  "string.numeric",
+  "string.hexadecimal",
+  "string.fromCharacters",
+  "number.binary",
+  "number.hex",
 
   //
   // SYSTEM
@@ -173,5 +183,77 @@ export const FAKER_MODULES = [
   "hacker.noun",
   "hacker.verb",
   "hacker.ingverb",
-  "hacker.phrase"
+  "hacker.phrase",
+  
+  //
+  // COLOR
+  //
+  "color.human",
+  "color.rgb",
+  "color.cmyk",
+  "color.hex",
+
+  //
+  // MUSIC
+  //
+  "music.genre",
+  "music.songName",
+
+  //
+  // SCIENCE
+  //
+  "science.chemicalElement",
+  "science.unit",
+
+  //
+// COMPUTER
+//
+"computer.platform",
+"computer.os",
+"computer.arch",
+"computer.mac",
+"computer.type",
+
+//
+// GAME
+//
+"game.title",
+"game.genre",
+"game.score",
+"game.platform",
+
+//
+// SCIENCE & MEDICINE
+//
+"science.chemicalFormula",
+"science.reaction",
+"science.prime",
+"science.method",
+"science.field",
+
+//
+// WORD / TEXT UTILITIES
+//
+"word.noun",
+"word.verb",
+"word.adjective",
+"word.adverb",
+"word.conjunction",
+"word.preposition",
+"word.interjection",
+
+//
+// TEAM
+//
+"team.name",
+"team.noun",
+"team.verb",
+"team.adjective",
+
+//
+// HELPERS / DATATYPE (Fundamental Utilities)
+//
+"helpers.boolean",
+"helpers.arrayElement",
+"helpers.enumValue"
 ];

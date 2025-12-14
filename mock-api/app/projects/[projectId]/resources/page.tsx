@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw } from 'lucide-react'
+import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw, Copy } from 'lucide-react'
 import Link from "next/link"
 import { useParams } from 'next/navigation'
 import gsap from "gsap"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import Header from "@/components/header"
 import { toast } from "sonner"
 import { useUser } from "../../../../hooks/useUser";
-import { addResource, deleteResource, editResource, getKey, getResourceByProjectId, getLogs, clearLogs } from "@/utilities/api/api"
+import { addResource, deleteResource, editResource, getResourceByProjectId, getLogs, clearLogs, getProjectById } from "@/utilities/api/api"
 import { Spinner } from "@/components/ui/shadcn-io/spinner"
 // Components
 import { ResourceCard } from "./components/ResourceCard"
@@ -20,6 +20,7 @@ import { RenewKeyConfirmModal } from "./components/RenewApiConfirmModal"
 export default function ResourcesPage() {
   const params = useParams()
   const projectId = params.projectId as string
+  const [project, setProject] = useState({ prefix: '' });
   const [resources, setResource] = useState<IResource[] | null>(null)
   const { user, fetchUser } = useUser()
   const [apiKey, setApiKey] = useState('')
@@ -52,12 +53,17 @@ export default function ResourcesPage() {
     }
   }
 
-  const fetchKey = async () => {
+  const fetchProject = async () => {
+    setIsLoading(true)
     try {
-      const res = await getKey(projectId);
-      setApiKey(res.apiKey)
+      if (user) {
+        const res = await getProjectById(projectId)
+        setProject(res.data)
+      }
     } catch (err) {
       console.error(err)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -80,8 +86,6 @@ export default function ResourcesPage() {
   }
 
   useEffect(() => {
-    fetchKey();
-
     // If user isn't loaded yet, try to fetch them
     if (!user) {
       fetchUser()
@@ -91,7 +95,7 @@ export default function ResourcesPage() {
     if (user) {
       fetchResources();
     }
-
+    fetchProject();
     fetchLogs()
   }, [projectId, user])
 
@@ -173,15 +177,24 @@ export default function ResourcesPage() {
     }
   }
 
-  const copyToClipboard = (text: string, type: string = "text") => {
-    navigator.clipboard.writeText(text)
-    toast.success("Copied !", {
-      action: {
-        label: "Undo",
-        onClick: () => console.log("Undo"),
-      },
-    })
-  }
+  const handleCopyKey = async () => {
+        if (!apiKey) {
+            toast.error("No API key available to copy.");
+            return;
+        }
+        if (!isApiKeyVisible) {
+             toast.error("Please renew the key to view and copy it.");
+             return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(apiKey);
+            toast.success("API Key copied to clipboard!");
+        } catch (err) {
+            console.error("Failed to copy API key:", err);
+            toast.error("Failed to copy. Please try manually.");
+        }
+    };
 
   return (
     <>
@@ -207,26 +220,20 @@ export default function ResourcesPage() {
             <div className="bg-background border border-border rounded-lg p-4 w-72">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-semibold text-foreground">API Key</span>
-                <button
-                  onClick={() => setIsApiKeyVisible(!isApiKeyVisible)}
-                  className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
-                >
-                  {isApiKeyVisible ? "Hide" : "Show"}
-                </button>
               </div>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-xs text-muted-foreground bg-card p-2 rounded border border-border/50 font-mono overflow-hidden text-ellipsis">
                   {isApiKeyVisible ? apiKey : "••••••••••••••••••••"}
                 </code>
-                <button
-                  onClick={() => copyToClipboard(apiKey, "API Key")}
-                  className="text-cyan-400 hover:text-cyan-300 transition-colors p-2 hover:bg-cyan-500/10 rounded"
-                  title="Copy API key"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </button>
+                {isApiKeyVisible && (
+                  <button
+                    onClick={handleCopyKey}
+                    className="text-primary hover:text-cyan-400 transition-colors p-1 rounded"
+                    title="Copy API key"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                )}
                 <button
                   onClick={() => setShowRenewConfirm(true)}
                   className="text-cyan-400 hover:text-cyan-300 transition-colors p-2 hover:bg-cyan-500/10 rounded"
@@ -259,7 +266,7 @@ export default function ResourcesPage() {
             {resources?.map((resource) => (
               <ResourceCard
                 key={resource._id}
-                apiKey={apiKey}
+                version={project.prefix}
                 resource={resource}
                 onView={(res) => setViewingResource(res)}
                 onEdit={(res) => { setEditingResource(res); setIsFormOpen(true) }}
@@ -356,10 +363,11 @@ export default function ResourcesPage() {
         isOpen={showRenewConfirm}
         projectId={projectId}
         onClose={() => setShowRenewConfirm(false)}
-        onConfirm={async () => {
+        onConfirm={async (newKey: string) => {
           setShowRenewConfirm(false)
-          toast.success("API key renewed")
-          fetchKey()
+          setApiKey(newKey);
+          setIsApiKeyVisible(true);
+          toast.success("API key renewed successfully! Please copy your new key.");
         }}
       />
     </>
