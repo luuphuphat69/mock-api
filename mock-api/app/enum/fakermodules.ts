@@ -177,15 +177,6 @@ export const FAKER_MODULES = [
   "phone.imei",
 
   //
-  // HACKER (still exists!)
-  //
-  "hacker.adjective",
-  "hacker.noun",
-  "hacker.verb",
-  "hacker.ingverb",
-  "hacker.phrase",
-  
-  //
   // COLOR
   //
   "color.human",
