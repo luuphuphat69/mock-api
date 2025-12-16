@@ -2,12 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { searchUser, sendInvite, getMembers, removeMember, me, updateMemberRole } from "../../../utilities/api/api";
+import { searchUser, sendInvite, getMembers, removeMember, updateMemberRole } from "../../../utilities/api/api";
 import { useUser } from "@/hooks/useUser";
 import gsap from "gsap"
 import { X } from "lucide-react"
 import { Spinner } from '@/components/ui/shadcn-io/spinner';
-import { ro } from "@faker-js/faker";
 
 interface ISearchResult {
   id: string,

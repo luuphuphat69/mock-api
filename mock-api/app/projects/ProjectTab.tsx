@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
-import { Code2, Plus, Trash2, Edit2, Users } from "lucide-react"
+import { Code2, Plus } from "lucide-react"
 import gsap from "gsap"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

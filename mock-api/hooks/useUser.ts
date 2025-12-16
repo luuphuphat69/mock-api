@@ -1,5 +1,3 @@
-"use client"
-
 import { create } from "zustand"
 import { me } from "@/utilities/api/api"
 
