@@ -54,8 +54,8 @@ export default function ProjectGrid({
           }
         >
           <div className="mb-4">
-            <h3 className="text-xl font-semibold">{project.name}</h3>
-            <p className="text-sm text-muted-foreground font-mono bg-background px-3 py-2 rounded border border-border">
+            <h3 data-testid='project-name' className="text-xl font-semibold">{project.name}</h3>
+            <p data-testid='project-version' className="text-sm text-muted-foreground font-mono bg-background px-3 py-2 rounded border border-border">
               {project.prefix}
             </p>
           </div>
