@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
-import Image from 'next/image'
 
 export function LoadingScreen({ isVisible }: { isVisible: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)

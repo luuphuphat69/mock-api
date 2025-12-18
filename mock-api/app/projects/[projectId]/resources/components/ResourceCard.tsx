@@ -39,6 +39,7 @@ export function ResourceCard({ resource, version, onView, onEdit, onDelete }: Re
       )}
 
       <div
+        data-testid='resource-card'
         data-resource-id={resource._id}
         data-resource-card
         className="bg-card border border-border rounded-lg p-6 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10 group cursor-pointer"

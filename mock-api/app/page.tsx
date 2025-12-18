@@ -8,7 +8,6 @@ import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "@/components/header";
 import Image from "next/image";
-import Head from 'next/head';
 
 // Register plugins
 if (typeof window !== "undefined") {
