@@ -136,7 +136,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
   return (
     isOpen && (
       <div ref={overlayRef} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div ref={modalRef} className="bg-card border border-border rounded-lg p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <div ref={modalRef} data-testid='resource-form-modal' className="bg-card border border-border rounded-lg p-8 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
           <h2 className="text-2xl font-bold text-foreground mb-6">{isEditMode ? "Edit Resource" : "Create New Resource"}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -168,6 +168,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                     />
                     <div className="flex gap-2">
                       <select
+                        data-testid='select-data-type'
                         value={field.dataType}
                         onChange={(e) => { handleSchemaChange(idx, 'dataType', e.target.value); setOpenFakerDropdown(null) }}
                         className="bg-background border border-border text-foreground rounded px-3 py-2 flex-1"
@@ -211,7 +212,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                         <ChevronRight className="w-4 h-4" />
                       </button>
                       {openFakerDropdown === idx && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded shadow-lg z-50">
+                        <div data-testid='faker-modules-container' className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded shadow-lg z-50">
                           <Input
                             type="text"
                             placeholder="Search modules..."

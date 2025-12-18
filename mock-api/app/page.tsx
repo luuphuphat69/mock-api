@@ -8,7 +8,6 @@ import { SplitText } from "gsap/SplitText";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Header from "@/components/header";
 import Image from "next/image";
-import Head from 'next/head';
 
 // Register plugins
 if (typeof window !== "undefined") {
@@ -205,11 +204,11 @@ export default function Home() {
 
   const getMethodColor = (method: string) => {
     const colors: Record<string, string> = {
-      GET: 'bg-cyan-500/30 text-cyan-400 border-cyan-500/50',
-      POST: 'bg-green-500/30 text-green-400 border-green-500/50',
-      PUT: 'bg-blue-500/30 text-blue-400 border-blue-500/50',
-      PATCH: 'bg-orange-500/30 text-orange-400 border-orange-500/50',
-      DELETE: 'bg-red-500/30 text-red-400 border-red-500/50'
+      GET: 'bg-cyan-500/40 text-cyan-500 border-cyan-500/50',
+      POST: 'bg-green-500/30 text-green-500 border-green-500/50',
+      PUT: 'bg-blue-500/30 text-blue-500 border-blue-500/50',
+      PATCH: 'bg-orange-500/30 text-orange-500 border-orange-500/50',
+      DELETE: 'bg-red-500/30 text-red-500 border-red-500/50'
     };
     return colors[method] || 'bg-muted text-muted-foreground';
   };
@@ -273,11 +272,11 @@ export default function Home() {
                     <label className="text-sm font-medium text-muted-foreground mb-2 block text-center">Headers</label>
                     <div className="space-y-2">
                       <div className="flex gap-2 text-xs text-left">
-                        <span className="text-cyan-400">Content-Type:</span>
+                        <span className="text-cyan-500">Content-Type:</span>
                         <span className="text-foreground">application/json</span>
                       </div>
                       <div className="flex gap-2 text-xs text-left">
-                        <span className="text-cyan-400">Authorization:</span>
+                        <span className="text-cyan-500">Authorization:</span>
                         <span className="text-foreground">Bearer token...</span>
                       </div>
                     </div>

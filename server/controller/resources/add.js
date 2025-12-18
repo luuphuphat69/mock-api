@@ -44,7 +44,7 @@ async function add(req, res) {
                 projectId: projectId,
                 userId: userid,
                 resourceName: name,
-                username: isMemberExistInProject.username,
+                username: memberExistInProject.username,
                 action: `Create new resource ${name}`
             })
 

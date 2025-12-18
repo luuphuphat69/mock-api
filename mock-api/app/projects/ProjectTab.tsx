@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
-import { Code2, Plus, Trash2, Edit2, Users } from "lucide-react"
+import { Code2, Plus } from "lucide-react"
 import gsap from "gsap"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -264,7 +263,7 @@ export default function ProjectsTab() {
         {/* Modal */}
         {isModalOpen && (
           <div ref={overlayRef} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div ref={modalRef} className="bg-card border border-border rounded-lg p-8 w-full max-w-md shadow-xl">
+            <div ref={modalRef} data-testid='project-popup' className="bg-card border border-border rounded-lg p-8 w-full max-w-md shadow-xl">
               <h2 className="text-2xl font-bold text-foreground mb-6">
                 {isEditMode ? "Edit Project" : "Create New Project"}
               </h2>
@@ -330,7 +329,7 @@ export default function ProjectsTab() {
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <div ref={confirmOverlayRef} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div ref={confirmModalRef} className="bg-card border border-border rounded-lg p-8 w-full max-w-md shadow-xl">
+            <div ref={confirmModalRef} data-testid='confirm-delete-project' className="bg-card border border-border rounded-lg p-8 w-full max-w-md shadow-xl">
               <h2 className="text-2xl font-bold text-foreground mb-2">Delete Project?</h2>
               <p className="text-muted-foreground mb-6">
                 Are you sure you want to delete this project? This action cannot be undone.
