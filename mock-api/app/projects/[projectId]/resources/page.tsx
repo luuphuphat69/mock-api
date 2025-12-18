@@ -262,7 +262,9 @@ export default function ResourcesPage() {
           </div>
 
           {/* Grid */}
-          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div ref={gridRef}
+          data-testid='resource-grid-container'
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resources?.map((resource) => (
               <ResourceCard
                 key={resource._id}
