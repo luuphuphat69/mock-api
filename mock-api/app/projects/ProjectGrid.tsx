@@ -44,6 +44,7 @@ export default function ProjectGrid({
         <div
           key={project.projectId}
           data-project-id={project.projectId}
+          data-testid='project-card'
           data-project-card
           className="bg-card border border-border rounded-lg p-6 group hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer"
           onClick={() => router.push(`/projects/${project.projectId}/resources`)}
