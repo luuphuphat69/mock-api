@@ -205,6 +205,7 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
                     <div className="relative">
                       <button
                         type="button"
+                        data-testid='select-module-button'
                         onClick={() => setOpenFakerDropdown(openFakerDropdown === idx ? null : idx)}
                         className="w-full bg-background border border-border text-foreground rounded px-3 py-2 text-sm flex justify-between"
                       >
