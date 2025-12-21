@@ -102,6 +102,7 @@ export function ResourceCard({ resource, version, onView, onEdit, onDelete }: Re
               onEdit(resource)
             }}
             variant="outline"
+            data-testid='edit-resource-button'
             className="flex-1 border-border bg-background text-foreground hover:bg-card hover:text-cyan-400"
           >
             <Edit2 className="w-4 h-4 mr-2" />
@@ -113,6 +114,7 @@ export function ResourceCard({ resource, version, onView, onEdit, onDelete }: Re
               e.stopPropagation()
               onDelete(resource._id)
             }}
+            data-testid='delete-resource-button'
             variant="outline"
             className="flex-1 border-border bg-background text-red-400 hover:bg-red-500"
           >
