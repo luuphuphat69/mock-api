@@ -145,8 +145,16 @@ export function ResourceFormModal({ isOpen, onClose, onSubmit, initialData }: Re
               <Input
                 id="resource-name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                placeholder="Enter your resource. This will be used as an endpoint !"
                 required
+                className="
+                  border border-border
+                  focus-visible:border-cyan-500
+                  focus-visible:ring-cyan-500/30
+                "
               />
             </div>
 
