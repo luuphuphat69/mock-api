@@ -11,6 +11,7 @@ import { ChartBarInteractive } from "./chart-bar-interactive"
 import Header from "@/components/header"
 import { getGeneralMetrics, getMethodMetrics, getMonthlyMetrics } from "@/utilities/api/api"
 import { Spinner } from "@/components/ui/shadcn-io/spinner"
+import { LoadingScreen } from "@/components/loading-screen"
 
 const methodColors: Record<HttpMethod, string> = {
   GET: "#06B6D4",
@@ -152,6 +153,7 @@ export default function MetricsPage() {
 
   return (
     <>
+    <LoadingScreen isVisible={isLoading}/>
       <main className="min-h-screen bg-background text-foreground pt-24 px-4 md:px-8 pb-12">
         {/* Breadcrumb and Header */}
         <Header />
