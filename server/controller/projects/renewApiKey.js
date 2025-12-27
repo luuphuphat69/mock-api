@@ -2,6 +2,7 @@ const Member = require('../../model/member');
 const Projects = require('../../model/projects');
 const crypto = require('crypto');
 const { MongoServerError } = require('mongodb');
+const Logs = require('../../model/logs');
 
 async function renewApiKey(req, res) {
   try {
@@ -25,6 +26,13 @@ async function renewApiKey(req, res) {
       { projectId: projectId },
       { $set: { apiKey: newKey} }
     );
+
+    await Logs.create({
+      projectId: projectId,
+      userId: requestId,
+      username: requester.username,
+      action: 'Generate new API key'
+    })
 
     return res.status(200).json({ message: "API key renewed", newKey });
 
