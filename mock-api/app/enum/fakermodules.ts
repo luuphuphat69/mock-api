@@ -249,4 +249,14 @@ export const FAKER_MODULES = [
 "team.noun",
 "team.verb",
 "team.adjective",
+
+// FOOD
+"food.description",
+"food.dish",
+"food.ethnicCategory",
+"food.fruit",
+"food.ingredient",
+"food.meat",
+"food.spice",
+"food.vegetable"
 ]
