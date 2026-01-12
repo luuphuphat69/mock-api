@@ -35,9 +35,8 @@ export default function LoginPage() {
         password: password
       }
       const response = await login(loginPayload);
-      if (response) {
-        router.refresh(); // forces middleware to re-read cookie
-        setTimeout(() => router.push("/projects"), 50);
+      if (response.status === 200) {
+        router.push('/')
         toast.success("Sign in successfully", {
           action: {
             label: "Undo",

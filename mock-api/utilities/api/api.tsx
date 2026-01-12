@@ -18,7 +18,7 @@ export async function register(registerPayload: IRegisterPayload) {
 export async function login(loginPayload: ILoginPayload) {
   try {
     const res = await api.post('/login', loginPayload);
-    return res.data;
+    return res;
   } catch (error: any) {
     throw error;
   }
