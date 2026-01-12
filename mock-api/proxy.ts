@@ -8,7 +8,7 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get("token")?.value;
+  let token = req.cookies.get("token")?.value;
 
   if (path.startsWith("/login") && token) {
     return NextResponse.redirect(new URL("/", req.url));

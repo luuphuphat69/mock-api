@@ -36,6 +36,7 @@ export default function LoginPage() {
       }
       const response = await login(loginPayload);
       if (response.status === 200) {
+        router.refresh();
         router.push('/')
         toast.success("Sign in successfully", {
           action: {
