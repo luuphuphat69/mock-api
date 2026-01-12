@@ -25,6 +25,7 @@ export default function ResourcesPage() {
   const { user, fetchUser } = useUser()
   const [apiKey, setApiKey] = useState('')
   const [isApiKeyVisible, setIsApiKeyVisible] = useState(false)
+  const [projectNotFound, setProjectNotFound] = useState(false);
 
   // Modals State
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -59,9 +60,11 @@ export default function ResourcesPage() {
       if (user) {
         const res = await getProjectById(projectId)
         setProject(res.data)
+        setProjectNotFound(false);
       }
     } catch (err) {
       console.error(err)
+      setProjectNotFound(true);
     } finally {
       setIsLoading(false)
     }
@@ -178,23 +181,44 @@ export default function ResourcesPage() {
   }
 
   const handleCopyKey = async () => {
-        if (!apiKey) {
-            toast.error("No API key available to copy.");
-            return;
-        }
-        if (!isApiKeyVisible) {
-             toast.error("Please renew the key to view and copy it.");
-             return;
-        }
+    if (!apiKey) {
+      toast.error("No API key available to copy.");
+      return;
+    }
+    if (!isApiKeyVisible) {
+      toast.error("Please renew the key to view and copy it.");
+      return;
+    }
 
-        try {
-            await navigator.clipboard.writeText(apiKey);
-            toast.success("API Key copied to clipboard!");
-        } catch (err) {
-            console.error("Failed to copy API key:", err);
-            toast.error("Failed to copy. Please try manually.");
-        }
-    };
+    try {
+      await navigator.clipboard.writeText(apiKey);
+      toast.success("API Key copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy API key:", err);
+      toast.error("Failed to copy. Please try manually.");
+    }
+  };
+
+  if (projectNotFound) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-foreground mb-3">
+            Project has been removed
+          </h1>
+          <p className="text-muted-foreground mb-6">
+            This project no longer exists or has been deleted.
+          </p>
+          <Link
+            href="/projects"
+            className="inline-block px-4 py-2 rounded bg-cyan-500 text-white hover:bg-cyan-600 transition"
+          >
+            Back to Projects
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -263,8 +287,8 @@ export default function ResourcesPage() {
 
           {/* Grid */}
           <div ref={gridRef}
-          data-testid='resource-grid-container'
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            data-testid='resource-grid-container'
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resources?.map((resource) => (
               <ResourceCard
                 key={resource._id}
