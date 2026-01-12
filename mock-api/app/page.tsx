@@ -236,7 +236,11 @@ export default function Home() {
               <Link title="start testing now" href="/projects">Start Building</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link title="explore feature" href="/login">View Features</Link>
+              <Link title="explore feature" href="#" onClick={() => {
+                document.getElementById('features')?.scrollIntoView({
+                  behavior: 'smooth'
+                })
+              }}>View Features</Link>
             </Button> 
           </div>
 
