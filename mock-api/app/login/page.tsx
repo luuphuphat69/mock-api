@@ -36,7 +36,7 @@ export default function LoginPage() {
       }
       const response = await login(loginPayload);
       if (response.status === 200) {
-        router.push('/projects')
+        router.push('/')
         toast.success("Sign in successfully", {
           action: {
             label: "Undo",
