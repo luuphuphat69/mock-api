@@ -26,6 +26,7 @@ export default function Header() {
       await logout() // Backend clears cookie 
       clearUser() // Frontend clears store 
       clearProjects();
+      router.refresh();
       router.push("/")
     } catch (err) {
       console.error("Logout error:", err)
