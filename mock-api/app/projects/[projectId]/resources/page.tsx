@@ -46,8 +46,10 @@ export default function ResourcesPage() {
       if (user) {
         const res = await getResourceByProjectId(user.id, projectId)
         setResource(res.data)
+        setProjectNotFound(false);
       }
     } catch (err) {
+      setProjectNotFound(true);
       console.error(err)
     } finally {
       setIsLoading(false)
@@ -60,7 +62,6 @@ export default function ResourcesPage() {
       if (user) {
         const res = await getProjectById(projectId)
         setProject(res.data)
-        setProjectNotFound(false);
       }
     } catch (err) {
       console.error(err)
