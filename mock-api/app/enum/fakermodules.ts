@@ -5,33 +5,35 @@ export const FAKER_MODULES = [
   "person.firstName",
   "person.lastName",
   "person.fullName",
+  "person.middleName",
   "person.prefix",
   "person.suffix",
   "person.gender",
   "person.sex",
-  "person.birthdate",
+  "person.bio",
   "person.zodiacSign",
   "person.jobTitle",
   "person.jobDescriptor",
   "person.jobArea",
-  "person.phone",
-  "person.email",
-  "person.avatar",
+  "person.jobType",
 
   //
-  // LOCATION (replaces old 'address')
+  // LOCATION
   //
   "location.streetAddress",
+  "location.street",
   "location.city",
   "location.state",
+  "location.continent",
   "location.country",
   "location.countryCode",
   "location.zipCode",
   "location.buildingNumber",
   "location.longitude",
   "location.latitude",
+  "location.language",
   "location.nearbyGPSCoordinate",
-  "location.stateAbbr",
+  "location.ordinalDirection",
   "location.timeZone",
   "location.direction",
 
@@ -39,9 +41,15 @@ export const FAKER_MODULES = [
   // INTERNET
   //
   "internet.email",
+  "internet.exampleEmail",
+  "internet.emoji",
   "internet.username",
   "internet.displayName",
   "internet.httpUrl",
+  "internet.httpMethod",
+  "internet.httpStatusCode",
+  "internet.jwt",
+  "internet.jwtAlgorithm",
   "internet.url",
   "internet.ip",
   "internet.ipv4",
@@ -49,6 +57,8 @@ export const FAKER_MODULES = [
   "internet.userAgent",
   "internet.password",
   "internet.domainName",
+  "internet.domainSuffix",
+  "internet.domainWord",
   "internet.port",
 
   //
@@ -60,6 +70,9 @@ export const FAKER_MODULES = [
   "company.buzzNoun",
   "company.buzzVerb",
   "company.buzzAdjective",
+  "company.catchPhraseAdjective",
+  "company.catchPhraseDescriptor",
+  "company.catchPhraseNoun",
 
   //
   // COMMERCE / PRODUCT
@@ -71,6 +84,8 @@ export const FAKER_MODULES = [
   "commerce.productAdjective",
   "commerce.productMaterial",
   "commerce.product",
+  "commerce.isbn",
+  "commerce.upc",
 
   //
   // FINANCE / PAYMENT
