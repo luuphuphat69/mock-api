@@ -12,7 +12,7 @@ const retrieve = {
                 const resources = await Resources.find({projectId: projectId});
                 return res.status(200).json(resources);
             }
-            return res.status(400).json({message: "You are not a member in this project"})
+            return res.status(404).json({message: "Project not found"})
         }catch(err){
             if(err instanceof MongoServerError)
                 return res.status(400).json(err)
