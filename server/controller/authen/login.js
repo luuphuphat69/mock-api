@@ -29,7 +29,6 @@ async function login(req, res) {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain: ".mock-api-server-sy5n.onrender.com",
             path: "/",                  // allow all routes
         });
         // res.cookie('token', token, {
