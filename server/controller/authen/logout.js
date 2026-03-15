@@ -3,6 +3,7 @@ async function logout(req, res) {
     httpOnly: true,
     secure: true,
     sameSite: "none",
+    partitioned: true,
     path: "/",
   });
   return res.status(200).json({ message: "Logged out" });
