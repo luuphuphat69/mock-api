@@ -17,7 +17,9 @@ export async function register(registerPayload: IRegisterPayload) {
 
 export async function login(loginPayload: ILoginPayload) {
   try {
-    const res = await api.post('/login', loginPayload);
+    const res = await api.post('/login', loginPayload, {
+      withCredentials: true 
+    });
     return res;
   } catch (error: any) {
     throw error;
