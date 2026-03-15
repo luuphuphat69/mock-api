@@ -3,7 +3,7 @@ async function logout(req, res) {
     httpOnly: true,
     secure: true,
     sameSite: "none",
-    domain: ".mockapi.io.vn",
+    domain: ".mock-api-server-sy5n.onrender.com",
     path: "/",
   });
   return res.status(200).json({ message: "Logged out" });
