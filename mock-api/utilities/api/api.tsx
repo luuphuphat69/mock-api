@@ -1,6 +1,6 @@
 import axios from "axios";
 const api = axios.create({
-  baseURL: "https://api.mockapi.io.vn/api",
+  baseURL: "https://mock-api-server-sy5n.onrender.com/api",
   //baseURL: "http://localhost:8000/api",
   withCredentials: true,
 });
