@@ -29,8 +29,8 @@ async function login(req, res) {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain: ".mockapi.io.vn",   // ← allow across subdomains
-            path: "/",                  // ← allow all routes
+            // domain: ".mockapi.io.vn",   
+            path: "/",                  // allow all routes
         });
         // res.cookie('token', token, {
         //     maxAge: 2 * 60 * 60 * 1000,
