@@ -29,6 +29,7 @@ async function login(req, res) {
             httpOnly: true,
             secure: true,
             sameSite: "none",
+            partitioned: true,
             path: "/",                  // allow all routes
         });
         // res.cookie('token', token, {
