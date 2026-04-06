@@ -1,0 +1,22 @@
+{
+  "name": "mockapi-e2e-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:ci": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "playwright": "^1.59.1"
+  }
+}
