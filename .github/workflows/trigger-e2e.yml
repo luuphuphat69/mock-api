@@ -1,4 +1,4 @@
-name: Trigger E2E Tests After Vercel Deploy (Static URL)
+name: Processing E2E after successfully deploy on Preview environment
 on:
   # Listens for the deployment_status event emitted by Vercel
   deployment_status:
