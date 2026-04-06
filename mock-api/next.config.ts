@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
         // This makes /api/login actually call your Render server
         // but the browser THINKS it is calling your frontend domain
         source: '/api/:path*',
-        destination: 'https://mock-api-server-sy5n.onrender.com/api/:path*',
+        destination: 'https://api.mockapi.io.vn/api/:path*',
       },
     ];
   },
