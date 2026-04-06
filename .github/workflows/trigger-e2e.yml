@@ -1,4 +1,5 @@
-name: Processing E2E after successfully deploy on Preview environment
+name: Trigger E2E Tests (After Preview deployment)
+
 on:
   deployment_status:
 
@@ -12,34 +13,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deployment Success Confirmation
-        run: |
-          echo "Vercel deployment success detected for Preview environment."
-          
-      - name: 📢 Dispatch E2E Test Workflow via GitHub API (cURL)
-        # Use a run step to call the GitHub REST API directly
-        run: |
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-          API_URL="https://api.github.com/repos/luuphuphat69/mockapi-e2e-test/dispatches"
-          
-          PAYLOAD=$(jq -n \
-            --arg ref "${{ github.ref }}" \
-            --arg sha "${{ github.event.deployment.sha }}" \
-            '{ref: $ref, sha: $sha}'
-          )
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-          echo "Sending dispatch event to: $API_URL"
-          HTTP_STATUS=$(curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.PAT_TEST_DISPATCH }}" \
-            "$API_URL" \
-            -d "{\"event_type\": \"trigger-e2e-run\", \"client_payload\": $PAYLOAD }" \
-            -w "%{http_code}" -s -o /dev/null
-          )
+      - name: Install dependencies
+        working-directory: test-resources/e2e
+        run: npm install
 
-          if [ "$HTTP_STATUS" -ne "202" ] && [ "$HTTP_STATUS" -ne "204" ]; then
-            echo "::error::GitHub API returned status code $HTTP_STATUS. Dispatch failed."
-            exit 1
-          else
-            echo "Successfully dispatched event! HTTP Status: $HTTP_STATUS."
-          fi
+      - name: Install Playwright browsers
+        working-directory: test-resources/e2e
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        working-directory: test-resources/e2e
+        run: npx playwright test
