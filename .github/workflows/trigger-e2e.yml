@@ -5,7 +5,7 @@ on:
 
 jobs:
   e2e:
-    # Only run if the deployment succeeded and is for Preview
+    # Only run if the deployment succeeded and is for Preview env
     if: |
       github.event.deployment_status.state == 'success' && 
       contains(github.event.deployment_status.environment, 'Preview')
