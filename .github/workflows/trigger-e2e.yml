@@ -1,18 +1,16 @@
 name: Processing E2E after successfully deploy on Preview environment
 on:
-  # Listens for the deployment_status event emitted by Vercel
   deployment_status:
 
 jobs:
-  dispatch_tests:
-    runs-on: ubuntu-latest
-    environment: Preview
-
-    # Only run if the deployment succeeded and is for the target environment
+  e2e:
+    # Only run if the deployment succeeded and is for Preview
     if: |
       github.event.deployment_status.state == 'success' && 
       contains(github.event.deployment_status.environment, 'Preview')
-    
+
+    runs-on: ubuntu-latest
+
     steps:
       - name: Deployment Success Confirmation
         run: |
