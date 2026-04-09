@@ -71,9 +71,8 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy with Kamal
+        working-directory: ./server
         run: kamal deploy
         env:
           # Pass only the specific secrets Kamal needs for your deploy.yml
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          # If your Kamal config uses other env vars, map them here:
-          # DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
