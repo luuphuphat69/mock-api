@@ -10,6 +10,7 @@ jobs:
       contains(github.event.deployment_status.environment, 'Preview')
     
     runs-on: ubuntu-latest
+    environment: Preview 
     
     steps:
       - name: Checkout repo
