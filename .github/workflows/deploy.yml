@@ -40,7 +40,7 @@ jobs:
 
       - name: Deploy with Kamal
         working-directory: ./server
-        run: kamal deploy
+        run: kamal deploy --no-cache
         env:
           # Pass only the specific secrets Kamal needs for your deploy.yml
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
