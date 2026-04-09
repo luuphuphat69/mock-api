@@ -34,7 +34,7 @@ jobs:
       
       - name: Update Kamal proxy
         working-directory: ./server
-        run: kamal proxy reboot
+        run: kamal proxy reboot -y
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
