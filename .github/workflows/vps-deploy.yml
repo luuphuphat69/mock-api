@@ -43,4 +43,12 @@ jobs:
         run: kamal deploy --no-cache
         env:
           # Pass only the specific secrets Kamal needs for your deploy.yml
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING}}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
+
+      - name: Cleanup old containers and images
+        working-directory: ./server
+        run: kamal prune
+        env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
