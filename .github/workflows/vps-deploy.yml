@@ -36,7 +36,7 @@ jobs:
       #   working-directory: ./server
       #   run: kamal proxy reboot -y
       #   env:
-      #     KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      #     KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD  }}
 
       - name: Deploy with Kamal
         working-directory: ./server
