@@ -63,7 +63,7 @@ jobs:
           bundler-cache: true
 
       - name: Install Kamal
-        run: gem install kamal -v 1.9.0 # Pinning a version is safer
+        run: gem install kamal
 
       - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
