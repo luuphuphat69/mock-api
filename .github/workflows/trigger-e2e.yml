@@ -46,6 +46,13 @@ jobs:
 
       - name: Run Playwright tests
         working-directory: test-resources/e2e
+        env:
+            TEST_USER: ${{ secrets.TEST_USER }}
+            TEST_PASS: ${{ secrets.TEST_PASS }}
+            TEST_PROJECT_ID: ${{ secrets.TEST_PROJECT_ID }}
+            TEST_USER_ID: ${{ secrets.TEST_USER_ID }}
+            VERCEL_BYPASS_TOKEN: ${{ secrets.VERCEL_BYPASS_TOKEN }}
+            
         run: npx playwright test
 
       - name: Upload Report
