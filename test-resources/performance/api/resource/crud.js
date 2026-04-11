@@ -12,9 +12,10 @@ export function testCreateResource(project, payload) {
         cookies: { 'token': mainUser.token },
         tags: { name: '[RES] create-resource' }
     });
-
+    if (res.status !== 201)
+        console.log(`[RES] create-resource: failed with status ${res.status}, duration: ${res.timings.duration}`)
     check(res, {
-        "response status is 200": (res) => res.status === 200,
+        "response status is 201": (res) => res.status === 201,
         "response time < 3000ms": (res) => res.timings.duration < 3000
     })
     const body = res.json();
@@ -34,7 +35,8 @@ export function testEditResource(project, resource, payload) {
         cookies: { 'token': mainUser.token },
         tags: { name: '[RES] edit-resource' }
     })
-    
+    if (res.status !== 200)
+        console.log(`[RES] create-resource: failed with status ${res.status}, duration: ${res.timings.duration}`)
     check(res, {
         "response status is 200": (res) => res.status === 200,
         "response time < 3000ms": (res) => res.timings.duration < 3000
@@ -44,9 +46,11 @@ export function testEditResource(project, resource, payload) {
 export function testReadResources(project) {
     const selectedProject = project ? project : mainProject.projectId
     const res = http.get(`https://mockapi.io.vn/api/resources/${mainUser.id}/${selectedProject}`, {
-        cookies: {token: mainUser.token},
+        cookies: { token: mainUser.token },
         tags: { name: '[RES] read-resource' }
     })
+    if (res.status !== 200)
+        console.log(`[RES] create-resource: failed with status ${res.status}, duration: ${res.timings.duration}`)
     check(res, {
         'response was 200': (res) => res.status === 200,
         'response time < 3000ms': (res) => res.timings.duration < 3000
@@ -63,9 +67,11 @@ export function testRemoveResource(project, resource) {
     }
 
     const res = http.del(`https://mockapi.io.vn/api/resources/${mainUser.id}/${selectedProject}/${selectedResource}`, null, {
-        cookies: {token: mainUser.token},
+        cookies: { token: mainUser.token },
         tags: { name: '[RES] remove-resource' }
     })
+    if (res.status !== 200)
+        console.log(`[RES] create-resource: failed with status ${res.status}, duration: ${res.timings.duration}`)
     check(res, {
         'response was 200': (res) => res.status === 200,
         'response time < 3000ms': (res) => res.timings.duration < 3000

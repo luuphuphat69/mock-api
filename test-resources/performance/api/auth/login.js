@@ -11,12 +11,15 @@ export default function testLogin(user, password) {
     const res = http.post('https://mockapi.io.vn/api/login',
         payload,
         {
-            headers: { 
-                'Content-Type': 'application/json', 
+            headers: {
+                'Content-Type': 'application/json',
             }
         },
         { tags: '[AUTH] login' }
     );
+
+    if (res.status !== 200)
+        console.log(`[AUTH] login: failed with status ${res.status}, duration: ${res.timings.duration}`)
 
     check(res, {
         'status is 200': (r) => r.status === 200,

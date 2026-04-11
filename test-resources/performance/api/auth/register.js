@@ -8,10 +8,11 @@ export default function testRegister() {
         "password": '1234'
     });
 
+    if(res.status !== 201)
+        console.log(`[AUTH] register: failed with status ${res.status}, duration: ${res.timings.duration}`)
+
     check(res, {
         'status is 201': (r) => r.status === 200,
         'response time < 3000ms': (r) => r.timings.duration < 3000,
     });
-
-    sleep(1)
 }
