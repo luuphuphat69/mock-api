@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import axios from "axios"
+import { useState } from "react"
+import RequestBuilder from "./requestBuilder"
+import TerminalBuilder from "./terminalBuilder"
+import { Braces, TerminalIcon } from "lucide-react"
 export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
 interface APITestModalProps {
@@ -14,88 +13,18 @@ interface APITestModalProps {
   onClose: () => void
 }
 
-interface IApiTestState {
-  resourceId: string
-  method: Method
-  url: string
-  body: string
-  isLoading: boolean
-  response: {
-    status: number
-    time: number
-    body: any
-  } | null
-}
-
 export default function APITestModal({
   url,
   method,
   resource,
   onClose
 }: APITestModalProps) {
-
-  const [state, setState] = useState<IApiTestState>({
-    resourceId: resource._id,
-    method,
-    url,
-    body: "",
-    isLoading: false,
-    response: null
-  });
-  const [inputApiKey, setInputApiKey] = useState('')
-
-  const sendRequest = async (apiKey: string) => {
-    const start = performance.now();
-    setState(s => ({ ...s, isLoading: true, response: null }));
-
-    try {
-      let res;
-
-      if (method === "GET") {
-        res = await axios.get(state.url, { headers: { "x-api-key": apiKey } });
-      } 
-      else if (method === "DELETE") {
-        res = await axios.delete(state.url, { headers: { "x-api-key": apiKey } });
-      } 
-      else {
-        const body = state.body ? JSON.parse(state.body) : {};
-        res = await axios({
-          method,
-          url: state.url,
-          headers: { "x-api-key": apiKey },
-          data: body
-        });
-      }
-
-      const ms = performance.now() - start;
-      setState(s => ({
-        ...s,
-        isLoading: false,
-        response: {
-          status: res.status,
-          time: ms,
-          body: res.data
-        }
-      }));
-    } 
-    catch (err: any) {
-      const ms = performance.now() - start;
-      setState(s => ({
-        ...s,
-        isLoading: false,
-        response: {
-          status: err.response?.status ?? 500,
-          time: ms,
-          body: err.response?.data ?? { error: "Unknown error" }
-        }
-      }));
-    }
-  };
+  const [activeTab, setActiveTab] = useState<"requestBuilder" | "terminalBuilder">("requestBuilder")
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-card border border-border rounded-lg p-8 w-full max-w-3xl shadow-xl max-h-[90vh] overflow-y-auto">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-foreground">API Tester</h2>
@@ -107,76 +36,37 @@ export default function APITestModal({
           </button>
         </div>
 
-        {/* Method */}
-        <span className="inline-block px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded font-mono text-sm">
-          {method}
-        </span>
-
-        {/* URL */}
-        <div className="mt-4 space-y-2">
-          <Label>URL</Label>
-          <Input
-            value={state.url}
-            onChange={(e) => setState(s => ({ ...s, url: e.target.value }))}
-            className="font-mono text-sm"
-          />
+        <div className="mb-6 flex gap-2 border-b border-border">
+          <button
+            type="button"
+            onClick={() => setActiveTab("requestBuilder")}
+            className={`pb-2 px-4 font-medium transition-colors flex items-center gap-2 ${activeTab === "requestBuilder"
+                ? "border-cyan-500 text-cyan-400"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+          >
+            <Braces className="w-4 h-4" />
+            Request Builder
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("terminalBuilder")}
+            className={`pb-2 px-4 font-medium transition-colors flex items-center gap-2 ${activeTab === "terminalBuilder"
+                ? "border-cyan-500 text-cyan-400"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+          >
+            <TerminalIcon className="w-4 h-4" />
+            cURL
+          </button>
         </div>
 
-        <Label className="mt-4 mb-2">X-API-KEY</Label>
-        <input
-          type="text"
-          value={inputApiKey}
-          onChange={(e) => setInputApiKey(e.target.value)}
-          placeholder="Enter your API key"
-          className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-
-        {/* Body */}
-        {["POST", "PUT", "PATCH"].includes(method) && (
-          <div className="mt-4 space-y-2">
-            <Label>Request Body (JSON)</Label>
-            <textarea
-              value={state.body}
-              onChange={(e) => setState(s => ({ ...s, body: e.target.value }))}
-              className="w-full bg-background border border-border rounded p-2 font-mono text-sm h-36"
-            />
-          </div>
-        )}
-
-        {/* Send Button */}
-        <Button
-          onClick={() => sendRequest(inputApiKey)}
-          disabled={state.isLoading}
-          className="mt-6 w-full bg-cyan-600 text-white"
-        >
-          {state.isLoading ? "Sending..." : "Send Request"}
-        </Button>
-
-        {/* Response */}
-        {state.response && (
-          <div className="mt-8 border-t border-border pt-4">
-            <div className="flex gap-6 text-sm">
-              <div>
-                <span className="text-muted-foreground">Status:</span>
-                <span className="text-green-400 ml-2">{state.response.status}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Time:</span>
-                <span className="text-blue-400 ml-2">
-                  {state.response.time.toFixed(0)}ms
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <Label>Response</Label>
-              <pre className="bg-background border border-border rounded p-3 text-xs font-mono max-h-64 overflow-auto">
-                {JSON.stringify(state.response.body, null, 2)}
-              </pre>
-            </div>
-          </div>
+        {activeTab === "requestBuilder" ? (
+          <RequestBuilder url={url} method={method} resource={resource} />
+        ) : (
+          <TerminalBuilder url={url} method={method}/>
         )}
       </div>
     </div>
-  );
+  )
 }
