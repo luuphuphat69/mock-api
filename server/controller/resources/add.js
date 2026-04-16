@@ -48,7 +48,7 @@ async function add(req, res) {
                 action: `Create new resource ${name}`
             })
 
-            return res.status(200).json(
+            return res.status(201).json(
                 { message: "New resource added", resource: newResource }
             );
         }

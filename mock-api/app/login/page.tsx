@@ -106,7 +106,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="Email"
                   onChange={(event) => setEmail(event.target.value)}
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground"
                   required
@@ -128,7 +128,7 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={isVisible ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Password"
                     onChange={(event) => setPassword(event.target.value)}
                     className="bg-background border-border text-foreground placeholder:text-muted-foreground pr-10"
                     required

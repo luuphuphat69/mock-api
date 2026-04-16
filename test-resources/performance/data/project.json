@@ -1,0 +1,10 @@
+{
+    "main-project": {
+        "projectId": "e135ac48-3825-4f7f-bb6e-4b520f13dd1c",
+        "resourceId": "e135ac48-3825-4f7f-bb6e-4b520f13dd1c"
+    },
+
+    "project-for-deletion":{
+        "projectId": ""
+    }
+}
