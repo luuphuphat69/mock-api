@@ -15,20 +15,22 @@ import { LoadingScreen } from "@/components/loading-screen"
 import Header from "@/components/header"
 
 export default function LoginPage() {
+  window.location.reload();
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
 
-useEffect(() => {
-  if (!document.querySelector('script[src*="turnstile"]')) {
-    const script = document.createElement("script");
-    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-  }
-}, []);
+  useEffect(() => {
+    if (!document.querySelector('script[src*="turnstile"]')) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   const toggleVisibility = () => {
     setIsVisible((prevState) => !prevState);
   };
