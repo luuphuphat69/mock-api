@@ -1,4 +1,5 @@
 interface ILoginPayload{
     email: String,
-    password: String
+    password: String,
+    cfToken: string | undefined
 }
