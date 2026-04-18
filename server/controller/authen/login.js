@@ -12,7 +12,7 @@ async function login(req, res) {
             {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
+                body: `secret=${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
             }
         );
         const cfData = await verifyCfTurnstile.json();
