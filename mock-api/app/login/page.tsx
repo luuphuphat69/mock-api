@@ -3,7 +3,7 @@
 import type React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect} from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,6 +19,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
 
   const toggleVisibility = () => {
     setIsVisible((prevState) => !prevState);
@@ -145,6 +152,11 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+
+              <div
+                className="cf-turnstile"
+                data-sitekey="0x4AAAAAAC_YHdTsgyllblsq"
+              ></div>
               
               <Button
                 type="submit"

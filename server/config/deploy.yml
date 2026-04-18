@@ -49,6 +49,7 @@ env:
     - PRIVATE_KEY
     - CONNECTION_STRING
     - KAMAL_REGISTRY_PASSWORD
+    - CF_TURNSTILE_TOKEN
 
   # Pass in additional build args needed for your Dockerfile.
   # args:

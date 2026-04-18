@@ -6,6 +6,19 @@ async function login(req, res) {
     try {
         const email = req.body.email;
         const password = req.body.password;
+        const cfTurnstileToken = req.body["cf-turnstile-response"];
+        const verifyCfTurnstile = await fetch(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
+            }
+        );
+        const cfData = await verifyCfTurnstile.json();
+        if (!cfData.success) {
+            return res.status(403).json({ message: "Verification failed" });
+        }
 
         const account = await User.findOne({ email });
         if (!account)
@@ -30,14 +43,13 @@ async function login(req, res) {
             secure: true,
             sameSite: "none",
             partitioned: true,
-            path: "/",                  // allow all routes
+            path: "/",
         });
         // res.cookie('token', token, {
         //     maxAge: 2 * 60 * 60 * 1000,
         //     httpOnly: true,
         //     secure: false,
-        //     sameSite: "lax",
-        //     domain: ".localhost",  
+        //     sameSite: "none",
         //     path: "/",                 
         // });
         return res.status(200).json({
