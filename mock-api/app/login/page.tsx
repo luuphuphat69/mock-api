@@ -20,13 +20,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
+  if (!document.querySelector('script[src*="turnstile"]')) {
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
     script.async = true;
+    script.defer = true;
     document.body.appendChild(script);
-  }, []);
-
+  }
+}, []);
   const toggleVisibility = () => {
     setIsVisible((prevState) => !prevState);
   };
@@ -37,10 +39,16 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      const cfToken = (document.querySelector(
+        '[name="cf-turnstile-response"]'
+      ) as HTMLInputElement | null)?.value;
+
       const loginPayload: ILoginPayload = {
         email: email,
-        password: password
+        password: password,
+        cfToken: cfToken
       }
+
       const response = await login(loginPayload);
       if (response.status === 200) {
         router.refresh();
@@ -155,9 +163,12 @@ export default function LoginPage() {
 
               <div
                 className="cf-turnstile"
-                data-sitekey="0x4AAAAAAC_YHdTsgyllblsq"
+                data-sitekey="0x4AAAAAAC_Z9ZJ1nHzp2plv"
+                data-theme="light"
+                data-size="normal"
+                data-callback="onSuccess"
               ></div>
-              
+
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 transition-all font-semibold"

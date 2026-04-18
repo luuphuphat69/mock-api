@@ -6,15 +6,17 @@ async function login(req, res) {
     try {
         const email = req.body.email;
         const password = req.body.password;
-        const cfTurnstileToken = req.body["cf-turnstile-response"];
+        const cfTurnstileToken = req.body.cfToken
+
         const verifyCfTurnstile = await fetch(
             "https://challenges.cloudflare.com/turnstile/v0/siteverify",
             {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
+                body: `secret=${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
             }
         );
+        
         const cfData = await verifyCfTurnstile.json();
         if (!cfData.success) {
             return res.status(403).json({ message: "Verification failed" });
@@ -45,13 +47,7 @@ async function login(req, res) {
             partitioned: true,
             path: "/",
         });
-        // res.cookie('token', token, {
-        //     maxAge: 2 * 60 * 60 * 1000,
-        //     httpOnly: true,
-        //     secure: false,
-        //     sameSite: "none",
-        //     path: "/",                 
-        // });
+
         return res.status(200).json({
             message: "Login succesfully",
             token: token
