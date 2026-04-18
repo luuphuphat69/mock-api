@@ -21,7 +21,6 @@ export default function LoginPage() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    window.location.reload();
     if (!document.querySelector('script[src*="turnstile"]')) {
       const script = document.createElement("script");
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
