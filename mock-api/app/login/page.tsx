@@ -15,7 +15,6 @@ import { LoadingScreen } from "@/components/loading-screen"
 import Header from "@/components/header"
 
 export default function LoginPage() {
-  window.location.reload();
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
