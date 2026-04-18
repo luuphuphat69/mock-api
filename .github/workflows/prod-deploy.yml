@@ -44,7 +44,7 @@ jobs:
         env:
           # Pass only the specific secrets Kamal needs for your deploy.yml
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
-          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING}}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
-          CF_TURNSTILE_TOKEN: ${{ secrets.CF_TURNSTILE_TOKEN}}
-          NODE_ENV: ${{ secrets.NODE_ENV}}
+          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          CF_TURNSTILE_TOKEN: ${{ secrets.CF_TURNSTILE_TOKEN }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
