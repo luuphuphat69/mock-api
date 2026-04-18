@@ -46,7 +46,8 @@ jobs:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING}}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
-
+          CF_TURNSTILE_TOKEN: ${{ secrets.CF_TURNSTILE_TOKEN}}
+          
       - name: Cleanup old containers and images
         working-directory: ./server
         run: kamal prune
