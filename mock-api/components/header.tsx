@@ -21,13 +21,15 @@ export default function Header() {
   useEffect(() => {
     fetchUser() // Automatically loads user from cookie
   }, [])
+  
   const handleSignOut = async () => {
     try {
       await logout() // Backend clears cookie 
       clearUser() // Frontend clears store 
       clearProjects();
+      window.location.reload();
       router.refresh();
-      router.push("/")
+      router.push("/");
     } catch (err) {
       console.error("Logout error:", err)
     }
