@@ -8,20 +8,23 @@ async function login(req, res) {
         const password = req.body.password;
         const cfTurnstileToken = req.body.cfToken
 
-        const verifyCfTurnstile = await fetch(
-            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `secret=${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
-            }
-        );
-        
-        const cfData = await verifyCfTurnstile.json();
-        if (!cfData.success) {
-            return res.status(403).json({ message: "Verification failed" });
-        }
+        if (process.env.NODE_ENV === 'production') {
+            const verifyCfTurnstile = await fetch(
+                "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `secret=${process.env.CF_TURNSTILE_TOKEN}&response=${cfTurnstileToken}`
+                }
+            );
 
+            cfData = await verifyCfTurnstile.json();
+
+            if (!cfData.success) {
+                return res.status(403).json({ message: "Verification failed" });
+            }
+        }
+        
         const account = await User.findOne({ email });
         if (!account)
             return res.status(400).json({ message: "Account is not exist" });

@@ -1,9 +1,9 @@
-name: Build, Push & Deploy (For server)
+name: Build, Push & Deploy on Production env (For server)
 
 on:
   push:
     branches:
-      - preview
+      - master
 
 # Prevent multiple deployments from running simultaneously
 concurrency:
@@ -13,7 +13,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Preview
+    environment: Production
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -47,9 +47,4 @@ jobs:
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING}}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
           CF_TURNSTILE_TOKEN: ${{ secrets.CF_TURNSTILE_TOKEN}}
-          
-      - name: Cleanup old containers and images
-        working-directory: ./server
-        run: kamal prune
-        env:
-          KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          NODE_ENV: ${{ secrets.NODE_ENV}}
