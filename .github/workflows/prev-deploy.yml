@@ -1,0 +1,55 @@
+name: Build, Push & Deploy on Preview env (For server)
+
+on:
+  push:
+    branches:
+      - preview
+
+# Prevent multiple deployments from running simultaneously
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Preview
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+
+      - name: Install Kamal
+        run: gem install kamal
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      # - name: Update Kamal proxy
+      #   working-directory: ./server
+      #   run: kamal proxy reboot -y
+      #   env:
+      #     KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD  }}
+
+      - name: Deploy with Kamal
+        working-directory: ./server
+        run: kamal deploy --no-cache
+        env:
+          # Pass only the specific secrets Kamal needs for your deploy.yml
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING}}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY}}
+          NODE_ENV: ${{ secrets.NODE_ENV}}
+
+      # - name: Cleanup old containers and images
+      #   working-directory: ./server
+      #   run: kamal prune
+      #   env:
+      #     KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
