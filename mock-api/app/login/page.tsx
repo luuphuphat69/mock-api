@@ -163,7 +163,7 @@ useEffect(() => {
 
               <div
                 className="cf-turnstile"
-                data-sitekey="0x4AAAAAAC_Z9ZJ1nHzp2plv"
+                data-sitekey="0x4AAAAAAC_YHdTsgyllblsq"
                 data-theme="light"
                 data-size="normal"
                 data-callback="onSuccess"
