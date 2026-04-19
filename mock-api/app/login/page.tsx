@@ -32,9 +32,6 @@ export default function LoginPage() {
       widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
         sitekey: "0x4AAAAAAC_YHdTsgyllblsq",
         theme: "light",
-        callback: (token: string) => {
-          console.log("Turnstile success:", token);
-        },
       });
     };
 

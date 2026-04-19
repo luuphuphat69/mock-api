@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button"
 interface LogsFilterProps {
     methods: string[]
     methodFilter: string
-    setMethodFilter: React.Dispatch<React.SetStateAction<string>>
+    setMethodFilter: (value: string) => void
     successFilter: string
-    setSuccessFilter: React.Dispatch<React.SetStateAction<string>>
+    setSuccessFilter: (value: string) => void
     fromDate: string
     toDate: string
     handleDateChange: (type: 'from' | 'to', value: string) => void
     sortBy: "asc" | "desc"
-    setSortBy: React.Dispatch<React.SetStateAction<"asc" | "desc">>
+    setSortBy: (value: "asc" | "desc") => void
     clearFilters: () => void
 }
 
