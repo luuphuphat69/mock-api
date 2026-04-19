@@ -127,7 +127,6 @@ export const FAKER_MODULES = [
   "string.alphanumeric",
   "number.int",
   "number.float",
-  "number.bigInt",
   "string.numeric",
   "string.hexadecimal",
   "string.fromCharacters",

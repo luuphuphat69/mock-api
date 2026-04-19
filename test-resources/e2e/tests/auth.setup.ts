@@ -1,8 +1,7 @@
 import { test as setup, expect } from '@playwright/test';
-import path from 'path';
 import LoginPage from '../page-model/auth/Login';
 
-const authFile = path.join(__dirname, '../playwright/.auth/user.json');
+const authFile = 'playwright/.auth/user.json';
 
 setup('authenticate', async ({ page, context }) => {
   if (!process.env.TEST_USER || !process.env.TEST_PASS) {

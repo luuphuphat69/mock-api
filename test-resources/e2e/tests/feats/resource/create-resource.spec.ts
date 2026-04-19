@@ -67,7 +67,7 @@ test.describe("Resource Create", () => {
     );
   });
 
-  test("create new resource with all fake modules and show data in every column", async () => {
+   test("create new resource with all fake modules and show data in every column", async () => {
     test.slow();
     test.setTimeout(180_000);
 
