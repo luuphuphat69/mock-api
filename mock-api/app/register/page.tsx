@@ -63,24 +63,10 @@ export default function RegisterPage() {
             <Header/>
             <div className="min-h-screen bg-background flex items-center justify-center p-4">
                 <div className="w-full max-w-md">
-                    {/* Logo and Back Link */}
-                    <Link href="/" className="inline-flex items-center gap-2 group hover:opacity-80 transition-opacity mb-8">
-                        <div className="w-10 h-10 bg-gradient-to-br  rounded-lg flex items-center justify-center">
-                            <Image
-                                src='/icon.png'
-                                width={700}
-                                height={700}
-                                alt="logo"
-                            />
-                        </div>
-                        <span className="font-bold text-xl text-foreground">MockAPI</span>
-                    </Link>
-
                     <div className="bg-card border border-border rounded-xl p-8 space-y-8 shadow-lg">
                         <div>
                             <h1 className="text-3xl font-bold text-foreground mb-2">Sign up new account</h1>
                         </div>
-
                         {/* Sign up Form */}
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
