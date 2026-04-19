@@ -19,7 +19,8 @@ When a mock API is called:
 \
 The picture below shown how the process works
 
-<img width="720" height="759" alt="Untitled Diagram drawio (1)" src="https://github.com/user-attachments/assets/dfd9aed2-b557-4ab8-b570-2ef65b4c3a0c" />
+<img width="721" height="758" alt="Untitled Diagram drawio (2)" src="https://github.com/user-attachments/assets/f91b0f63-8cb5-486c-8cec-6e19c4198977" />
+
 
 
 ## How to use ?
