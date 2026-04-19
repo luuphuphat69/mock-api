@@ -268,6 +268,16 @@ export async function getMockLogs (projectId: string, queryString: string){
   }
 }
 
+export async function getMockLogsByMethod (projectId: string, queryString: string){
+  try{
+    const res = await api.get(`/mock-logs/method/${projectId}?${queryString}`)
+    return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
 export async function renewKey(requestId: string, projectId: string){
     try{
     const res = await api.patch(`/projects/key/renew/${requestId}/${projectId}`)

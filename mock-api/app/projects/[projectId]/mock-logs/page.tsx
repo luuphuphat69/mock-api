@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import gsap from "gsap"
 
 import Header from "@/components/header"
-import { getMockLogs } from "@/utilities/api/api"
+import { getMockLogs, getMockLogsByMethod } from "@/utilities/api/api"
 
 // Refactored Child Components (to be created below)
 import LogsHeader from "./components/LogsHeader"
@@ -22,7 +22,7 @@ interface LogEntry {
     statusCode: number
     error: string
     timestamp: string
-    filters: any[]
+    filters: unknown[]
     recordId: string
     updatedRecord: string
     deletedRecord: string
@@ -34,6 +34,14 @@ interface PaginationData {
     limit: number
     total: number
     totalPages: number
+}
+
+interface ApiError {
+    response?: {
+        data?: {
+            message?: string
+        }
+    }
 }
 // -----------------------------------------------------------
 
@@ -67,24 +75,21 @@ export default function LogsPage() {
             const queryParams = new URLSearchParams({
                 _page: pagination.page.toString(),
                 _limit: pagination.limit.toString(),
-                _sort: "timestamp", // Assuming we always sort by timestamp for API fetch
-                _order: sortBy,
             })
 
-            if (fromDate && toDate) {
-                queryParams.append("_from", fromDate)
-                queryParams.append("_to", toDate)
-            }
+            let result
+
             if (methodFilter) {
                 queryParams.append("method", methodFilter)
-            }
-            if (successFilter) {
-                queryParams.append("success", successFilter === "yes" ? "true" : "false")
-            }
+                result = await getMockLogsByMethod(projectId, queryParams.toString())
+            } else {
+                if (fromDate && toDate) {
+                    queryParams.append("_from", fromDate)
+                    queryParams.append("_to", toDate)
+                }
 
-            // Note: Your API fetch should ideally handle filters on the server.
-            // If getMockLogs handles all filtering/sorting locally, the next section is fine.
-            const result = await getMockLogs(projectId, queryParams.toString())
+                result = await getMockLogs(projectId, queryParams.toString())
+            }
 
             setLogs(result.data || [])
             setPagination(prev => ({
@@ -94,14 +99,14 @@ export default function LogsPage() {
                 page: result.page
             }))
 
-        } catch (error: any) {
-            const msg = error?.response?.data?.message || "Failed to fetch logs";
-            toast.error(msg);
+        } catch (error) {
+            const msg = (error as ApiError)?.response?.data?.message || "Failed to fetch logs"
+            toast.error(msg)
             console.error("Error fetching logs:", error)
         } finally {
             setLoading(false)
         }
-    }, [projectId, pagination.page, pagination.limit, fromDate, toDate, methodFilter, successFilter, sortBy]) // Added filters to dependencies
+    }, [projectId, pagination.page, pagination.limit, fromDate, toDate, methodFilter])
 
     useEffect(() => {
         fetchLogs()
@@ -125,13 +130,26 @@ export default function LogsPage() {
         }
     }, [logs, loading])
 
-    // --- Local Filtering/Sorting Logic (kept here for simplicity, but only needed if fetchLogs does NOT apply them) ---
     const getDisplayLogs = () => {
-        // Since fetchLogs now incorporates the filters into the queryParams,
-        // we can assume the 'logs' state is already the final result.
-        // We only need to sort by timestamp if the API doesn't guarantee the order.
+        let filtered = [...logs]
 
-        let sorted = [...logs]
+        if (successFilter) {
+            const expectedSuccess = successFilter === "yes"
+            filtered = filtered.filter((log) => log.success === expectedSuccess)
+        }
+
+        if (fromDate) {
+            const from = new Date(fromDate)
+            filtered = filtered.filter((log) => new Date(log.timestamp) >= from)
+        }
+
+        if (toDate) {
+            const to = new Date(toDate)
+            to.setHours(23, 59, 59, 999)
+            filtered = filtered.filter((log) => new Date(log.timestamp) <= to)
+        }
+
+        const sorted = [...filtered]
 
         sorted.sort((a, b) => {
             const timeA = new Date(a.timestamp).getTime()
@@ -142,7 +160,6 @@ export default function LogsPage() {
         return sorted
     }
     const displayLogs = getDisplayLogs()
-    // ------------------------------------------------------------------------------------------------------------------
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -229,9 +246,15 @@ export default function LogsPage() {
                 <LogsFilter
                     methods={["GET", "POST", "PUT", "PATCH", "DELETE"]}
                     methodFilter={methodFilter}
-                    setMethodFilter={setMethodFilter}
+                    setMethodFilter={(value) => {
+                        setMethodFilter(value)
+                        setPagination(prev => ({ ...prev, page: 1 }))
+                    }}
                     successFilter={successFilter}
-                    setSuccessFilter={setSuccessFilter}
+                    setSuccessFilter={(value) => {
+                        setSuccessFilter(value)
+                        setPagination(prev => ({ ...prev, page: 1 }))
+                    }}
                     fromDate={fromDate}
                     toDate={toDate}
                     handleDateChange={(type, value) => {
@@ -240,7 +263,10 @@ export default function LogsPage() {
                         setPagination(prev => ({ ...prev, page: 1 }))
                     }}
                     sortBy={sortBy}
-                    setSortBy={setSortBy}
+                    setSortBy={(value) => {
+                        setSortBy(value)
+                        setPagination(prev => ({ ...prev, page: 1 }))
+                    }}
                     clearFilters={clearFilters}
                 />
 
