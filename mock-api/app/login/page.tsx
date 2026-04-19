@@ -3,30 +3,50 @@
 import type React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState, useEffect} from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import Image from 'next/image';
 import { Eye, EyeOff } from "lucide-react";
 import { login } from '../../utilities/api/api';
 import { LoadingScreen } from "@/components/loading-screen"
 import Header from "@/components/header"
+import { useRef } from "react";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+  const turnstileRef = useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    const loadTurnstile = () => {
+      if (!window.turnstile || !turnstileRef.current) return;
+
+      // Clear container first (hard reset)
+      turnstileRef.current.innerHTML = "";
+
+      widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: "0x4AAAAAAC_YHdTsgyllblsq",
+        theme: "light",
+        callback: (token: string) => {
+          console.log("Turnstile success:", token);
+        },
+      });
+    };
+
     if (!document.querySelector('script[src*="turnstile"]')) {
       const script = document.createElement("script");
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
       script.async = true;
       script.defer = true;
+      script.onload = loadTurnstile;
       document.body.appendChild(script);
+    } else {
+      loadTurnstile();
     }
   }, []);
 
@@ -76,28 +96,16 @@ export default function LoginPage() {
 
       setTimeout(() => {
         setIsLoading(false);
-      }, 1200); // animation timing
+      }, 1200);
     }
   }
 
   return (
     <>
       <LoadingScreen isVisible={isLoading} />
-      <Header/>
+      <Header />
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo and Back Link */}
-          <Link href="/" className="inline-flex items-center gap-2 group hover:opacity-80 transition-opacity mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br rounded-lg flex items-center justify-center">
-              <Image
-                src='/icon.png'
-                width={500}
-                height={500}
-                alt="logo"
-              />
-            </div>
-            <span className="font-bold text-xl text-foreground">MockAPI</span>
-          </Link>
 
           <div className="bg-card border border-border rounded-xl p-8 space-y-8 shadow-lg">
             <div>
@@ -162,13 +170,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div
-                className="cf-turnstile"
-                data-sitekey="0x4AAAAAAC_YHdTsgyllblsq"
-                data-theme="light"
-                data-size="normal"
-                data-callback="onSuccess"
-              ></div>
+              <div ref={turnstileRef}></div>
 
               <Button
                 type="submit"
