@@ -17,6 +17,9 @@ async function add(req, res) {
         if(totalResourcesOfProject === 3 && userInfo.type ==='free')
             return res.status(400).json({message: 'Maximum 3 resources for free tier'})
         
+        if(records.length > 100 && userInfo.type === 'free')
+            return res.status(400).json({message: 'Maximum 100 records for free tier'})
+
         if (!memberExistInProject)
             return res.status(400).json({ message: "Project not found" });
 
