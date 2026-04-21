@@ -17,9 +17,7 @@ const handler = async (req, res) => {
       error: "Record ID is required",
     });
 
-    return res.status(400).json({
-      body: JSON.stringify({ message: "Record ID is required" }),
-    });
+    return res.status(400).json({ message: "Record ID is required" });
   }
 
   // Validate Project
@@ -33,9 +31,7 @@ const handler = async (req, res) => {
       statusCode: 404,
       error: "Project not found",
     });
-    return res.status(400).json({
-      body: JSON.stringify({ message: "Project not found" }),
-    });
+    return res.status(400).json({message: "Project not found" })
   }
 
   // Validate API Key
@@ -48,9 +44,7 @@ const handler = async (req, res) => {
       statusCode: 401,
       error: "Unauthorized",
     });
-    return res.status(401).json({
-      body: JSON.stringify({ message: "Unauthorized" }),
-    });
+    return res.status(401).json({ message: "Unauthorized" })
   }
 
   // Validate Resource
@@ -65,9 +59,7 @@ const handler = async (req, res) => {
       statusCode: 404,
       error: "Resource not found",
     });
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Resource not found" }),
-    });
+    return res.status(404).json({ message: "Resource not found" })
   }
 
   let records = Array.isArray(resourceDoc.records)
@@ -80,9 +72,7 @@ const handler = async (req, res) => {
   );
 
   if (recordIndex === -1) {
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Record not found" }),
-    });
+    return res.status(404).json({ message: "Record not found" })
   }
 
   const deletedRecord = records[recordIndex];
@@ -105,10 +95,8 @@ const handler = async (req, res) => {
   });
 
   return res.status(200).json({
-    body: JSON.stringify({
       message: "Record deleted",
       deleted: deletedRecord,
-    }),
-  });
+    })
 };
 module.exports = handler

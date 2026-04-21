@@ -20,9 +20,7 @@ const handler = async (req, res) => {
       error: "No content",
     });
 
-    return res.status(204).json({
-      body: JSON.stringify({ message: "No content" }),
-    });
+    return res.status(204).json({ message: "No content" })
   }
 
   // Validate Project
@@ -38,9 +36,7 @@ const handler = async (req, res) => {
       error: "Project not found",
     });
 
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Project not found" }),
-    });
+    return res.status(404).json({message: "Project not found" })
   }
 
   // Validate API Key
@@ -55,9 +51,7 @@ const handler = async (req, res) => {
       error: "Unauthorized",
     });
 
-    return res.status(401).json({
-      body: JSON.stringify({ message: "Unauthorized" }),
-    });
+    return res.status(401).json({ message: "Unauthorized" })
   }
 
   // Validate Resource
@@ -74,9 +68,7 @@ const handler = async (req, res) => {
       error: "Resource not found",
     });
 
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Resource not found" }),
-    });
+    return res.status(404).json({ message: "Resource not found" })
   }
 
   // Ensure records array
@@ -103,9 +95,7 @@ const handler = async (req, res) => {
         });
 
         return res.status(400).json({
-          body: JSON.stringify({
             message: `Missing required field '${key}'`,
-          }),
         });
       }
 
@@ -121,9 +111,7 @@ const handler = async (req, res) => {
         });
 
         return res.status(400).json({
-          body: JSON.stringify({
             message: `Field '${key}' must be type '${typeof sample[key]}', got '${typeof body[key]}'`,
-          }),
         });
       }
     }
@@ -154,10 +142,8 @@ const handler = async (req, res) => {
   });
 
   return res.status(201).json({
-    body: JSON.stringify({
       message: "Record created",
       record: body,
-    }),
   });
 };
 module.exports = handler

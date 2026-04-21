@@ -64,7 +64,7 @@ const handler = async (req, res) => {
     });
 
     return res.status(401).json({
-      body: JSON.stringify({ message: "Unauthorized" }),
+      body: JSON.stringify({ message: "Unauthorized" })
     });
   }
 
@@ -105,9 +105,7 @@ const handler = async (req, res) => {
       error: "Resource not found",
     });
     
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Record not found" }),
-    });
+    return res.status(404).json({ message: "Record not found" })
   }
 
   const existingRecord = records[recordIndex];
@@ -127,9 +125,7 @@ const handler = async (req, res) => {
       });
 
       return res.status(400).json({
-        body: JSON.stringify({
-          message: `Unknown field '${key}'`,
-        }),
+          message: `Unknown field '${key}'`
       });
     }
 
@@ -144,9 +140,7 @@ const handler = async (req, res) => {
       });
 
       return res.status(400).json({
-        body: JSON.stringify({
-          message: `Field '${key}' must be type '${typeof existingRecord[key]}', got '${typeof body[key]}'`,
-        }),
+          message: `Field '${key}' must be type '${typeof existingRecord[key]}', got '${typeof body[key]}'`
       });
     }
   }
@@ -176,10 +170,8 @@ const handler = async (req, res) => {
   });
 
   return res.status(200).json({
-    body: JSON.stringify({
       message: "Record updated",
       record: updatedRecord,
-    }),
   });
 };
 module.exports = handler

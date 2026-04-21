@@ -20,9 +20,7 @@ const handler = async (req, res) => {
       error: "Record ID is required",
     });
 
-    return res.status(400).json({
-      body: JSON.stringify({ message: "Record ID is required" }),
-    });
+    return res.status(400).json({message: "Record ID is required" })
   }
 
   // Missing body
@@ -37,9 +35,7 @@ const handler = async (req, res) => {
       error: "No content",
     });
 
-    return res.status(204).json({
-      body: JSON.stringify({ message: "No content" }),
-    });
+    return res.status(204).json({ message: "No content" })
   }
 
   // Validate Project
@@ -55,9 +51,7 @@ const handler = async (req, res) => {
       error: "Project not found",
     });
 
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Project not found" }),
-    });
+    return res.status(404).json({ message: "Project not found" })
   }
 
   // Validate API key
@@ -72,9 +66,7 @@ const handler = async (req, res) => {
       error: "Unauthorized",
     });
 
-    return res.status(401).json({
-      body: JSON.stringify({ message: "Unauthorized" }),
-    });
+    return res.status(401).json({ message: "Unauthorized" })
   }
 
   // Validate Resource
@@ -91,10 +83,7 @@ const handler = async (req, res) => {
       error: "Resource not found",
     });
 
-    return res.status(404).json({
-      statusCode: 404,
-      body: JSON.stringify({ message: "Resource not found" }),
-    });
+    return res.status(404).json({message: "Resource not found" })
   }
 
   let records = Array.isArray(resourceDoc.records)
@@ -117,9 +106,7 @@ const handler = async (req, res) => {
       error: "Record not found",
     });
 
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Record not found" }),
-    });
+    return res.status(404).json({ message: "Record not found" })
   }
 
   const existingRecord = records[recordIndex];
@@ -138,9 +125,7 @@ const handler = async (req, res) => {
       });
 
       return res.status(400).json({
-        body: JSON.stringify({
           message: `Unexpected field '${key}'`,
-        }),
       });
     }
 
@@ -156,9 +141,7 @@ const handler = async (req, res) => {
       });
 
       return res.status(400).json({
-        body: JSON.stringify({
           message: `Field '${key}' must be type '${typeof existingRecord[key]}', got '${typeof body[key]}'`,
-        }),
       });
     }
   }
@@ -188,10 +171,8 @@ const handler = async (req, res) => {
   });
 
   return res.status(200).json({
-    body: JSON.stringify({
       message: "Record updated",
       record: body,
-    }),
   });
 };
 module.exports = handler
