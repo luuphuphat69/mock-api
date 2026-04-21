@@ -64,11 +64,11 @@ export function ResourceCard({ resource, version, onView, onEdit, onDelete }: Re
         <div className="mb-4 space-y-2">
           <p className="text-xs font-semibold text-muted-foreground">Endpoints:</p>
           {[
-            { method: "GET", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}`},
-            { method: "POST", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}`},
-            { method: "PUT", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}/:id`},
-            { method: "PATCH", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}/:id`},
-            { method: "DELETE", path: `https://mockapi.io.vn/mock-api/${resource.projectId}${version}/${resource.endpoint}/:id`},
+            { method: "GET", path: `https://services.mockapi.io.vn/get/${resource.projectId}${version}/${resource.endpoint}`},
+            { method: "POST", path: `https://services.mockapi.io.vn/post/${resource.projectId}${version}/${resource.endpoint}`},
+            { method: "PUT", path: `https://services.mockapi.io.vn/put/${resource.projectId}${version}/${resource.endpoint}/:id`},
+            { method: "PATCH", path: `https://services.mockapi.io.vn/patch/${resource.projectId}${version}/${resource.endpoint}/:id`},
+            { method: "DELETE", path: `https://services.mockapi.io.vn/delete/${resource.projectId}${version}/${resource.endpoint}/:id`},
           ].map((endpoint) => {
             // 2. Retrieve the styles based on the method key
             // @ts-ignore (optional: handle typescript strict indexing if needed)

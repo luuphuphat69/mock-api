@@ -1,11 +1,11 @@
 const express = require('express');
 const app = express();
-const port = 8000;
+const port = 8080;
 const connectDB = require('./connectdb');
 const morgan = require('morgan')
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const router = require('../server/routes/route');
+const router = require('./routes/router');
 require('dotenv').config();
 
 const allowedOrigins = [
@@ -43,7 +43,7 @@ app.use(cookieParser());
 app.use(morgan('common'));
 
 // Routes
-app.use('/api', router);
+app.use('/mock-api', router);
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
