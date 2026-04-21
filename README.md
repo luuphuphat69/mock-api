@@ -10,16 +10,15 @@ When you submit a resource (including endpoint, data fields, and number of recor
 The mock api is structure in the following format:
 `https://mockapi.io.vn/mockapi/<project id>/<version>/<endpoint>`
 
-When a mock API is called:
-1. The request is routed through a Cloudflare Worker.
-2. It is redirected to a specific API gateway based on the HTTP method.
-3. A serverless Lambda function is triggered to process the request.
-4. The response is returned through Cloudflare and displayed in the API Tester modal.
+When a mock API is called, the mock-api services will retrieve the data and processing the data before giving the result.
+
+Base on the type of request, it will be route to the right server by a proxy server.
 
 \
 The picture below shown how the process works
 
-<img width="721" height="758" alt="Untitled Diagram drawio (2)" src="https://github.com/user-attachments/assets/f91b0f63-8cb5-486c-8cec-6e19c4198977" />
+<img width="522" height="452" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/58ca476a-c467-4d76-b13c-ee999b8a46a2" />
+
 
 
 
