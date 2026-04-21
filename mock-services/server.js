@@ -8,21 +8,8 @@ const cookieParser = require('cookie-parser');
 const router = require('./routes/router');
 require('dotenv').config();
 
-const allowedOrigins = [
-  "https://mockapi.io.vn",
-  "http://localhost:3000",
-  "https://previewenv.mockapi.io.vn"
-];
-
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    callback(new Error("Not allowed by CORS"));
-  },
+  origin: "*",
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
   allowedHeaders: [
@@ -33,6 +20,7 @@ const corsOptions = {
     'x-client-key',
     'x-client-token',
     'x-client-secret',
+    'x-api-key',
     'Authorization'
   ],
 };
