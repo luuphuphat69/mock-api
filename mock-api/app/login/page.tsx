@@ -79,7 +79,7 @@ export default function LoginPage() {
         })
       }
     } catch (err: any) {
-      const errorMessage = err?.response?.data?.message || "An unknown error occurred";
+      const errorMessage = err?.response?.data?.message || "An unknown error occurred" || err?.response?.body;
 
       toast.error(errorMessage, {
         action: {
