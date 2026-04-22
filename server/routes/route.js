@@ -43,12 +43,13 @@ const getMockLogs = require('../controller/mock-logs/get');
 const getGeneralMetrics = require('../controller/metrics/getGeneral');
 const getMethodMetrics = require('../controller/metrics/getMethods');
 const getByTimeline = require('../controller/metrics/getByTimeline');
+const { writeLimit } = require('./rate-limit');
 
 // ------------------------ route begin ------------------------
 
 //authen route
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', writeLimit,register);
+router.post('/login', writeLimit,login);
 router.post('/logout', logout);
 router.post('/reset-password', ResetPassword)
 router.post('/change-password/:id', ChangePassword);
@@ -58,13 +59,13 @@ router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)
 router.get('/projects/:id', verifyToken, retrieveProject.getById)
 router.get('/projects', verifyToken, retrieveProject.getAll)
 router.patch('/projects/key/renew/:requestid/:projectid', verifyToken, renewApiKey)
-router.post('/projects', verifyToken, addProject)
+router.post('/projects', verifyToken, writeLimit,addProject)
 router.delete('/projects/:userid/:id', verifyToken, deleteProject)
 router.patch('/projects/:userid/:id', verifyToken, updateProject);
 router.get('/projects/collab/:userid', verifyToken, retrieveProject.getProjectAsMemberAndGuest)
 
 //resources route
-router.post('/resources/:userid/:projectId', verifyToken, addResource)
+router.post('/resources/:userid/:projectId', verifyToken, writeLimit ,addResource)
 router.get('/resources/:userid/:projectId', verifyToken, getResource.getByProjectId)
 router.delete('/resources/:userid/:projectId/:id', verifyToken, deleteResourceById);
 router.patch('/resources/:userid/:projectId/:id', verifyToken, editResource);
@@ -75,7 +76,7 @@ router.get('/user/search', verifyToken, searchUser)
 //member route
 router.get('/members/:id', verifyToken, getMembers)
 router.delete('/members/:requesterid/:userid/:projectid', verifyToken, removeMember)
-router.post('/members/send-invite/:inviterId/:projectId', verifyToken, sendInvite)
+router.post('/members/send-invite/:inviterId/:projectId', verifyToken, writeLimit,sendInvite)
 router.patch('/members/update-role/:requesterid/:userid/:projectid', verifyToken, changeRole)
 
 // logs route

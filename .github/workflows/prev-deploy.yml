@@ -38,7 +38,7 @@ jobs:
       #   env:
       #     KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD  }}
 
-      - name: Deploy with Kamal
+      - name: Deploy server with Kamal
         working-directory: ./server
         run: kamal deploy --no-cache
         env:
@@ -46,6 +46,15 @@ jobs:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+
+      - name: Deploy services with Kamal
+        working-directory: ./mock-services
+        run: kamal deploy --no-cache
+        env:
+          # Pass only the specific secrets Kamal needs for your deploy.yml
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           NODE_ENV: ${{ secrets.NODE_ENV }}
 
       # - name: Cleanup old containers and images
