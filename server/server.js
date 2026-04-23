@@ -41,6 +41,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('common'));
+app.set('trust proxy', 1);
 
 // Routes
 app.use('/api', router);
