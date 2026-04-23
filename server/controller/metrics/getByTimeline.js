@@ -1,9 +1,15 @@
 const MockLogs = require('../../model/mock_logs');
+const { toInteger, toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function getByTimeline(req, res) {
     try {
-        const { month, year } = req.query;
-        const projectId = req.params.projectId;
+        const month = toInteger(req.query.month);
+        const year = toInteger(req.query.year);
+        const projectId = toRequiredString(req.params.projectId);
+
+        if (!projectId || !month || !year || month < 1 || month > 12) {
+            return res.status(400).json({ message: "Invalid project, month or year" });
+        }
 
         const start = new Date(year, month - 1, 1);
         const end = new Date(year, month, 1);

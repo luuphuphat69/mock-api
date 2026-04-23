@@ -4,11 +4,18 @@ const Memeber = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 const { v4: uuidv4 } = require("uuid");
 const Logs = require('../../model/logs');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 async function Add(req, res) {
 
-    const { userId, name, prefix } = req.body;
+    const userId = toRequiredString(req.body.userId);
+    const name = toRequiredString(req.body.name);
+    const prefix = toRequiredString(req.body.prefix);
 
     try {
+        if (!userId || !name || !prefix) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
         const user = await User.findOne({ id: userId });
 
         if (!user)

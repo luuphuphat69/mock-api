@@ -1,15 +1,22 @@
 const User = require('../../model/user');
 const axios = require('axios');
 const {MongoServerError} = require('mongodb');
+const { isValidEmail, normalizeEmail } = require('../../utilities/validateEmail');
 
 async function ResetPassword(req, res){
     try{
-        const email = req.query.email;
+        const rawEmail = req.query.email;
+
+        if (!isValidEmail(rawEmail)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        const email = normalizeEmail(rawEmail);
         const isUserExisted = await User.exists({email: email});
         if(!isUserExisted)
             return res.status(400).json({message: "User not existed"});
 
-        await axios.post(`https://agssmi0f81.execute-api.us-east-1.amazonaws.com/default/send-request-reset-password?email=${email}`);
+        await axios.post(`https://agssmi0f81.execute-api.us-east-1.amazonaws.com/default/send-request-reset-password?email=${encodeURIComponent(email)}`);
         return res.status(200).json("Reset email is sent");
     }catch(err){
         if(err instanceof MongoServerError)

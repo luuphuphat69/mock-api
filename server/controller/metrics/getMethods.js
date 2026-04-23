@@ -1,12 +1,16 @@
 const MockLogs = require('../../model/mock_logs')
 const {MongoServerError} = require('mongodb')
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 async function getMethodsMetric(req, res){
     try{
-        const projectId = req.params.projectId;
-        const method = req.query.method;
+        const projectId = toRequiredString(req.params.projectId);
+        const method = toRequiredString(req.query.method);
 
         if(!projectId)
             return res.status(400).json({messsage: "Project not found"})
+
+        if (!method)
+            return res.status(400).json({message: "Method not allowed"})
         
         if(!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase()))
             return res.status(400).json({message: "Method not allowed"})

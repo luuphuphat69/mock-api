@@ -1,9 +1,15 @@
 const MockLogs = require('../../model/mock_logs');
 const { MongoServerError } = require('mongodb');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function getGeneralMetrics(req, res) {
     try {
-        const projectId = req.params.projectId;
+        const projectId = toRequiredString(req.params.projectId);
+
+        if (!projectId) {
+            return res.status(400).json({ message: "Project not found" });
+        }
+
         const isProjectExist = await MockLogs.exists({ projectId });
 
         if (!isProjectExist)

@@ -1,9 +1,10 @@
 const Logs = require('../../model/logs');
 const {MongoServerError} = require('mongodb');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function getLogs(req, res){
     try{
-        const projectid = req.params.projectid;
+        const projectid = toRequiredString(req.params.projectid);
         if(!projectid)
             return res.status(400).json({message: "Project is invalid"})
         const logs = await Logs.find({projectId: projectid});

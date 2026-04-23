@@ -1,12 +1,18 @@
 const Projects = require('../../model/projects');
 const Memeber = require('../../model/member');
 const Logs = require('../../model/logs')
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function update(req, res) {
     try {
-        const { name, prefix } = req.body;
-        const id = req.params.id;
-        const userId = req.params.userid;
+        const name = toRequiredString(req.body.name);
+        const prefix = toRequiredString(req.body.prefix);
+        const id = toRequiredString(req.params.id);
+        const userId = toRequiredString(req.params.userid);
+
+        if (!name || !prefix || !id || !userId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
 
         const getUser = await Memeber.findOne({ projectId: id, userId: userId });
         if (getUser) {

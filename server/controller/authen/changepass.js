@@ -1,12 +1,13 @@
 const Users = require('../../model/user');
 const bcrypt = require('bcryptjs');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function ChangePassword(req, res) {
     try {
-        const userId = req.params.id;
+        const userId = toRequiredString(req.params.id);
         const { currentPassword, newPassword } = req.body;
 
-        if (!currentPassword || !newPassword) {
+        if (!userId || !currentPassword || !newPassword) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 

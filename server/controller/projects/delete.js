@@ -3,11 +3,12 @@ const Member = require('../../model/member');
 const Resources = require('../../model/resources');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function deletePrj(req, res) {
     try {
-        const id = req.params.id;
-        const userId = req.params.userid;
+        const id = toRequiredString(req.params.id);
+        const userId = toRequiredString(req.params.userid);
 
         if (!id)
             return res.status(400).json({ message: "Bad request: missing id" });

@@ -1,13 +1,22 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../../model/user');
+const { isValidEmail, normalizeEmail } = require('../../utilities/validateEmail');
 
 async function login(req, res) {
     try {
-        const email = req.body.email;
-        const password = req.body.password;
-        const cfTurnstileToken = req.body.cfToken
+        const rawEmail = req.body.email;
+        const password = String(req.body.password || "");
 
+        if (!isValidEmail(rawEmail)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+        const email = normalizeEmail(rawEmail);
+        const account = await User.findOne({
+            email: { $eq: email }
+        });
+
+        const cfTurnstileToken = req.body.cfToken
         if (process.env.NODE_ENV === 'production') {
             const verifyCfTurnstile = await fetch(
                 "https://challenges.cloudflare.com/turnstile/v0/siteverify",
@@ -18,14 +27,13 @@ async function login(req, res) {
                 }
             );
 
-            cfData = await verifyCfTurnstile.json();
+            let cfData = await verifyCfTurnstile.json();
 
             if (!cfData.success) {
                 return res.status(403).json({ message: "Verification failed" });
             }
         }
-        
-        const account = await User.findOne({ email });
+
         if (!account)
             return res.status(400).json({ message: "Account is not exist" });
 
