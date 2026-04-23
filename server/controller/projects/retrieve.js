@@ -2,10 +2,14 @@ const { MongoServerError } = require('mongodb');
 const Project = require('../../model/projects');
 const User = require('../../model/user');
 const Members = require('../../model/member');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 const retrieve = {
     getByUserID: async (req, res) => {
         try {
-            const userId = req.params.userID;
+            const userId = toRequiredString(req.params.userID);
+            if (!userId) {
+                return res.status(400).json({ message: "User not found" });
+            }
             const user = await User.exists({ id: userId });
             if (!user)
                 return res.status(404).json({ message: "User not found" });
@@ -22,7 +26,10 @@ const retrieve = {
 
     getById: async (req, res) => {
         try {
-            const id = req.params.id
+            const id = toRequiredString(req.params.id)
+            if (!id) {
+                return res.status(400).json({ message: "Project not found" });
+            }
             const project = await Project.findOne({ projectId: id});
             return res.status(200).json(project);
         } catch (err) {
@@ -45,7 +52,11 @@ const retrieve = {
     
     getProjectAsMemberAndGuest: async (req, res) => {
         try {
-            const userId = req.params.userid;
+            const userId = toRequiredString(req.params.userid);
+
+            if (!userId) {
+                return res.status(400).json({ error: "User is invalid" });
+            }
 
             const memberships = await Members.find({
                 userId: userId,

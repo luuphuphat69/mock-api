@@ -1,12 +1,17 @@
 const Members = require('../../model/member');
 const { MongoServerError } = require('mongodb');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function changeRole(req, res) {
     try {
-        const requesterId = req.params.requesterid;
-        const userId = req.params.userid;
-        const projectId = req.params.projectid;
+        const requesterId = toRequiredString(req.params.requesterid);
+        const userId = toRequiredString(req.params.userid);
+        const projectId = toRequiredString(req.params.projectid);
         const { role } = req.body;
+
+        if (!requesterId || !userId || !projectId) {
+            return res.status(400).json({ message: "Requester, user or project is invalid" });
+        }
 
         if (!role || !["owner", "member", "guest"].includes(role)) {
             return res.status(400).json({ message: "Invalid role value" });

@@ -3,12 +3,18 @@ const Member = require('../../model/member');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 const User = require('../../model/user');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function add(req, res) {
     try {
-        const projectId = req.params.projectId;
-        const userid = req.params.userid;
-        const { name, schemaFields, records } = req.body;
+        const projectId = toRequiredString(req.params.projectId);
+        const userid = toRequiredString(req.params.userid);
+        const name = toRequiredString(req.body.name);
+        const { schemaFields, records } = req.body;
+
+        if (!projectId || !userid || !name) {
+            return res.status(400).json({ message: "Project, user or resource name is invalid" });
+        }
 
         const memberExistInProject = await Member.findOne({ projectId: projectId, userId: userid });
         const totalResourcesOfProject = await Resources.countDocuments({projectId: projectId});
@@ -26,7 +32,7 @@ async function add(req, res) {
         if (memberExistInProject.role === 'owner' || memberExistInProject.permissions.canEdit) {
 
             // Clean name (trim spaces)
-            const cleanedName = name.trim();
+            const cleanedName = name;
 
             // Create endpoint: lowercase + replace spaces with hyphens
             const endpoint = cleanedName.toLowerCase().replace(/\s+/g, "-");
@@ -37,7 +43,7 @@ async function add(req, res) {
 
             const newResource = await Resources.create({
                 projectId: projectId,
-                name: name,
+                name: cleanedName,
                 endpoint: endpoint,
                 schemaFields: schemaFields,
                 records: records
@@ -46,9 +52,9 @@ async function add(req, res) {
             await Logs.create({
                 projectId: projectId,
                 userId: userid,
-                resourceName: name,
+                resourceName: cleanedName,
                 username: memberExistInProject.username,
-                action: `Create new resource ${name}`
+                action: `Create new resource ${cleanedName}`
             })
 
             return res.status(201).json(

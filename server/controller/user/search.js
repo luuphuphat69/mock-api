@@ -1,9 +1,14 @@
 const { MongoServerError } = require('mongodb');
 const User = require('../../model/user');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function Search(req, res) {
     try {
-        const searchString = req.query.user;
+        const searchString = toRequiredString(req.query.user);
+
+        if (!searchString) {
+            return res.status(400).json({ message: "Search value is invalid" });
+        }
 
         const results = await User.aggregate([
             {

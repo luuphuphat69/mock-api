@@ -2,17 +2,28 @@ const Resources = require('../../model/resources');
 const Member = require('../../model/member');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
+const { toObjectId, toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function edit(req, res) {
     try {
-        const id = req.params.id;
-        const userid = req.params.userid;
-        const projectId = req.params.projectId;
+        const id = toObjectId(req.params.id);
+        const userid = toRequiredString(req.params.userid);
+        const projectId = toRequiredString(req.params.projectId);
 
         const { name, schemaFields, records } = req.body;
 
+        if (!id || !userid || !projectId) {
+            return res.status(400).json({ message: "Resource, user or project is invalid" });
+        }
+
         const update = {};
-        if (name !== undefined) update.name = name;
+        if (name !== undefined) {
+            const normalizedName = toRequiredString(name);
+            if (!normalizedName) {
+                return res.status(400).json({ message: "Resource name is invalid" });
+            }
+            update.name = normalizedName;
+        }
         if (schemaFields !== undefined) update.schemaFields = schemaFields;
         if (records !== undefined) update.records = records;
 

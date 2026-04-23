@@ -3,11 +3,16 @@ const Projects = require('../../model/projects');
 const crypto = require('crypto');
 const { MongoServerError } = require('mongodb');
 const Logs = require('../../model/logs');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function renewApiKey(req, res) {
   try {
-    const requestId = req.params.requestid;
-    const projectId = req.params.projectid;
+    const requestId = toRequiredString(req.params.requestid);
+    const projectId = toRequiredString(req.params.projectid);
+
+    if (!requestId || !projectId) {
+      return res.status(400).json({ message: "Member or project is invalid" });
+    }
 
     const requester = await Member.findOne({
       projectId: projectId,

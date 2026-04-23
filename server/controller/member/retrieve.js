@@ -1,9 +1,10 @@
 const Member = require('../../model/member');
 const {MongoServerError} = require('mongodb');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function getMemberByProject(req, res) {
     try {
-        const projectId = req.params.id;
+        const projectId = toRequiredString(req.params.id);
 
         if (!projectId)
             return res.status(400).json({ message: "Project is invalid" });

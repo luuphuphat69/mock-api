@@ -3,12 +3,17 @@ const Memeber = require('../../model/member');
 const Logs = require('../../model/logs');
 
 const { MongoServerError } = require('mongodb');
+const { toObjectId, toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function deleteById(req, res) {
     try {
-        const id = req.params.id; // object id of resource
-        const projectid = req.params.projectId;
-        const requestid = req.params.userid;
+        const id = toObjectId(req.params.id); // object id of resource
+        const projectid = toRequiredString(req.params.projectId);
+        const requestid = toRequiredString(req.params.userid);
+
+        if (!id || !projectid || !requestid) {
+            return res.status(400).json({ message: "Resource, project or user is invalid" });
+        }
 
         const getUser = await Memeber.findOne({ projectId: projectid, userId: requestid});
         if (getUser) {

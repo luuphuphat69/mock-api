@@ -1,10 +1,11 @@
 const MockLogs = require('../../model/mock_logs');
 const { MongoServerError } = require('mongodb');
+const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 const getMockLogs = {
     byProject: async (req, res) => {
         try {
-            const projectId = req.params.projectId;
+            const projectId = toRequiredString(req.params.projectId);
             const { _page = 1, _limit = 20, _from, _to } = req.query;
 
             // Validate projectId
@@ -68,7 +69,7 @@ const getMockLogs = {
 
     byMethod: async (req, res) => {
         try {
-            const projectId = req.params.projectId;
+            const projectId = toRequiredString(req.params.projectId);
             const { method, _page = 1, _limit = 20 } = req.query;
 
             // Validate projectId
@@ -77,11 +78,13 @@ const getMockLogs = {
             }
 
             // Validate method
-            if (!method) {
+            const normalizedMethod = toRequiredString(method);
+
+            if (!normalizedMethod) {
                 return res.status(400).json({ message: "No method provided" });
             }
 
-            const formatMethod = method.toUpperCase();
+            const formatMethod = normalizedMethod.toUpperCase();
             const validMethods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
             if (!validMethods.includes(formatMethod)) {
