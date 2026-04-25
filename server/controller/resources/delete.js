@@ -17,7 +17,7 @@ async function deleteById(req, res) {
 
         const getUser = await Memeber.findOne({ projectId: projectid, userId: requestid});
         if (getUser) {
-            if (getUser.role === 'owner' | getUser.permissions.canDelete) {
+            if (getUser.role === 'owner' || getUser.permissions.canDelete) {
 
                 const resource = await Resources.findByIdAndDelete(id)
 
