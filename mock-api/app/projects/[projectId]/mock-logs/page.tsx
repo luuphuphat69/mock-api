@@ -215,6 +215,7 @@ export default function LogsPage() {
             <main className="min-h-screen bg-background text-foreground pt-24 px-4 md:px-8 pb-12">
                 
                 <LogsHeader
+                    projectId={projectId}
                     pagination={pagination}
                     loading={loading}
                     fetchLogs={fetchLogs}

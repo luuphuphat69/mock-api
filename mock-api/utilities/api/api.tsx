@@ -26,6 +26,8 @@ export interface MockLogsQueryParams {
   _sort?: "asc" | "desc";
 }
 
+export type ClearMockLogsPeriod = 7 | 30 | 90 | "all";
+
 export async function register(registerPayload: IRegisterPayload) {
   try {
     const res = await api.post("/register", registerPayload);
@@ -297,6 +299,16 @@ export async function getMockLogsByMethod (projectId: string, params?: string | 
     const res = typeof params === "string"
       ? await api.get(`/mock-logs/method/${projectId}?${params}`)
       : await api.get(`/mock-logs/method/${projectId}`, { params })
+    return res.data;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function clearMockLogs(requestid: string, projectId: string, period: ClearMockLogsPeriod){
+  try{
+    const res = await api.delete(`/mock-logs/clear/${requestid}/${projectId}/${period}`)
     return res.data;
   }catch(err){
     console.log(err);

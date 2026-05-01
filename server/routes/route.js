@@ -38,6 +38,7 @@ const clearLogs = require('../controller/activitylogs/clear');
 
 // mock logs controller
 const getMockLogs = require('../controller/mock-logs/get');
+const clearMockLogs = require('../controller/mock-logs/clear');
 
 // metrics controller
 const getGeneralMetrics = require('../controller/metrics/getGeneral');
@@ -86,6 +87,7 @@ router.delete('/logs/:requestid/:projectid', verifyToken, clearLogs);
 // mock logs route
 router.get('/mock-logs/project/:projectId', getMockLogs.byProject)
 router.get('/mock-logs/method/:projectId', getMockLogs.byMethod);
+router.delete('/mock-logs/clear/:requestid/:projectid/:days', verifyToken, clearMockLogs);
 
 //metrics route
 router.get('/metrics/general/:projectId', getGeneralMetrics)
@@ -97,4 +99,4 @@ router.get('/me', verifyToken, (req, res) => {
   res.json({ user: req.user });
 });
 
-module.exports = router 
+module.exports = router
