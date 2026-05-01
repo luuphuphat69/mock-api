@@ -22,7 +22,7 @@ interface IApiTestState {
   response: {
     status: number
     time: number
-    body: any
+    body: unknown
   } | null
 }
 
@@ -46,23 +46,30 @@ export default function RequestBuilder({
                     : method === 'PUT' ? 'bg-yellow-500/20 text-yellow-400'
                     : method === 'PATCH' ? 'bg-orange-500/20 text-orange-400'
                     : method === 'DELETE' ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'
+
   const sendRequest = async (apiKey: string) => {
     const start = performance.now()
+    const requestHeaders = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "x-api-key": apiKey
+    }
+
     setState((current) => ({ ...current, isLoading: true, response: null }))
 
     try {
       let res
 
       if (method === "GET") {
-        res = await axios.get(state.url, { headers: { "x-api-key": apiKey } })
+        res = await axios.get(state.url, { headers: requestHeaders })
       } else if (method === "DELETE") {
-        res = await axios.delete(state.url, { headers: { "x-api-key": apiKey } })
+        res = await axios.delete(state.url, { headers: requestHeaders })
       } else {
         const body = state.body ? JSON.parse(state.body) : {}
         res = await axios({
           method,
           url: state.url,
-          headers: { "x-api-key": apiKey },
+          headers: requestHeaders,
           data: body
         })
       }
@@ -77,15 +84,20 @@ export default function RequestBuilder({
           body: res.data
         }
       }))
-    } catch (err: any) {
+    } catch (err: unknown) {
       const ms = performance.now() - start
+      const status = axios.isAxiosError(err) ? err.response?.status ?? 500 : 500
+      const body = axios.isAxiosError(err)
+        ? err.response?.data ?? { error: err.message }
+        : { error: "Unknown error" }
+
       setState((current) => ({
         ...current,
         isLoading: false,
         response: {
-          status: err.response?.status ?? 500,
+          status,
           time: ms,
-          body: err.response?.data ?? { error: "Unknown error" }
+          body
         }
       }))
     }
