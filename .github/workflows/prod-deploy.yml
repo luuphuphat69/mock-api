@@ -1,4 +1,4 @@
-name: Build, Push & Deploy on Production env (For server)
+name: Build, Push & Deploy on Production env (For server and mock-services)
 
 on:
   push:

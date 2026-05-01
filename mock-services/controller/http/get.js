@@ -1,6 +1,5 @@
-const writeLogs = require('../writeLogs')
 const Resource = require('../../model/resources');
-const Project = require('../../model/projects');
+const { getProjectAuth, scheduleLog } = require('./helpers');
 
 const handler = async (req, res) => {
 
@@ -10,10 +9,10 @@ const handler = async (req, res) => {
   const query = req.query || null;
 
   // Validate Project
-  const project = await Project.findOne({ projectId }).select('+apiKey');
+  const project = await getProjectAuth(projectId);
 
   if (!project) {
-    await writeLogs({
+    scheduleLog(res, {
       projectId,
       endpoint,
       method: "GET",
@@ -27,7 +26,7 @@ const handler = async (req, res) => {
 
   // Validate API Key
   if (!apiKey || apiKey !== project.apiKey) {
-    await writeLogs({
+    scheduleLog(res, {
       projectId,
       endpoint,
       method: "GET",
@@ -39,10 +38,10 @@ const handler = async (req, res) => {
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint });
+  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
 
   if (!resourceDoc) {
-    await writeLogs({
+    scheduleLog(res, {
       projectId,
       endpoint,
       method: "GET",
@@ -67,7 +66,7 @@ const handler = async (req, res) => {
     const found = records.find((r) => String(r.id) === String(recordId));
 
     if (!found) {
-      await writeLogs({
+      scheduleLog(res, {
         projectId,
         endpoint,
         method: "GET",
@@ -80,7 +79,7 @@ const handler = async (req, res) => {
       return res.status(404).json({ message: "Record not found" })
     }
 
-    await writeLogs({
+    scheduleLog(res, {
       projectId,
       endpoint,
       statusCode: 200,
@@ -137,14 +136,14 @@ const handler = async (req, res) => {
 
   const paginated = records.slice(start, end);
 
-  await writeLogs({
+  scheduleLog(res, {
     projectId,
     endpoint,
     method: "GET",
     statusCode: 200,
     success: true,
     totalReturned: paginated.length,
-    filters: paginated,
+    filters: filterQuery,
   });
   
   // Include pagination info

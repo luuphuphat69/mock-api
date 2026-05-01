@@ -1,6 +1,5 @@
-const writeLogs = require('../writeLogs')
 const Resource = require('../../model/resources');
-const Project = require('../../model/projects');
+const { getProjectAuth, scheduleLog } = require('./helpers');
 
 const handler = async (req, res) => {
 
@@ -9,16 +8,22 @@ const handler = async (req, res) => {
   const {projectId, endpoint, recordId} = req.params
 
   if (!recordId) {
-    return {
+    scheduleLog(res, {
+      method: "PATCH",
+      projectId,
+      endpoint,
+      success: false,
       statusCode: 400,
-      body: JSON.stringify({ message: "Record ID is required" }),
-    };
+      error: "Record ID is required",
+    });
+
+    return res.status(400).json({ message: "Record ID is required" });
   }
 
   // Null body check
   if (body == null) {
     
-    await writeLogs({
+    scheduleLog(res, {
       method: "PATCH",
       projectId,
       endpoint,
@@ -27,17 +32,14 @@ const handler = async (req, res) => {
       error: "No content",
     });
 
-    return {
-      statusCode: 204,
-      body: JSON.stringify({ message: "No content" }),
-    };
+    return res.status(204).json({ message: "No content" });
   }
 
   // Validate Project
-  const project = await Project.findOne({ projectId }).select('+apiKey');
+  const project = await getProjectAuth(projectId);
   if (!project) {
 
-    await writeLogs({
+    scheduleLog(res, {
       method: "PATCH",
       projectId,
       endpoint,
@@ -46,15 +48,12 @@ const handler = async (req, res) => {
       error: "Project not found",
     });
 
-    return {
-      statusCode: 404,
-      body: JSON.stringify({ message: "Project not found" }),
-    };
+    return res.status(404).json({ message: "Project not found" });
   }
 
   // Validate API Key
   if (!apiKey || apiKey !== project.apiKey) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PATCH",
       projectId,
       endpoint,
@@ -63,16 +62,14 @@ const handler = async (req, res) => {
       error: "Unauthorized",
     });
 
-    return res.status(401).json({
-      body: JSON.stringify({ message: "Unauthorized" })
-    });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint });
+  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
 
   if (!resourceDoc) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PATCH",
       projectId,
       endpoint,
@@ -81,13 +78,11 @@ const handler = async (req, res) => {
       error: "Resource not found",
     });
 
-    return res.status(404).json({
-      body: JSON.stringify({ message: "Resource not found" }),
-    });
+    return res.status(404).json({ message: "Resource not found" });
   }
 
-  let records = Array.isArray(resourceDoc.records)
-    ? [...resourceDoc.records]
+  const records = Array.isArray(resourceDoc.records)
+    ? resourceDoc.records
     : [];
 
   // Find Existing Record
@@ -96,7 +91,7 @@ const handler = async (req, res) => {
   );
 
   if (recordIndex === -1) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PATCH",
       projectId,
       endpoint,
@@ -115,7 +110,7 @@ const handler = async (req, res) => {
   // ----------------------------------------
   for (const key of Object.keys(body)) {
     if (!(key in existingRecord)) {
-      await writeLogs({
+      scheduleLog(res, {
         method: "PATCH",
         projectId,
         endpoint,
@@ -130,7 +125,7 @@ const handler = async (req, res) => {
     }
 
     if (typeof body[key] !== typeof existingRecord[key]) {
-      await writeLogs({
+      scheduleLog(res, {
         method: "PATCH",
         projectId,
         endpoint,
@@ -153,14 +148,12 @@ const handler = async (req, res) => {
     updatedAt: new Date().toISOString(),
   };
 
-  records[recordIndex] = updatedRecord;
-
   await Resource.updateOne(
-    { projectId, endpoint },
-    { $set: { records } }
+    { projectId, endpoint, 'records.id': existingRecord.id },
+    { $set: { 'records.$': updatedRecord } }
   );
 
-  await writeLogs({
+  scheduleLog(res, {
     method: "PATCH",
     projectId,
     endpoint,

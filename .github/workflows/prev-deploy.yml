@@ -1,4 +1,4 @@
-name: Build, Push & Deploy on Preview env (For server)
+name: Build, Push & Deploy on Preview env (For server and mock-services)
 
 on:
   push:

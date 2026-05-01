@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import gsap from "gsap"
 
 import Header from "@/components/header"
-import { getMockLogs, getMockLogsByMethod } from "@/utilities/api/api"
+import { getMockLogs, type MockLogsQueryParams } from "@/utilities/api/api"
 
 // Refactored Child Components (to be created below)
 import LogsHeader from "./components/LogsHeader"
@@ -18,9 +18,11 @@ import LogsTable from "./components/LogsTable"
 interface LogEntry {
     _id: string
     method: string
-    endpoint: string
+    endpoint?: string
+    path?: string
     statusCode: number
-    error: string
+    error?: string
+    message?: string
     timestamp: string
     filters: unknown[]
     recordId: string
@@ -72,24 +74,29 @@ export default function LogsPage() {
 
         setLoading(true)
         try {
-            const queryParams = new URLSearchParams({
-                _page: pagination.page.toString(),
-                _limit: pagination.limit.toString(),
-            })
-
-            let result
+            const queryParams: MockLogsQueryParams = {
+                _page: pagination.page,
+                _limit: pagination.limit,
+                _order: sortBy,
+            }
 
             if (methodFilter) {
-                queryParams.append("method", methodFilter)
-                result = await getMockLogsByMethod(projectId, queryParams.toString())
-            } else {
-                if (fromDate && toDate) {
-                    queryParams.append("_from", fromDate)
-                    queryParams.append("_to", toDate)
-                }
-
-                result = await getMockLogs(projectId, queryParams.toString())
+                queryParams.method = methodFilter
             }
+
+            if (successFilter) {
+                queryParams.success = successFilter === "yes"
+            }
+
+            if (fromDate) {
+                queryParams._from = fromDate
+            }
+
+            if (toDate) {
+                queryParams._to = toDate
+            }
+
+            const result = await getMockLogs(projectId, queryParams)
 
             setLogs(result.data || [])
             setPagination(prev => ({
@@ -106,7 +113,7 @@ export default function LogsPage() {
         } finally {
             setLoading(false)
         }
-    }, [projectId, pagination.page, pagination.limit, fromDate, toDate, methodFilter])
+    }, [projectId, pagination.page, pagination.limit, fromDate, toDate, methodFilter, successFilter, sortBy])
 
     useEffect(() => {
         fetchLogs()
@@ -130,36 +137,7 @@ export default function LogsPage() {
         }
     }, [logs, loading])
 
-    const getDisplayLogs = () => {
-        let filtered = [...logs]
-
-        if (successFilter) {
-            const expectedSuccess = successFilter === "yes"
-            filtered = filtered.filter((log) => log.success === expectedSuccess)
-        }
-
-        if (fromDate) {
-            const from = new Date(fromDate)
-            filtered = filtered.filter((log) => new Date(log.timestamp) >= from)
-        }
-
-        if (toDate) {
-            const to = new Date(toDate)
-            to.setHours(23, 59, 59, 999)
-            filtered = filtered.filter((log) => new Date(log.timestamp) <= to)
-        }
-
-        const sorted = [...filtered]
-
-        sorted.sort((a, b) => {
-            const timeA = new Date(a.timestamp).getTime()
-            const timeB = new Date(b.timestamp).getTime()
-            return sortBy === "asc" ? timeA - timeB : timeB - timeA
-        })
-
-        return sorted
-    }
-    const displayLogs = getDisplayLogs()
+    const displayLogs = logs
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -203,9 +181,9 @@ export default function LogsPage() {
 
             const row = [
                 sanitize(log.method),
-                sanitize(log.endpoint),
+                sanitize(log.endpoint || log.path),
                 sanitize(log.statusCode),
-                sanitize(log.error),
+                sanitize(log.error || log.message),
                 sanitize(log.success ? "Yes" : "No"),
                 sanitize(new Date(log.timestamp).toISOString()),
                 sanitize(responseData),
