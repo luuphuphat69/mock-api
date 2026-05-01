@@ -1,6 +1,5 @@
-const writeLogs = require('../writeLogs')
 const Resource = require('../../model/resources');
-const Project = require('../../model/projects');
+const { getProjectAuth, scheduleLog } = require('./helpers');
 
 const handler = async (req, res) => {
 
@@ -11,7 +10,7 @@ const handler = async (req, res) => {
   // Missing body?
   if (body == null) {
 
-    await writeLogs({
+    scheduleLog(res, {
       method: "POST",
       projectId,
       endpoint,
@@ -24,10 +23,10 @@ const handler = async (req, res) => {
   }
 
   // Validate Project
-  const project = await Project.findOne({ projectId }).select('+apiKey');
+  const project = await getProjectAuth(projectId);
   if (!project) {
 
-    await writeLogs({
+    scheduleLog(res, {
       method: "POST",
       projectId,
       endpoint,
@@ -42,7 +41,7 @@ const handler = async (req, res) => {
   // Validate API Key
   if (!apiKey || apiKey !== project.apiKey) {
 
-    await writeLogs({
+    scheduleLog(res, {
       method: "POST",
       projectId,
       endpoint,
@@ -55,11 +54,11 @@ const handler = async (req, res) => {
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint });
+  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
 
   if (!resourceDoc) {
 
-    await writeLogs({
+    scheduleLog(res, {
       method: "POST",
       projectId,
       endpoint,
@@ -72,8 +71,8 @@ const handler = async (req, res) => {
   }
 
   // Ensure records array
-  let records = Array.isArray(resourceDoc.records)
-    ? [...resourceDoc.records]
+  const records = Array.isArray(resourceDoc.records)
+    ? resourceDoc.records
     : [];
 
   // ----------------------------------------
@@ -85,7 +84,7 @@ const handler = async (req, res) => {
     for (const key of Object.keys(sample)) {
       if (!(key in body)) {
 
-        await writeLogs({
+        scheduleLog(res, {
           method: "POST",
           projectId,
           endpoint,
@@ -101,7 +100,7 @@ const handler = async (req, res) => {
 
       if (typeof body[key] !== typeof sample[key]) {
 
-        await writeLogs({
+        scheduleLog(res, {
           method: "POST",
           projectId,
           endpoint,
@@ -122,17 +121,12 @@ const handler = async (req, res) => {
     body.id = String(Date.now());
   }
 
-  // ----------------------------------------
-  // Insert the new record into the array
-  // ----------------------------------------
-  records.push(body);
-
   await Resource.updateOne(
     { projectId, endpoint },
-    { $set: { records } }
+    { $push: { records: body } }
   );
   
-  await writeLogs({
+  scheduleLog(res, {
     method: "POST",
     projectId,
     endpoint,

@@ -12,11 +12,13 @@ import {
 interface LogEntry {
     _id: string
     method: string
-    endpoint: string
+    endpoint?: string
+    path?: string
     statusCode: number
-    error: string
+    error?: string
+    message?: string
     timestamp: string
-    filters: any[]
+    filters: unknown[]
     recordId: string
     updatedRecord: string
     deletedRecord: string
@@ -114,10 +116,10 @@ export default function LogsTable({ logs, loading, pagination, handlePageChange 
                                             {log.method}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-3 text-muted-foreground">{log.endpoint}</td>
+                                    <td className="px-6 py-3 text-muted-foreground">{log.endpoint || log.path || "-"}</td>
                                     <td className="px-6 py-3 font-mono text-sm">{log.statusCode}</td>
-                                    <td className="px-6 py-3 text-red-400 max-w-[200px] truncate" title={log.error}>
-                                        {log.error || '-'}
+                                    <td className="px-6 py-3 text-red-400 max-w-[200px] truncate" title={log.error || log.message}>
+                                        {log.error || log.message || '-'}
                                     </td>
                                     <td className="px-6 py-3">
                                         <span className={log.success ? "text-green-400" : "text-red-400"}>

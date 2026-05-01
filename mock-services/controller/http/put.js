@@ -1,6 +1,5 @@
-const writeLogs = require('../writeLogs')
 const Resource = require('../../model/resources');
-const Project = require('../../model/projects');
+const { getProjectAuth, scheduleLog } = require('./helpers');
 
 const handler = async (req, res) => {
 
@@ -10,7 +9,7 @@ const handler = async (req, res) => {
 
   // Missing ID
   if (!recordId) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PUT",
       projectId,
       endpoint,
@@ -25,7 +24,7 @@ const handler = async (req, res) => {
 
   // Missing body
   if (body == null) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PUT",
       projectId,
       endpoint,
@@ -39,9 +38,9 @@ const handler = async (req, res) => {
   }
 
   // Validate Project
-  const project = await Project.findOne({ projectId }).select('+apiKey');
+  const project = await getProjectAuth(projectId);
   if (!project) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PUT",
       projectId,
       endpoint,
@@ -56,7 +55,7 @@ const handler = async (req, res) => {
 
   // Validate API key
   if (!apiKey || apiKey !== project.apiKey) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PUT",
       projectId,
       endpoint,
@@ -70,10 +69,10 @@ const handler = async (req, res) => {
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint });
+  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
 
   if (!resourceDoc) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PUT",
       projectId,
       endpoint,
@@ -86,8 +85,8 @@ const handler = async (req, res) => {
     return res.status(404).json({message: "Resource not found" })
   }
 
-  let records = Array.isArray(resourceDoc.records)
-    ? [...resourceDoc.records]
+  const records = Array.isArray(resourceDoc.records)
+    ? resourceDoc.records
     : [];
 
   // Find existing record
@@ -96,7 +95,7 @@ const handler = async (req, res) => {
   );
 
   if (recordIndex === -1) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "PUT",
       projectId,
       endpoint,
@@ -114,7 +113,7 @@ const handler = async (req, res) => {
   // Validate fields & types
   for (const key of Object.keys(body)) {
     if (!(key in existingRecord)) {
-      await writeLogs({
+      scheduleLog(res, {
         method: "PUT",
         projectId,
         endpoint,
@@ -130,7 +129,7 @@ const handler = async (req, res) => {
     }
 
     if (typeof body[key] !== typeof existingRecord[key]) {
-      await writeLogs({
+      scheduleLog(res, {
         method: "PUT",
         projectId,
         endpoint,
@@ -152,16 +151,13 @@ const handler = async (req, res) => {
   // Add update timestamp
   body.updatedAt = new Date().toISOString();
 
-  // Replace record
-  records[recordIndex] = body;
-
   await Resource.updateOne(
-    { projectId, endpoint },
-    { $set: { records } }
+    { projectId, endpoint, 'records.id': existingRecord.id },
+    { $set: { 'records.$': body } }
   );
 
   // Log success
-  await writeLogs({
+  scheduleLog(res, {
     method: "PUT",
     projectId,
     endpoint,

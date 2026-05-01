@@ -1,21 +1,22 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
 import getData from '../../utilities/getdata.js';
 
 const mainUser = getData.userData('main-user');
+const mainProject = getData.projectData('main-project');
 
 export const options = {
   vus: 100,
-  duration: '5m',
+  duration: '30m',
 };
 
 export default function () {
   const res = http.get(
-    'https://services.mockapi.io.vn/mock-api/get/e135ac48-3825-4f7f-bb6e-4b520f13dd1c/v1/sea',
+    `https://services.mockapi.io.vn/mock-api/get/${mainProject.projectId}/${mainProject.version}/${mainProject.endpoints[0]}`,
     {
       headers: {
-        'X-API-Key': '',
-        'X-Test-Source':'k6-load-test'
+        'X-API-Key': mainProject.key,
+        'X-Test-Source': 'k6-load-test',
       },
       cookies: {
         token: mainUser.token,
@@ -27,5 +28,4 @@ export default function () {
     'status is 200': (r) => r.status === 200,
     'response time < 3000ms': (r) => r.timings.duration < 3000,
   });
-
 }

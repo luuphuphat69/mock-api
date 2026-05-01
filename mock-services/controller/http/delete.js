@@ -1,6 +1,5 @@
-const writeLogs = require('../writeLogs')
 const Resource = require('../../model/resources');
-const Project = require('../../model/projects');
+const { getProjectAuth, scheduleLog } = require('./helpers');
 
 const handler = async (req, res) => {
 
@@ -8,7 +7,7 @@ const handler = async (req, res) => {
   const {projectId, endpoint, recordId} = req.params
 
   if (!recordId) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "DELETE",
       projectId,
       endpoint,
@@ -21,9 +20,9 @@ const handler = async (req, res) => {
   }
 
   // Validate Project
-  const project = await Project.findOne({ projectId }).select('+apiKey');
+  const project = await getProjectAuth(projectId);
   if (!project) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "DELETE",
       projectId,
       endpoint,
@@ -36,7 +35,7 @@ const handler = async (req, res) => {
 
   // Validate API Key
   if (!apiKey || apiKey !== project.apiKey) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "DELETE",
       projectId,
       endpoint,
@@ -48,10 +47,10 @@ const handler = async (req, res) => {
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint });
+  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
 
   if (!resourceDoc) {
-    await writeLogs({
+    scheduleLog(res, {
       method: "DELETE",
       projectId,
       endpoint,
@@ -62,8 +61,8 @@ const handler = async (req, res) => {
     return res.status(404).json({ message: "Resource not found" })
   }
 
-  let records = Array.isArray(resourceDoc.records)
-    ? [...resourceDoc.records]
+  const records = Array.isArray(resourceDoc.records)
+    ? resourceDoc.records
     : [];
 
   // Find record
@@ -72,20 +71,26 @@ const handler = async (req, res) => {
   );
 
   if (recordIndex === -1) {
+    scheduleLog(res, {
+      method: "DELETE",
+      projectId,
+      endpoint,
+      success: false,
+      statusCode: 404,
+      error: "Record not found",
+    });
+
     return res.status(404).json({ message: "Record not found" })
   }
 
   const deletedRecord = records[recordIndex];
 
-  // Remove from array
-  records.splice(recordIndex, 1);
-
   await Resource.updateOne(
     { projectId, endpoint },
-    { $set: { records } }
+    { $pull: { records: { id: deletedRecord.id } } }
   );
 
-  await writeLogs({
+  scheduleLog(res, {
     method: "DELETE",
     projectId,
     endpoint,

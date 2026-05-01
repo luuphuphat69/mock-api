@@ -4,12 +4,34 @@ const api = axios.create({
   withCredentials: true,
 });
 
+function getErrorDetail(error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data || error.message;
+  }
+
+  return error;
+}
+
+export interface MockLogsQueryParams {
+  _page?: number | string;
+  _limit?: number | string;
+  _from?: string;
+  _to?: string;
+  method?: string;
+  success?: boolean | string;
+  succes?: boolean | string;
+  _order?: "asc" | "desc";
+  order?: "asc" | "desc";
+  sort?: "asc" | "desc";
+  _sort?: "asc" | "desc";
+}
+
 export async function register(registerPayload: IRegisterPayload) {
   try {
     const res = await api.post("/register", registerPayload);
     return res.data;
-  } catch (error: any) {
-    console.error("Register error:", error.response?.data || error.message);
+  } catch (error: unknown) {
+    console.error("Register error:", getErrorDetail(error));
     throw error;
   }
 }
@@ -20,7 +42,7 @@ export async function login(loginPayload: ILoginPayload) {
       withCredentials: true 
     });
     return res;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw error;
   }
 }
@@ -28,8 +50,8 @@ export async function login(loginPayload: ILoginPayload) {
 export async function logout() {
   try {
     await api.post('/logout');
-  } catch (error: any) {
-    console.error("Logout error:", error.response?.data || error.message);
+  } catch (error: unknown) {
+    console.error("Logout error:", getErrorDetail(error));
     throw error;
   }
 }
@@ -52,7 +74,7 @@ export async function me() {
   try {
     const res = await api.get('/me')
     return res
-  } catch (err: any) {
+  } catch (err: unknown) {
     throw err
   }
 }
@@ -95,7 +117,7 @@ export async function getCollabProject(userid: string){
   }
 }
 
-export async function addNewProject(payload: {}) {
+export async function addNewProject(payload: object) {
   try {
     const res = await api.post('/projects', payload)
     return res;
@@ -112,7 +134,7 @@ export async function deleteProjectByID(userid: string, id: string) {
   }
 }
 
-export async function patchProject(userid: string, id: string, payload: {}) {
+export async function patchProject(userid: string, id: string, payload: object) {
   try {
     await api.patch(`/projects/${userid}/${id}`, payload)
   } catch (err) {
@@ -120,7 +142,7 @@ export async function patchProject(userid: string, id: string, payload: {}) {
   }
 }
 
-export async function addResource(userid:string, projectId: string, payload: {}) {
+export async function addResource(userid:string, projectId: string, payload: object) {
   try {
     const res = await api.post(`/resources/${userid}/${projectId}`, payload);
     return res;
@@ -138,7 +160,7 @@ export async function getResourceByProjectId(userid: string, projectId: string) 
   }
 }
 
-export async function editResource(userid: string, projectId: string, id: string, payload: {}) {
+export async function editResource(userid: string, projectId: string, id: string, payload: object) {
   try {
     const res = await api.patch(`/resources/${userid}/${projectId}/${id}`, payload)
     return res;
@@ -156,7 +178,7 @@ export async function deleteResource(userid: string, projectId: string, id: stri
   }
 }
 
-export async function sendInvite(inviterId: string, projectId: string, payload: { users: {}; project: IProject }) {
+export async function sendInvite(inviterId: string, projectId: string, payload: { users: object; project: IProject }) {
   try {
     const res = await api.post(`/members/send-invite/${inviterId}/${projectId}`, payload)
     return res.data;
@@ -258,9 +280,11 @@ export async function getMonthlyMetrics(projectId: string, month:number, year: n
   }
 }
 
-export async function getMockLogs (projectId: string, queryString: string){
+export async function getMockLogs (projectId: string, params?: string | MockLogsQueryParams){
   try{
-    const res = await api.get(`/mock-logs/project/${projectId}?${queryString}`)
+    const res = typeof params === "string"
+      ? await api.get(`/mock-logs/project/${projectId}?${params}`)
+      : await api.get(`/mock-logs/project/${projectId}`, { params })
     return res.data;
   }catch(err){
     console.log(err);
@@ -268,9 +292,11 @@ export async function getMockLogs (projectId: string, queryString: string){
   }
 }
 
-export async function getMockLogsByMethod (projectId: string, queryString: string){
+export async function getMockLogsByMethod (projectId: string, params?: string | MockLogsQueryParams){
   try{
-    const res = await api.get(`/mock-logs/method/${projectId}?${queryString}`)
+    const res = typeof params === "string"
+      ? await api.get(`/mock-logs/method/${projectId}?${params}`)
+      : await api.get(`/mock-logs/method/${projectId}`, { params })
     return res.data;
   }catch(err){
     console.log(err);
