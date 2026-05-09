@@ -22,7 +22,8 @@ const payloadObj = {
 const payload = JSON.stringify(payloadObj);
 const postPayload = JSON.stringify({
   id: uuidv4(),
-  name: 'test'
+  name: 'test', 
+  updatedAt: new Date().toISOString(),
 });
 
 export function loadGet () {
@@ -78,7 +79,7 @@ export function loadPost () {
     ...params,
     tags: { endpoint: 'POST' },
   });
-
+  console.log(res)
   check(res, {
     'status is 201': (r) => r.status === 201,
     'response time < 3000ms': (r) => r.timings.duration < 3000,
