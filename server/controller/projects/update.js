@@ -9,17 +9,21 @@ async function update(req, res) {
         const prefix = toRequiredString(req.body.prefix);
         const id = toRequiredString(req.params.id);
         const userId = toRequiredString(req.params.userid);
+        const description = req.body.description
 
         if (!name || !prefix || !id || !userId) {
             return res.status(400).json({ message: "Missing required fields" });
         }
+        
+        if (description.length > 200)
+            return res.status(400).json({ message: "Description cannot have over 200 characters" })
 
         const getUser = await Memeber.findOne({ projectId: id, userId: userId });
         if (getUser) {
             if (getUser.role === 'owner' || getUser.permissions.canEdit) {
                 const updatedProject = await Projects.findOneAndUpdate(
                     { projectId: id },
-                    { name, prefix },
+                    { name, prefix, description},
                     { new: true }
                 );
 

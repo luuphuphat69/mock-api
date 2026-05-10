@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw, Copy } from 'lucide-react'
+import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw, Copy, Key, Activity, Database, AlertCircle } from 'lucide-react'
 import Link from "next/link"
 import { useParams } from 'next/navigation'
 import gsap from "gsap"
@@ -20,7 +20,7 @@ import { RenewKeyConfirmModal } from "./components/RenewApiConfirmModal"
 export default function ResourcesPage() {
   const params = useParams()
   const projectId = params.projectId as string
-  const [project, setProject] = useState({ prefix: '' });
+  const [project, setProject] = useState({ prefix: '', name: '' });
   const [resources, setResource] = useState<IResource[] | null>(null)
   const { user, fetchUser } = useUser()
   const [apiKey, setApiKey] = useState('')
@@ -33,8 +33,8 @@ export default function ResourcesPage() {
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
 
   // Loading States
-  const [isLoading, setIsLoading] = useState(false) // For resources/full page
-  const [isLogsLoading, setIsLogsLoading] = useState(false) // New state for logs
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLogsLoading, setIsLogsLoading] = useState(false)
   const [showRenewConfirm, setShowRenewConfirm] = useState(false)
   const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
@@ -72,30 +72,24 @@ export default function ResourcesPage() {
   }
 
   const fetchLogs = async () => {
-    setIsLogsLoading(true) // Start loading
+    setIsLogsLoading(true)
     try {
       const res = await getLogs(projectId);
-
-      // Sort: B - A results in Descending order (Newest first)
       const sortedLogs = res.data.sort((a: ILogs, b: ILogs) =>
         new Date(b.time).getTime() - new Date(a.time).getTime()
       );
-
       setActivityLogs(sortedLogs);
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLogsLoading(false) // End loading
+      setIsLogsLoading(false)
     }
   }
 
   useEffect(() => {
-    // If user isn't loaded yet, try to fetch them
     if (!user) {
       fetchUser()
     }
-
-    // Only fetch resources if we actually have the user object
     if (user) {
       fetchResources();
     }
@@ -103,16 +97,12 @@ export default function ResourcesPage() {
     fetchLogs()
   }, [projectId, user])
 
-  // Animate grid on load
   useEffect(() => {
     if (gridRef.current) {
       const cards = gridRef.current.querySelectorAll("[data-resource-card]")
       gsap.fromTo(cards, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" })
     }
   }, [resources])
-
-
-  // --- Handlers ---
 
   const handleSave = async (data: { name: string; schema: ISchemaField[]; records?: any[] }) => {
     try {
@@ -160,8 +150,6 @@ export default function ResourcesPage() {
       await fetchResources();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to delete");
-
-      // restore item if delete failed
       gsap.to(card, {
         opacity: 1,
         y: 0,
@@ -174,10 +162,10 @@ export default function ResourcesPage() {
   const hanldeClearLog = async (requestid: string, projectId: string) => {
     try {
       await clearLogs(requestid, projectId);
-      toast.success("Logs are cleared");
+      toast.success("Logs cleared");
       fetchLogs();
     } catch (err: any) {
-      toast.error(err.response.data.message)
+      toast.error(err?.response?.data?.message || "Failed to clear logs")
     }
   }
 
@@ -202,17 +190,20 @@ export default function ResourcesPage() {
 
   if (projectNotFound) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold text-foreground mb-3">
-            Project has been removed
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+        <div className="text-center max-w-md p-8 bg-white rounded-xl border border-[#E5E5E5] shadow-sm">
+          <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <h1 className="text-xl font-semibold text-[#111111] mb-2">
+            Project unavailable
           </h1>
-          <p className="text-muted-foreground mb-6">
-            This project no longer exists or has been deleted.
+          <p className="text-[#6B6B6B] mb-6">
+            This project no longer exists or you don't have permission to access it.
           </p>
           <Link
             href="/projects"
-            className="inline-block px-4 py-2 rounded bg-cyan-500 text-white hover:bg-cyan-600 transition"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#2F6FEB] text-white hover:bg-[#255fd4] transition-colors font-medium text-sm"
           >
             Back to Projects
           </Link>
@@ -224,53 +215,64 @@ export default function ResourcesPage() {
   return (
     <>
       <LoadingScreen isVisible={isLoading} />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[#FAFAFA] text-[#111111]">
         <Header />
 
-        <main className="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main className="pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
           {/* Breadcrumb */}
-          <div className="mb-8 flex items-center gap-2 text-muted-foreground">
-            <Link href="/projects" className="hover:text-cyan-400 transition-colors font-medium">Projects</Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-foreground font-medium">Resources</span>
-          </div>
+          <nav className="mb-8 flex items-center gap-2 text-sm text-[#6B6B6B]">
+            <Link href="/projects" className="hover:text-[#2F6FEB] transition-colors">Projects</Link>
+            <ChevronRight className="w-3.5 h-3.5 opacity-60" />
+            <span className="text-[#111111] font-medium">Resources</span>
+          </nav>
 
-          <div className="mb-8 flex items-start justify-between">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
             {/* Header & Action */}
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-foreground mb-2">Resources</h1>
-              <p className="text-muted-foreground">Manage API resources and mock data</p>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Database className="w-6 h-6 text-[#2F6FEB]" />
+                <h1 className="text-3xl font-bold tracking-tight text-[#111111]">
+                  {project.name || "Resources"}
+                </h1>
+              </div>
+              <p className="text-[#6B6B6B]">Manage your API endpoints and mock data schemas</p>
             </div>
+
             {/* API Key Section */}
-            <div className="bg-background border border-border rounded-lg p-4 w-72">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-foreground">API Key</span>
+            <div className="bg-white border border-[#E5E5E5] rounded-xl p-5 w-full lg:w-80 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 text-[#111111]">
+                <Key className="w-4 h-4 text-[#2F6FEB]" />
+                <span className="text-sm font-semibold tracking-tight">Project API Key</span>
               </div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs text-muted-foreground bg-card p-2 rounded border border-border/50 font-mono overflow-hidden text-ellipsis">
-                  {isApiKeyVisible ? apiKey : "••••••••••••••••••••"}
-                </code>
-                {isApiKeyVisible && (
+                <div className="flex-1 bg-[#FAFAFA] px-3 py-2 rounded-lg border border-[#E5E5E5] group relative overflow-hidden">
+                  <code className="block text-xs text-[#6B6B6B] font-mono truncate">
+                    {isApiKeyVisible ? apiKey : "••••••••••••••••••••••••"}
+                  </code>
+                </div>
+                <div className="flex items-center gap-1">
+                  {isApiKeyVisible && (
+                    <button
+                      onClick={handleCopyKey}
+                      className="p-2 text-[#6B6B6B] hover:text-[#2F6FEB] hover:bg-[#F0F4FF] transition-all rounded-lg"
+                      title="Copy API key"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  )}
                   <button
-                    onClick={handleCopyKey}
-                    className="text-primary hover:text-cyan-400 transition-colors p-1 rounded"
-                    title="Copy API key"
+                    onClick={() => setShowRenewConfirm(true)}
+                    className="p-2 text-[#6B6B6B] hover:text-[#2F6FEB] hover:bg-[#F0F4FF] transition-all rounded-lg"
+                    title="Renew API key"
                   >
-                    <Copy className="w-4 h-4" />
+                    <RefreshCw className="w-4 h-4" />
                   </button>
-                )}
-                <button
-                  onClick={() => setShowRenewConfirm(true)}
-                  className="text-cyan-400 hover:text-cyan-300 transition-colors p-2 hover:bg-cyan-500/10 rounded"
-                  title="Renew API key"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <Button
               onClick={() => {
                 if (resources && resources.length >= 3 && user?.type === 'free') {
@@ -280,36 +282,110 @@ export default function ResourcesPage() {
                 setEditingResource(null)
                 setIsFormOpen(true)
               }}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 transition-all font-semibold"
+              className="bg-[#2F6FEB] text-white hover:bg-[#255fd4] shadow-sm transition-all font-medium rounded-lg h-10"
             >
-              <Plus className="w-5 h-5 mr-2" /> Add New Resource
+              <Plus className="w-4 h-4 mr-2" /> Create Resource
             </Button>
           </div>
 
           {/* Grid */}
-          <div ref={gridRef}
-            data-testid='resource-grid-container'
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {resources?.map((resource) => (
-              <ResourceCard
-                key={resource._id}
-                version={project.prefix}
-                resource={resource}
-                onView={(res) => setViewingResource(res)}
-                onEdit={(res) => { setEditingResource(res); setIsFormOpen(true) }}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-
-          {/* Empty State */}
-          {resources?.length === 0 && (
-            <div className="text-center py-12">
-              <Plus className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h2 className="text-xl font-semibold text-foreground mb-2">No resources yet</h2>
-              <p className="text-muted-foreground mb-6">Create your first resource to get started</p>
+          {resources && resources.length > 0 ? (
+            <div ref={gridRef}
+              data-testid='resource-grid-container'
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {resources.map((resource) => (
+                <ResourceCard
+                  key={resource._id}
+                  version={project.prefix}
+                  resource={resource}
+                  onView={(res) => setViewingResource(res)}
+                  onEdit={(res) => { setEditingResource(res); setIsFormOpen(true) }}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          ) : !isLoading && (
+            <div className="text-center py-20 bg-white border border-dashed border-[#E5E5E5] rounded-2xl">
+              <div className="w-16 h-16 bg-[#FAFAFA] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#E5E5E5]">
+                <Plus className="w-8 h-8 text-[#6B6B6B] opacity-40" />
+              </div>
+              <h2 className="text-lg font-semibold text-[#111111] mb-1">No resources found</h2>
+              <p className="text-[#6B6B6B] text-sm mb-6 max-w-xs mx-auto">Start by creating a resource to define your API endpoint and mock data.</p>
+              <Button 
+                variant="outline"
+                onClick={() => setIsFormOpen(true)}
+                className="border-[#E5E5E5] hover:bg-[#FAFAFA]"
+              >
+                Add first resource
+              </Button>
             </div>
           )}
+
+          {/* Activity Logs Section */}
+          <section className="mt-20">
+            <div className="bg-white border border-[#E5E5E5] rounded-2xl overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-[#E5E5E5] flex items-center justify-between bg-white">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-[#F0F4FF] text-[#2F6FEB] rounded-lg">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <h2 className="text-lg font-semibold tracking-tight">Recent Activity</h2>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={fetchLogs}
+                    disabled={isLogsLoading}
+                    className="p-2 text-[#6B6B6B] hover:text-[#111111] hover:bg-[#FAFAFA] rounded-lg transition-all disabled:opacity-40"
+                    title="Refresh logs"
+                  >
+                    <RotateCcw className={`w-4 h-4 ${isLogsLoading ? 'animate-spin' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => user && hanldeClearLog(user.id, projectId)}
+                    className="p-2 text-[#6B6B6B] hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    title="Clear activity"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-0">
+                {isLogsLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Spinner />
+                  </div>
+                ) : activityLogs.length > 0 ? (
+                  <div className="max-h-[400px] overflow-y-auto divide-y divide-[#E5E5E5]">
+                    {activityLogs.map((log) => (
+                      <div
+                        key={log._id}
+                        className="flex items-center justify-between p-4 hover:bg-[#FAFAFA] transition-colors group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-8 h-8 rounded-full bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-[10px] font-bold text-[#6B6B6B] uppercase">
+                            {log.username.substring(0, 2)}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-[#111111] leading-none mb-1">{log.action}</p>
+                            <p className="text-xs text-[#6B6B6B]">By {log.username}</p>
+                          </div>
+                        </div>
+                        <time className="text-xs text-[#6B6B6B] font-mono opacity-60 group-hover:opacity-100 transition-opacity">
+                          {new Date(log.time).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                        </time>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-16 text-center">
+                    <p className="text-sm text-[#6B6B6B]">No activity recorded yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
         </main>
 
         {/* Modals */}
@@ -325,65 +401,6 @@ export default function ResourcesPage() {
           resource={viewingResource}
           onClose={() => setViewingResource(null)}
         />
-      </div>
-
-      <div className="max-w-7xl mx-auto mt-12 mb-12">
-        <div className="bg-card border border-border rounded-lg p-6">
-
-          {/* Header Row: Flex container to align items */}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-foreground">Activity Logs</h2>
-
-            {/* Buttons Group */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  if (user) {
-                    hanldeClearLog(user.id, projectId)
-                  }
-                }}
-                className="p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground"
-                title="Clear logs"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={fetchLogs}
-                disabled={isLogsLoading}
-                className={`p-2 hover:bg-muted rounded transition-colors text-muted-foreground hover:text-foreground ${isLogsLoading ? 'opacity-50' : ''}`}
-                title="Refresh logs"
-              >
-                <RotateCcw className={`w-4 h-4 ${isLogsLoading ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
-          </div>
-
-          {/* Logs List */}
-          {isLogsLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <Spinner />
-            </div>
-          ) : activityLogs.length > 0 ? (
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {activityLogs.map((log) => (
-                <div
-                  key={log._id}
-                  className="flex items-center justify-between p-3 bg-background rounded border border-border/50"
-                >
-                  <div className="flex-1">
-                    <p className="text-sm text-foreground font-medium">{log.action}</p>
-                    <p className="text-xs text-muted-foreground">By {log.username}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(log.time).toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No activity yet</p>
-          )}
-        </div>
       </div>
 
       <RenewKeyConfirmModal

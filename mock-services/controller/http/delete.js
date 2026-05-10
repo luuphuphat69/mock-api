@@ -4,8 +4,9 @@ const { getProjectAuth, scheduleLog } = require('./helpers');
 const handler = async (req, res) => {
 
   const apiKey = req.header('x-api-key');
-  const {projectId, endpoint, recordId} = req.params
-
+  const {projectId, recordId} = req.params
+  const endpoint = req.url;
+  
   if (!recordId) {
     scheduleLog(res, {
       method: "DELETE",

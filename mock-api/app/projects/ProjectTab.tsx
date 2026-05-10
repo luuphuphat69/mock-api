@@ -7,6 +7,7 @@ import gsap from "gsap"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Spinner } from '@/components/ui/shadcn-io/spinner';
 import { useUser } from "../../hooks/useUser"
@@ -25,7 +26,7 @@ export default function ProjectsTab() {
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null)
   const [selectedProject, setSelectedProject] = useState<IProject | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ name: "", prefix: "" })
+  const [formData, setFormData] = useState({ name: "", prefix: "", description: "" })
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -135,14 +136,18 @@ export default function ProjectsTab() {
         },
       });
     }
-    setFormData({ name: "", prefix: "" })
+    setFormData({ name: "", prefix: "", description: "" })
     setIsEditMode(false)
     setEditingId(null)
     setIsModalOpen(true)
   }
 
   const handleEditProject = (project: IProject) => {
-    setFormData({ name: project.name, prefix: project.prefix })
+    setFormData({
+      name: project.name ?? "",
+      prefix: project.prefix ?? "",
+      description: project.description ?? "",
+    })
     setIsEditMode(true)
     setEditingId(project.projectId)
     setIsModalOpen(true)
@@ -151,12 +156,15 @@ export default function ProjectsTab() {
   const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.prefix || !user?.id) return;
+    if (!formData.name || !formData.prefix || !formData.description || !user?.id) return;
 
     const versionRegex = /^\/v[0-9]+$/;
-
     if (!versionRegex.test(formData.prefix)) {
       return toast.error("Invalid API version. Only formats like /v0, /v1, /v2 are allowed.");
+    }
+
+    if (formData.description.length > 200) {
+      return toast.error("Description cannot have over 200 characters")
     }
 
     setIsSaving(true);
@@ -165,12 +173,14 @@ export default function ProjectsTab() {
       if (isEditMode && editingId) {
         await patchProject(user.id, editingId, {
           name: formData.name,
-          prefix: formData.prefix
+          prefix: formData.prefix,
+          description: formData.description
         });
       } else {
         await addProject({
           name: formData.name,
           prefix: formData.prefix,
+          description: formData.description,
           userId: user.id,
         });
       }
@@ -182,7 +192,7 @@ export default function ProjectsTab() {
       console.error(err);
     } finally {
       setIsSaving(false);
-      setFormData({ name: "", prefix: "" });
+      setFormData({ name: "", prefix: "", description: "" });
       setEditingId(null);
       setIsEditMode(false);
     }
@@ -297,6 +307,31 @@ export default function ProjectsTab() {
                     className="bg-background border-border text-foreground placeholder:text-muted-foreground"
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="project-description">
+                    Description
+                  </Label>
+
+                  <Textarea
+                    id="project-description"
+                    placeholder="Project description"
+                    value={formData.description}
+                    maxLength={200}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        description: e.target.value,
+                      })
+                    }
+                    className="min-h-[120px] border border-black-300"
+                    required
+                  />
+
+                  <div className="text-xs text-muted-foreground text-right">
+                    {formData.description?.length ? formData.description?.length : 0}/200
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-4">

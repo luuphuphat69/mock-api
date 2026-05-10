@@ -7,6 +7,7 @@ const projectSchema = new Schema({
     userId: { type: String, ref: "User", required: true },
     name: { type: String, required: true },
     prefix: {type: String, required: true},
+    description: {type: String, required: false},
     apiKey: { type: String, unique: true, select: false }, 
     dataLimit: { type: Number, default: 100 },
 }, { timestamps: true });

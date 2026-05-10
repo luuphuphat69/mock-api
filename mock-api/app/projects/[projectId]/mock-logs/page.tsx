@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState, useEffect, useCallback } from "react"
 import { useParams } from "next/navigation"
 import { toast } from 'sonner'

@@ -63,7 +63,7 @@ export const useProjects = create<IProjectStore>((set, get) => ({
             loading: false
         });
     },
-    patchProject: async (userid: string, id: string, payload: { name?: string; prefix?: string }) => {
+    patchProject: async (userid: string, id: string, payload: { name?: string; prefix?: string; description?: string }) => {
         try {
             const res = await patchProject(userid, id, payload);
 

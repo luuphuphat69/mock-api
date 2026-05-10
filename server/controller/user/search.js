@@ -16,7 +16,7 @@ async function Search(req, res) {
                     index: "default",
                     autocomplete: {
                         query: searchString,
-                        path: "name",
+                        path: "email",
                         fuzzy: { maxEdits: 1 }
                     }
                 }
