@@ -1,148 +1,143 @@
-import { test, expect } from "@playwright/test";
-import ResourcePage from "../../../page-model/resource/resource";
-import ResourcePopup from "../../../page-model/resource/components-model/popup";
-import ResourceCard from "../../../page-model/resource/components-model/resource-card";
+import { expect, test, type APIRequestContext } from "@playwright/test";
+import ResourcePage from "../../../page-model/resource/ResourcePage";
+import ResourceCard from "../../../page-model/resource/components/ResourceCard";
+import ResourceFormModal from "../../../page-model/resource/components/ResourceFormModal";
+import type { ResourceSchemaFieldInput } from "../../../utilities/resource-test-data";
 
-const date = new Date();
-const testData = (isEdit: boolean) => {
-    return {
-        resourceName: !isEdit ? `test-resource ${date.toString()}` : `updated-test-resource ${date.toString()}`,
-        schema: [
-            !isEdit ? { name: 'test-field-1', type: 'number' } : {name: 'updated-test-field-1', type: 'boolean'},
-            !isEdit ? { name: 'test-field-2', type: 'string' } : {name: 'updated-test-field-2', type: 'Fake',  module: 'person.fullName'},
-            !isEdit ? { name: 'test-field-3', type: 'Fake', module: 'person.firstName' }:
-            { name: 'updated-test-field-3', type: 'string'}
-        ],
-        numberOfRecord: !isEdit ? 20 : 10
-    }
+const RESOURCE_CRUD_PREFIX = "e2e-resource-crud";
+
+interface ResourceCrudData {
+  resourceName: string;
+  fields: ResourceSchemaFieldInput[];
+  recordCount: number;
 }
 
-test.describe('Resource CRUD', () => {
-    test('Add new resource', async ({ page }) => {
-        if(!process.env.TEST_PROJECT_ID || !process.env.TEST_USER_ID){
-            throw new Error('Missing TEST_PROJECT_ID or TEST_USER_ID');
-        }
+function buildResourceData(nameSuffix: string): ResourceCrudData {
+  return {
+    resourceName: `${RESOURCE_CRUD_PREFIX}-${nameSuffix}-${Date.now()}`,
+    fields: [
+      { name: "status", dataType: "boolean" },
+      { name: "title", dataType: "string" },
+      { name: "owner", dataType: "fake", fakeType: "person.fullName" },
+    ],
+    recordCount: 3,
+  };
+}
 
-        const resourcePage = new ResourcePage(page);
-        const resourcePopup = new ResourcePopup(page);
+async function cleanupCrudResources(
+  request: APIRequestContext,
+  userId: string,
+  projectId: string,
+): Promise<void> {
+  const response = await request.get(`/api/resources/${userId}/${projectId}`);
 
-        resourcePopup.setIsEdit(false)
-        const data = testData(false);
+  if (!response.ok()) {
+    return;
+  }
 
-        // Go to resource page -> click 'Add New Resource' button -> Wait for pop up shown up
-        await resourcePage.goTo(process.env.TEST_PROJECT_ID);
-        await resourcePage.clickAddNewResourceBtn();
-        await expect(resourcePopup.popup).toBeVisible();
-        await expect(resourcePopup.resourceNameInput).toBeEnabled();
+  const resources = (await response.json()) as Array<{ _id: string; name: string }>;
 
+  for (const resource of resources) {
+    if (resource.name.startsWith(RESOURCE_CRUD_PREFIX)) {
+      await request.delete(`/api/resources/${userId}/${projectId}/${resource._id}`);
+    }
+  }
+}
 
-        // After popup shown up -> Input resource name
-        await resourcePopup.setResourceNameInputValue(data.resourceName);
+test.describe("Resource CRUD", () => {
+  let resourcePage: ResourcePage;
+  let resourceCard: ResourceCard;
+  let resourceFormModal: ResourceFormModal;
+  let projectId: string;
+  let userId: string;
 
-        // loop at schema test data (except default id) -> select options
-        for (let i = 1; i <= data.schema.length; i++) {
-            // set (i)th schema line
-            resourcePopup.setSelectedSchemaPosition(i);
-            await resourcePopup.addFieldButton.click();
+  test.beforeEach(async ({ page }) => {
+    if (!process.env.TEST_PROJECT_ID || !process.env.TEST_USER_ID) {
+      throw new Error("Missing TEST_PROJECT_ID or TEST_USER_ID");
+    }
 
-            //After click 'Add field' button -> Wait for input to shown up
-            await expect(resourcePopup.schemaInput).toBeVisible();
+    projectId = process.env.TEST_PROJECT_ID;
+    userId = process.env.TEST_USER_ID;
 
-            // Set values
-            await resourcePopup.setSchemaInputValue(data.schema[i - 1].name)
-            await resourcePopup.dataTypeOption.selectOption(data.schema[i - 1].type);
+    resourcePage = new ResourcePage(page);
+    resourceCard = new ResourceCard(page);
+    resourceFormModal = new ResourceFormModal(page);
 
-            if (
-                data.schema[i - 1].type === 'Fake' &&
-                data.schema[i - 1].module !== undefined &&
-                data.schema[i - 1].module !== null
-            ) {
-                // Wait for fake module dropdown shown up
-                await expect(resourcePopup.fakerModuleButton).toBeVisible();
-                await resourcePopup.fakerModuleButton.click();
+    await cleanupCrudResources(page.request, userId, projectId);
+    await resourcePage.goto(projectId);
+  });
 
-                // After click the dropdown -> Wait for the container, which store all the options to shown up
-                await expect(resourcePopup.fakerModuleOptionContainer).toBeVisible();
+  test.afterEach(async ({ page }) => {
+    if (!process.env.TEST_PROJECT_ID || !process.env.TEST_USER_ID) {
+      return;
+    }
 
-                // Select option
-                const option = resourcePopup.getFakerModuleOption(data.schema[i - 1].module!);
-                await option.click();
-            }
-        }
-        await resourcePopup.numberOfRecorsInput.fill(data.numberOfRecord.toString());
-        await resourcePopup.submitButton.click();
-        await expect(resourcePopup.popup).toBeHidden();
+    await cleanupCrudResources(page.request, userId, projectId);
+  });
 
-        await resourcePage.goTo(process.env.TEST_PROJECT_ID);
-        const addedResource = resourcePage.resourceContainer.getByText(data.resourceName);
-        await expect(addedResource).toBeVisible();
-    }),
+  test("create resource successfully", async () => {
+    const resourceData = buildResourceData("create");
 
-    test('Update resource', async ({page}) => {
-        if(!process.env.TEST_PROJECT_ID || !process.env.TEST_USER_ID){
-            throw new Error('Missing TEST_PROJECT_ID or TEST_USER_ID');
-        }
+    await createResource(resourceData);
 
-        const resourcePage = new ResourcePage(page);
-        const resourcePopup = new ResourcePopup(page);
-        const resourceCard = new ResourceCard(page);
+    await expect(resourcePage.resourceCardByName(resourceData.resourceName)).toBeVisible();
+  });
 
-        resourcePopup.setIsEdit(true)
-        const data = testData(true)
-        
-        await resourcePage.goTo(process.env.TEST_PROJECT_ID);
-        await expect(resourceCard.card).toBeVisible();
-        await resourceCard.editButton.click();
-        await expect(resourcePopup.popup).toBeVisible();
-        await resourcePopup.setResourceNameInputValue(data.resourceName);
-        
-        for(let i = 1; i <= data.schema.length; i++){
-            resourcePopup.setSelectedSchemaPosition(i);
-            await resourcePopup.setSchemaInputValue(data.schema[i - 1].name)
-            await resourcePopup.dataTypeOption.selectOption(data.schema[i - 1].type);
+  test("update resource successfully", async () => {
+    const resourceData = buildResourceData("update");
+    const updatedData: ResourceCrudData = {
+      resourceName: `${resourceData.resourceName}-updated`,
+      fields: [
+        { name: "isActive", dataType: "boolean" },
+        { name: "fullName", dataType: "fake", fakeType: "person.fullName" },
+        { name: "score", dataType: "number" },
+      ],
+      recordCount: 5,
+    };
 
-            if (
-                data.schema[i - 1].type === 'Fake' &&
-                data.schema[i - 1].module !== undefined &&
-                data.schema[i - 1].module !== null
-            ) {
-                // Wait for fake module dropdown shown up
-                await expect(resourcePopup.fakerModuleButton).toBeVisible();
-                await resourcePopup.fakerModuleButton.click();
+    await createResource(resourceData);
+    await expect(resourcePage.resourceCardByName(resourceData.resourceName)).toBeVisible();
 
-                // After click the dropdown -> Wait for the container, which store all the options to shown up
-                await expect(resourcePopup.fakerModuleOptionContainer).toBeVisible();
+    await resourceCard.edit(resourceData.resourceName);
+    await expect(resourceFormModal.popup).toBeVisible();
 
-                // Select option
-                const option = resourcePopup.getFakerModuleOption(data.schema[i - 1].module!);
-                await option.click();
-            }
-        }
-        await resourcePopup.numberOfRecorsInput.fill(data.numberOfRecord.toString());
-        await resourcePopup.submitButton.click();
-        await expect(resourcePopup.popup).toBeHidden();
+    await resourceFormModal.fillResourceName(updatedData.resourceName);
 
-        const updatedResource = resourcePage.resourceContainer.getByText(data.resourceName);
-        await expect(updatedResource).toBeVisible();
-    })
+    for (let index = 0; index < updatedData.fields.length; index += 1) {
+      await resourceFormModal.fillSchemaField(index + 1, updatedData.fields[index]);
+    }
 
-    test('Delete resource', async ({ page }) => {
-        if (!process.env.TEST_PROJECT_ID || !process.env.TEST_USER_ID) {
-            throw new Error('Missing TEST_PROJECT_ID or TEST_USER_ID');
-        }
+    await resourceFormModal.fillRecordCount(updatedData.recordCount);
+    await resourceFormModal.submit();
+    await expect(resourceFormModal.popup).toBeHidden();
 
-        const resourcePage = new ResourcePage(page);
-        const resourceCard = new ResourceCard(page);
+    await expect(resourcePage.resourceCardByName(updatedData.resourceName)).toBeVisible();
+    await expect(resourcePage.resourceCardByName(resourceData.resourceName)).toBeHidden();
+  });
 
-        await resourcePage.goTo(process.env.TEST_PROJECT_ID);
-        const resources =  resourcePage.resourceContainer.getByTestId('resource-card')
-        // wait until resources are rendered
-        await expect(resources.first()).toBeVisible({ timeout: 10_000 });
-        let total = await resources.count();
+  test("delete resource successfully", async () => {
+    const resourceData = buildResourceData("delete");
 
-        resourceCard.setSelectedCardPosition(0);
-        await resourceCard.deleteButton.click();
+    await createResource(resourceData);
+    await expect(resourcePage.resourceCardByName(resourceData.resourceName)).toBeVisible();
 
-        await expect(resources).toHaveCount(total - 1)
-    })
-})
+    await resourceCard.delete(resourceData.resourceName);
+
+    await expect(resourcePage.resourceCardByName(resourceData.resourceName)).toBeHidden();
+  });
+
+  async function createResource(resourceData: ResourceCrudData): Promise<void> {
+    await resourcePage.clickAddNewResourceButton();
+    await expect(resourceFormModal.popup).toBeVisible();
+
+    await resourceFormModal.fillResourceName(resourceData.resourceName);
+
+    for (let index = 0; index < resourceData.fields.length; index += 1) {
+      await resourceFormModal.addSchemaField(index + 1, resourceData.fields[index]);
+    }
+
+    await resourceFormModal.fillRecordCount(resourceData.recordCount);
+    await resourceFormModal.submit();
+    await expect(resourceFormModal.popup).toBeHidden();
+  }
+});

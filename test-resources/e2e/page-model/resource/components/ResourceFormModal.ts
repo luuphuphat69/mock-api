@@ -21,7 +21,7 @@ export default class ResourceFormModal {
   }
 
   get submitButton(): Locator {
-    return this.popup.getByRole("button", { name: "Create" });
+    return this.popup.getByRole("button", { name: /Create|Update/ });
   }
 
   get fakeModuleOptionsContainer(): Locator {
@@ -71,11 +71,22 @@ export default class ResourceFormModal {
 
   async addSchemaField(index: number, field: ResourceSchemaFieldInput): Promise<void> {
     await this.addFieldButton.click();
+    await this.fillSchemaField(index, field);
+  }
+
+  async fillSchemaField(index: number, field: ResourceSchemaFieldInput): Promise<void> {
     await this.fieldNameInput(index).fill(field.name);
     await this.dataTypeSelect(index).selectOption(field.dataType);
-    await this.fakeModuleButton(index).click();
-    await this.fakeModuleSearchInput().fill(field.fakeType);
-    await this.fakeModuleOption(field.fakeType).click();
+
+    if (field.dataType === "fake") {
+      if (!field.fakeType) {
+        throw new Error("fakeType is required for fake schema fields");
+      }
+
+      await this.fakeModuleButton(index).click();
+      await this.fakeModuleSearchInput().fill(field.fakeType);
+      await this.fakeModuleOption(field.fakeType).click();
+    }
   }
 
   async submit(): Promise<void> {

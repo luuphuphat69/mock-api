@@ -4,8 +4,8 @@ export const RESOURCE_NAME_PREFIX = "e2e-resource-all-fake-modules";
 
 export interface ResourceSchemaFieldInput {
   name: string;
-  dataType: "fake";
-  fakeType: string;
+  dataType: "string" | "number" | "boolean" | "fake";
+  fakeType?: string;
 }
 
 export interface ResourceCreateTestData {
