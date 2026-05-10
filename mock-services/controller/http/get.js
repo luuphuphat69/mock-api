@@ -3,8 +3,7 @@ const { getProjectAuth, scheduleLog } = require('./helpers');
 
 const handler = async (req, res) => {
 
-  const {projectId} = req.params
-  const endpoint = req.url;
+  const {projectId, endpoint} = req.params
   const recordId = req.params.recordId || null;
   const apiKey = req.header('x-api-key');
   const query = req.query || null;
