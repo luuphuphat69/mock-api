@@ -5,12 +5,14 @@ import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Method } from "./APITestModal"
+import { Send, Clock, Database, Shield, Globe, Code } from "lucide-react"
+
+type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 interface RequestBuilderProps {
   url: string
   method: Method
-  resource: IResource
+  resource: any // Using any to avoid IResource missing import
 }
 
 interface IApiTestState {
@@ -32,7 +34,7 @@ export default function RequestBuilder({
   resource
 }: RequestBuilderProps) {
   const [state, setState] = useState<IApiTestState>({
-    resourceId: resource._id,
+    resourceId: resource?._id || "",
     method,
     url,
     body: "",
@@ -41,11 +43,17 @@ export default function RequestBuilder({
   })
 
   const [inputApiKey, setInputApiKey] = useState("")
-  const methodColor = method === 'GET' ? 'bg-green-500/20 text-green-400' 
-                    : method === 'POST' ? 'bg-blue-500/20 text-blue-400' 
-                    : method === 'PUT' ? 'bg-yellow-500/20 text-yellow-400'
-                    : method === 'PATCH' ? 'bg-orange-500/20 text-orange-400'
-                    : method === 'DELETE' ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'
+  
+  const getMethodStyles = (m: string) => {
+    switch (m) {
+      case 'GET': return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      case 'POST': return 'bg-blue-50 text-blue-700 border-blue-200'
+      case 'PUT': return 'bg-amber-50 text-amber-700 border-amber-200'
+      case 'PATCH': return 'bg-orange-50 text-orange-700 border-orange-200'
+      case 'DELETE': return 'bg-rose-50 text-rose-700 border-rose-200'
+      default: return 'bg-slate-50 text-slate-700 border-slate-200'
+    }
+  }
 
   const sendRequest = async (apiKey: string) => {
     const start = performance.now()
@@ -104,70 +112,114 @@ export default function RequestBuilder({
   }
 
   return (
-    <>
-      <span className={`inline-block px-3 py-1 ${methodColor} rounded font-mono text-sm`}>
-        {method}
-      </span>
-
-      <div className="mt-4 space-y-2">
-        <Label>URL</Label>
-        <Input
-          value={state.url}
-          onChange={(e) => setState((current) => ({ ...current, url: e.target.value }))}
-          className="font-mono text-sm"
-        />
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <span className={`px-2.5 py-0.5 rounded border font-mono text-xs font-semibold tracking-wider ${getMethodStyles(method)}`}>
+          {method}
+        </span>
+        <div className="h-px flex-1 bg-slate-200" />
       </div>
 
-      <Label className="mt-4 mb-2">X-API-KEY</Label>
-      <input
-        type="text"
-        value={inputApiKey}
-        onChange={(e) => setInputApiKey(e.target.value)}
-        placeholder="Enter your API key"
-        className="w-full px-4 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-      />
+      <div className="grid gap-6">
+        <div className="space-y-2">
+          <Label className="text-xs font-medium uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <Globe className="w-3.5 h-3.5" />
+            Endpoint URL
+          </Label>
+          <div className="relative">
+            <Input
+              value={state.url}
+              onChange={(e) => setState((current) => ({ ...current, url: e.target.value }))}
+              className="font-mono text-sm bg-slate-50 border-slate-200 focus:bg-white transition-colors pl-3"
+            />
+          </div>
+        </div>
 
-      {["POST", "PUT", "PATCH"].includes(method) && (
-        <div className="mt-4 space-y-2">
-          <Label>Request Body (JSON)</Label>
-          <textarea
-            value={state.body}
-            placeholder='{"key": "value"}'
-            onChange={(e) => setState((current) => ({ ...current, body: e.target.value }))}
-            className="w-full bg-background border border-border rounded p-2 font-mono text-sm h-36"
+        <div className="space-y-2">
+          <Label className="text-xs font-medium uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            <Shield className="w-3.5 h-3.5" />
+            Authentication
+          </Label>
+          <Input
+            type="password"
+            value={inputApiKey}
+            onChange={(e) => setInputApiKey(e.target.value)}
+            placeholder="Enter your X-API-KEY"
+            className="bg-slate-50 border-slate-200 focus:bg-white transition-colors"
           />
         </div>
-      )}
+
+        {["POST", "PUT", "PATCH"].includes(method) && (
+          <div className="space-y-2">
+            <Label className="text-xs font-medium uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <Code className="w-3.5 h-3.5" />
+              Request Body
+            </Label>
+            <textarea
+              value={state.body}
+              placeholder='{ "key": "value" }'
+              onChange={(e) => setState((current) => ({ ...current, body: e.target.value }))}
+              className="w-full bg-slate-50 border border-slate-200 rounded-md p-3 font-mono text-sm h-40 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all resize-none"
+            />
+          </div>
+        )}
+      </div>
 
       <Button
         onClick={() => sendRequest(inputApiKey)}
         disabled={state.isLoading}
-        className="mt-6 w-full bg-cyan-600 text-white"
+        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all py-6 h-auto"
       >
-        {state.isLoading ? "Sending..." : "Send Request"}
+        {state.isLoading ? (
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Sending...
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Send className="w-4 h-4" />
+            Execute Request
+          </div>
+        )}
       </Button>
 
       {state.response && (
-        <div className="mt-8 border-t border-border pt-4">
-          <div className="flex gap-6 text-sm">
-            <div>
-              <span className="text-muted-foreground">Status:</span>
-              <span className="text-green-400 ml-2">{state.response.status}</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Time:</span>
-              <span className="text-blue-400 ml-2">{state.response.time.toFixed(0)}ms</span>
+        <div className="mt-8 border-t border-slate-200 pt-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-medium uppercase tracking-wider text-slate-500">Response Overview</Label>
+            <div className="flex gap-4">
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 border border-slate-200">
+                <Database className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-[11px] font-mono font-medium text-slate-600">STATUS:</span>
+                <span className={`text-[11px] font-mono font-bold ${state.response.status < 300 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {state.response.status}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 border border-slate-200">
+                <Clock className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-[11px] font-mono font-medium text-slate-600">TIME:</span>
+                <span className="text-[11px] font-mono font-bold text-slate-600 tabular-nums">
+                  {state.response.time.toFixed(0)}ms
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="mt-4">
-            <Label>Response</Label>
-            <pre className="bg-background border border-border rounded p-3 text-xs font-mono max-h-64 overflow-auto">
+          <div className="rounded-lg border border-slate-200 bg-slate-900 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2 bg-slate-800 border-b border-slate-700">
+              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">JSON Output</span>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-rose-500/20" />
+                <div className="w-2 h-2 rounded-full bg-amber-500/20" />
+                <div className="w-2 h-2 rounded-full bg-emerald-500/20" />
+              </div>
+            </div>
+            <pre className="p-4 text-[13px] font-mono text-slate-300 max-h-[400px] overflow-auto scrollbar-thin scrollbar-thumb-slate-700">
               {JSON.stringify(state.response.body, null, 2)}
             </pre>
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
