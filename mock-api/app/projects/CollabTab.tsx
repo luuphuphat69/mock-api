@@ -61,9 +61,6 @@ export default function CollaborationTab() {
   return (
     <div>
       <LoadingScreen isVisible={isLoading} />
-
-      <h2 className="text-2xl font-bold mb-4">Collaboration</h2>
-
       {/* Reusable Grid */}
       {collabProjects.length > 0 && (
         <ProjectGrid

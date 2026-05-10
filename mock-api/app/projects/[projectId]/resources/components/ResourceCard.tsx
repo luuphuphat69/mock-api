@@ -199,7 +199,7 @@ export function ResourceCard({ resource, version, onView, onEdit, onDelete }: Re
             }}
             variant="outline"
             data-testid="edit-resource-button"
-            className="border-border bg-background text-foreground hover:bg-muted"
+            className="border-border bg-background text-foreground"
           >
             <Edit2 className="mr-2 h-4 w-4" aria-hidden="true" />
             Edit
@@ -212,7 +212,7 @@ export function ResourceCard({ resource, version, onView, onEdit, onDelete }: Re
             }}
             data-testid="delete-resource-button"
             variant="outline"
-            className="border-border bg-background text-red-600 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+            className="border-border bg-background text-red-600 hover:border-red-200 hover:bg-red-700 hover:text-white"
           >
             <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
             Delete

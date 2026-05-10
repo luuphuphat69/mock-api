@@ -13,15 +13,15 @@ import { getGeneralMetrics, getMethodMetrics, getMonthlyMetrics } from "@/utilit
 import { Spinner } from "@/components/ui/shadcn-io/spinner"
 import { LoadingScreen } from "@/components/loading-screen"
 
-const methodColors: Record<HttpMethod, string> = {
-  GET: "#06B6D4",
-  POST: "#10B981",
-  PUT: "#F59E0B",
-  PATCH: "#EC4899",
-  DELETE: "#EF4444",
-};
-
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+const methodColors: Record<HttpMethod, string> = {
+  GET: "oklch(60% 0.16 250)",    // Cobalt/Blue
+  POST: "oklch(60% 0.16 150)",   // Green
+  PUT: "oklch(65% 0.16 80)",     // Amber/Yellow
+  PATCH: "oklch(60% 0.16 330)",  // Pink/Purple
+  DELETE: "oklch(60% 0.16 25)",  // Red
+};
 
 type MethodMetric = {
   method: HttpMethod;
@@ -63,7 +63,7 @@ export default function MetricsPage() {
         const res = await getMonthlyMetrics(projectId, month, year);
         setMonthlyData(res);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
@@ -126,7 +126,7 @@ export default function MetricsPage() {
           }
         });
       } catch (err) {
-        console.log(err);
+        console.error(err);
       } finally {
         setIsLoading(false)
       }
@@ -138,122 +138,146 @@ export default function MetricsPage() {
   const handleRefresh = () => {
     setRefreshing(true)
     gsap.to("[data-metric-card], [data-chart]", {
-      opacity: 0.5,
-      duration: 0.3,
+      opacity: 0.6,
+      scale: 0.99,
+      duration: 0.2,
     })
 
     setTimeout(() => {
       gsap.to("[data-metric-card], [data-chart]", {
         opacity: 1,
+        scale: 1,
         duration: 0.3,
+        ease: "back.out(1.7)"
       })
       setRefreshing(false)
-    }, 1000)
+    }, 800)
   }
 
   return (
     <>
-    <LoadingScreen isVisible={isLoading}/>
-      <main className="min-h-screen bg-background text-foreground pt-24 px-4 md:px-8 pb-12">
-        {/* Breadcrumb and Header */}
+      <LoadingScreen isVisible={isLoading}/>
+      <main className="min-h-screen bg-[#FAFAFA] text-[#111111] pt-24 px-4 md:px-8 pb-12">
         <Header />
-        <div className="flex items-center justify-between mb-8">
-          {/* Left section */}
-          <div className="flex items-center gap-4">
-            {/* Breadcrumb + Title should be stacked vertically */}
-            <div className="flex flex-col gap-1">
-              {/* Breadcrumb */}
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Link href="/projects" className="hover:text-cyan-400 transition-colors font-medium">
-                  Projects
-                </Link>
-                <ChevronRight className="w-4 h-4" />
-                <span className="text-foreground font-medium">Metrics</span>
-              </div>
+        
+        {/* Breadcrumb and Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+          <div className="flex flex-col gap-4">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-2 text-sm font-medium text-[#6B6B6B]">
+              <Link href="/projects" className="hover:text-[#2F6FEB] transition-colors">
+                Projects
+              </Link>
+              <ChevronRight className="w-4 h-4 text-[#E5E5E5]" />
+              <span className="text-[#111111]">Metrics</span>
+            </nav>
 
-              {/* Title */}
-              <div className="mt-5">
-                <h1 className="text-3xl font-bold leading-none">API Metrics</h1>
-                <p className="text-sm text-muted-foreground">Track your API performance and usage</p>
-              </div>
+            <div>
+              <h1 className="text-4xl font-semibold tracking-tight text-[#111111] mb-2">API Metrics</h1>
+              <p className="text-[#6B6B6B]">Monitor real-time performance and usage statistics.</p>
             </div>
           </div>
 
-          {/* Right side button */}
           <Button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 border border-cyan-500 mt-5"
+            className="bg-[#2F6FEB] text-white hover:bg-[#2F6FEB]/90 shadow-sm transition-all h-10 px-6 rounded-lg font-medium"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-            Refresh
+            Refresh Data
           </Button>
         </div>
 
 
         {/* Key Metrics Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {/* Total Requests */}
-          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-cyan-500/50 transition-all"
-            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}>
-            <p className="text-sm text-muted-foreground mb-2">Total Requests</p>
-            {isLoading ? <Spinner /> : (<>
-              <p className="text-3xl font-bold text-cyan-400">
-                {metrics.current?.totalRequest?.toLocaleString()}
-              </p>
-              <p className={`text-xs mt-2 ${metrics.growth.totalRequest > 0 ? "text-green-400" : "text-red-400"}`}>
-                {metrics.growth.totalRequest !== null
-                  ? `↑ ${metrics.growth.totalRequest.toFixed(1)}% from last month`
-                  : "No previous data"}
-              </p></>)}
+          <div 
+            data-metric-card 
+            className="bg-white border border-[#E5E5E5] rounded-xl p-6 hover:border-[#2F6FEB]/30 transition-all cursor-pointer group shadow-sm"
+            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.06em] text-[#6B6B6B] mb-4">Total Requests</p>
+            {isLoading ? <Spinner /> : (
+              <div>
+                <p className="text-4xl font-bold tracking-tight text-[#111111] tabular-nums group-hover:text-[#2F6FEB] transition-colors">
+                  {metrics.current?.totalRequest?.toLocaleString()}
+                </p>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${metrics.growth.totalRequest > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {metrics.growth.totalRequest !== null
+                      ? `${metrics.growth.totalRequest > 0 ? "↑" : "↓"} ${Math.abs(metrics.growth.totalRequest).toFixed(1)}%`
+                      : "—"}
+                  </span>
+                  <span className="text-xs text-[#6B6B6B]">vs last month</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Success Rate */}
-          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-green-500/50 transition-all"
-            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}>
-            <p className="text-sm text-muted-foreground mb-2">Success Rate</p>
-            {isLoading ? <Spinner /> : (<>          <p className="text-3xl font-bold text-green-400">
-              {metrics.current.successRate}%
-            </p>
-              <p className={`text-xs mt-2 ${metrics.growth.successRate > 0 ? "text-green-400" : "text-red-400"}`}>
-                {metrics.growth.successRate !== null
-                  ? `↑ ${metrics.growth.successRate.toFixed(1)}% from last month`
-                  : "No previous data"}
-              </p></>)}
+          <div 
+            data-metric-card 
+            className="bg-white border border-[#E5E5E5] rounded-xl p-6 hover:border-green-500/30 transition-all cursor-pointer group shadow-sm"
+            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.06em] text-[#6B6B6B] mb-4">Success Rate</p>
+            {isLoading ? <Spinner /> : (
+              <div>
+                <p className="text-4xl font-bold tracking-tight text-green-600 tabular-nums">
+                  {metrics.current.successRate}%
+                </p>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${metrics.growth.successRate >= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {metrics.growth.successRate !== null
+                      ? `${metrics.growth.successRate > 0 ? "↑" : "↓"} ${Math.abs(metrics.growth.successRate).toFixed(1)}%`
+                      : "—"}
+                  </span>
+                  <span className="text-xs text-[#6B6B6B]">vs last month</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Errors */}
-          <div data-metric-card className="bg-card border border-border rounded-lg p-6 hover:border-red-500/50 transition-all"
-            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}>
-            <p className="text-sm text-muted-foreground mb-2">Total Errors</p>
+          <div 
+            data-metric-card 
+            className="bg-white border border-[#E5E5E5] rounded-xl p-6 hover:border-red-500/30 transition-all cursor-pointer group shadow-sm"
+            onClick={() => router.push(`/projects/${projectId}/mock-logs`)}
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.06em] text-[#6B6B6B] mb-4">Total Errors</p>
             {isLoading ? <Spinner /> : (
-              <>
-                <p className="text-3xl font-bold text-red-400">
-                  {metrics.current.totalErrors}
+              <div>
+                <p className="text-4xl font-bold tracking-tight text-red-600 tabular-nums">
+                  {metrics.current.totalErrors.toLocaleString()}
                 </p>
-                <p
-                  className={`text-xs mt-2 ${metrics.growth.totalErrors > 0 ? "text-green-400" : "text-red-400"
-                    }`}
-                >
-                  {metrics.growth.totalErrors !== null
-                    ? `${metrics.growth.totalErrors > 0 ? "↑" : "↓"} ${Math.abs(
-                      metrics.growth.totalErrors
-                    ).toFixed(1)}% from last month`
-                    : "No previous data"}
-                </p>
-              </>)}
+                <div className="flex items-center gap-2 mt-3">
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${metrics.growth.totalErrors <= 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {metrics.growth.totalErrors !== null
+                      ? `${metrics.growth.totalErrors > 0 ? "↑" : "↓"} ${Math.abs(metrics.growth.totalErrors).toFixed(1)}%`
+                      : "—"}
+                  </span>
+                  <span className="text-xs text-[#6B6B6B]">vs last month</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Charts Section */}
         <ChartBarInteractive monthlyData={monthlyData} />
 
-        {/* Method Performance Cards */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Performance by HTTP Method</h2>
+        {/* Method Performance Section */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold tracking-tight text-[#111111]">Performance by HTTP Method</h2>
+            <div className="h-px flex-1 bg-[#E5E5E5] mx-6 hidden md:block" />
+          </div>
 
           {isLoading ? (
-            <Spinner />
+            <div className="flex justify-center p-12">
+              <Spinner />
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {methodMetrics.map((item, index) => (
@@ -261,47 +285,43 @@ export default function MetricsPage() {
                   key={item.method}
                   data-chart
                   onClick={() => router.push(`/projects/${projectId}/mock-logs`)}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                  className="bg-card border border-border rounded-lg p-4 hover:border-cyan-500/50 transition-all"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="bg-white border border-[#E5E5E5] rounded-xl p-5 hover:border-[#2F6FEB]/30 hover:shadow-md transition-all cursor-pointer group"
                 >
                   {/* HTTP Method Badge */}
                   <div
-                    className="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-3"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mb-4"
                     style={{
-                      backgroundColor: `${methodColors[item.method]}20`,
+                      backgroundColor: `${methodColors[item.method]}15`,
                       color: methodColors[item.method],
+                      border: `1px solid ${methodColors[item.method]}30`
                     }}
                   >
                     {item.method}
                   </div>
 
-                  {/* Metrics */}
-                  <div className="space-y-2">
-                    {/* Requests */}
+                  {/* Metrics Grid */}
+                  <div className="space-y-4">
                     <div>
-                      <p className="text-xs text-muted-foreground">Requests</p>
-                      <p
-                        className="text-lg font-bold"
-                        style={{ color: methodColors[item.method] }}
-                      >
-                        {item.totalRequest}
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-1">Requests</p>
+                      <p className="text-2xl font-bold tracking-tight tabular-nums text-[#111111]">
+                        {item.totalRequest.toLocaleString()}
                       </p>
                     </div>
 
-                    {/* Success Rate */}
-                    <div>
-                      <p className="text-xs text-muted-foreground">Success Rate</p>
-                      <p className="text-sm font-semibold text-green-400">
-                        {(item.successRate * 100).toFixed(1)}%
-                      </p>
-                    </div>
-
-                    {/* Failed */}
-                    <div>
-                      <p className="text-xs text-muted-foreground">Failed Requests</p>
-                      <p className="text-sm font-semibold text-red-400">
-                        {item.totalFailedRequest}
-                      </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-1">Success</p>
+                        <p className="text-sm font-bold text-green-600 tabular-nums">
+                          {(item.successRate * 100).toFixed(0)}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#6B6B6B] mb-1">Failed</p>
+                        <p className="text-sm font-bold text-red-600 tabular-nums">
+                          {item.totalFailedRequest}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -313,3 +333,4 @@ export default function MetricsPage() {
     </>
   )
 }
+

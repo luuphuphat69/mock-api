@@ -3,4 +3,5 @@ interface IProject {
   name: string;
   prefix: string;
   userId: string;
+  description: string
 }

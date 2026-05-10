@@ -86,7 +86,7 @@ export default function ProjectGrid({
                   {project.name}
                 </span>
                 <span className="block text-sm leading-6 text-muted-foreground">
-                  [description]
+                  {project.description ? project.description : '[description]'}
                 </span>
               </span>
             </span>
@@ -145,7 +145,7 @@ export default function ProjectGrid({
                 onDelete(project.projectId);
               }}
               variant="outline"
-              className="justify-start border-border bg-background text-destructive hover:text-destructive"
+              className="justify-start border-border bg-background text-destructive hover:bg-red-700 hover:text-white"
               aria-label={`Delete ${project.name}`}
             >
               <Trash2 className="mr-2 h-4 w-4" />

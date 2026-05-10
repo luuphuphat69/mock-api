@@ -10,11 +10,15 @@ async function Add(req, res) {
     const userId = toRequiredString(req.body.userId);
     const name = toRequiredString(req.body.name);
     const prefix = toRequiredString(req.body.prefix);
+    const description = req.body.description
 
     try {
         if (!userId || !name || !prefix) {
             return res.status(400).json({ message: "Missing required fields" });
         }
+
+        if(description.length > 200)
+            return res.status(400).json({message: "Description cannot have over 200 characters"})
 
         const user = await User.findOne({ id: userId });
 
@@ -38,6 +42,7 @@ async function Add(req, res) {
             userId,
             name,
             prefix,
+            description
         });
 
         await Memeber.create({

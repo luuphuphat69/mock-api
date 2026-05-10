@@ -5,7 +5,8 @@ const handler = async (req, res) => {
 
   const apiKey = req.header('x-api-key');
   const body = req.body;
-  const {projectId, endpoint} = req.params
+  const {projectId} = req.params
+  const endpoint = req.url;
 
   // Missing body?
   if (body == null) {
