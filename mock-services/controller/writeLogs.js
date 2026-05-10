@@ -2,7 +2,7 @@ const MockLogs = require('../model/mock_logs');
 
 async function writeMockLog(logData) {
   try {
-    await MockLogs.insertOne({
+    await MockLogs.create({
         ...logData,
         timestamp: new Date()
     })

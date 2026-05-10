@@ -124,7 +124,7 @@ export default function RequestBuilder({
         <div className="space-y-2">
           <Label className="text-xs font-medium uppercase tracking-wider text-slate-500 flex items-center gap-2">
             <Globe className="w-3.5 h-3.5" />
-            Endpoint URL
+            API URL
           </Label>
           <div className="relative">
             <Input
@@ -168,7 +168,7 @@ export default function RequestBuilder({
       <Button
         onClick={() => sendRequest(inputApiKey)}
         disabled={state.isLoading}
-        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition-all py-6 h-auto"
+        className="w-full bg-black font-medium shadow-sm transition-all py-6 h-auto"
       >
         {state.isLoading ? (
           <div className="flex items-center gap-2">

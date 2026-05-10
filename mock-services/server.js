@@ -31,6 +31,12 @@ app.use(cookieParser());
 app.use(morgan('common'));
 app.set('trust proxy', 1);
 
+// Track request start time for logging
+app.use((req, res, next) => {
+  req._startTime = Date.now();
+  next();
+});
+
 // Routes
 app.use('/mock-api', router);
 
