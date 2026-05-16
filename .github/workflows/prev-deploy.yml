@@ -56,6 +56,7 @@ jobs:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           NODE_ENV: ${{ secrets.NODE_ENV }}
+          VALKEY_HOST: ${{ secrets.VALKEY_HOST }}
 
       # - name: Cleanup old containers and images
       #   working-directory: ./server
