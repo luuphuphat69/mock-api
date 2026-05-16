@@ -1,8 +1,8 @@
 const Project = require('../../model/projects');
 const writeLogs = require('../writeLogs');
+const redis = require('../../caching/connect');
 
-const PROJECT_CACHE_TTL_MS = Number(process.env.PROJECT_CACHE_TTL_MS || 60_000);
-const projectCache = new Map();
+const PROJECT_CACHE_TTL = Number(process.env.PROJECT_CACHE_TTL || 60); // Default 60 seconds
 
 function scheduleLog(res, logData) {
   const startTime = res.req?._startTime || Date.now();
@@ -17,19 +17,25 @@ function scheduleLog(res, logData) {
 }
 
 async function getProjectAuth(projectId) {
-  const cached = projectCache.get(projectId);
-  const now = Date.now();
-
-  if (cached && cached.expiresAt > now) {
-    return cached.project;
+  const cacheKey = `project:${projectId}`;
+  console.log(cacheKey)
+  try {
+    const cached = await redis.get(cacheKey);
+    console.log(cached)
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (err) {
+    console.error("Valkey get project error:", err);
   }
 
   const project = await Project.findOne({ projectId }).select('+apiKey').lean();
   if (project) {
-    projectCache.set(projectId, {
-      project,
-      expiresAt: now + PROJECT_CACHE_TTL_MS,
-    });
+    try {
+      await redis.set(cacheKey, JSON.stringify(project), 'EX', PROJECT_CACHE_TTL);
+    } catch (err) {
+      console.error("Valkey set project error:", err);
+    }
   }
 
   return project;

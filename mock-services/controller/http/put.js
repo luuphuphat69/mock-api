@@ -1,5 +1,6 @@
 const Resource = require('../../model/resources');
 const { getProjectAuth, scheduleLog } = require('./helpers');
+const { getCachedResource, invalidateCache } = require('../../caching/invalidation');
 
 const handler = async (req, res) => {
 
@@ -69,7 +70,7 @@ const handler = async (req, res) => {
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
+  const resourceDoc = await getCachedResource(projectId, endpoint);
 
   if (!resourceDoc) {
     scheduleLog(res, {
@@ -155,6 +156,9 @@ const handler = async (req, res) => {
     { projectId, endpoint, 'records.id': existingRecord.id },
     { $set: { 'records.$': body } }
   );
+
+  // Invalidate cache
+  await invalidateCache(projectId, endpoint);
 
   // Log success
   scheduleLog(res, {
