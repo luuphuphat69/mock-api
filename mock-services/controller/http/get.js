@@ -1,5 +1,6 @@
 const Resource = require('../../model/resources');
 const { getProjectAuth, scheduleLog } = require('./helpers');
+const { getCachedResource } = require('../../caching/invalidation');
 
 const handler = async (req, res) => {
 
@@ -38,7 +39,7 @@ const handler = async (req, res) => {
   }
 
   // Validate Resource
-  const resourceDoc = await Resource.findOne({ projectId, endpoint }).select('records').lean();
+  const resourceDoc = await getCachedResource(projectId, endpoint);
 
   if (!resourceDoc) {
     scheduleLog(res, {
