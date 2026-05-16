@@ -17,7 +17,8 @@ Base on the type of request, it will be route to the right server by a proxy ser
 \
 The picture below shown how the process works
 
-<img width="522" height="452" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/58ca476a-c467-4d76-b13c-ee999b8a46a2" />
+<img width="521" height="451" alt="Untitled Diagram drawio (1)" src="https://github.com/user-attachments/assets/8f98c076-8972-4f60-bd8f-fa9bec092b50" />
+
 
 
 
