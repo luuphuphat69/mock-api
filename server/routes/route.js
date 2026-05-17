@@ -83,10 +83,10 @@ router.patch('/user/update', verifyToken, updateUser)
 
 //member route
 router.get('/members/:id', verifyToken, getMembers)
-router.delete('/members/:userid/:projectid', verifyToken, removeMember)
 router.post('/members/send-invite/:projectId', verifyToken, writeLimit,sendInvite)
 router.patch('/members/update-role/:userid/:projectid', verifyToken, changeRole)
 router.delete('/members/leave/:projectId', verifyToken, leaveProject)
+router.delete('/members/:userid/:projectid', verifyToken, removeMember)
 
 // logs route
 router.get('/logs/:projectid', verifyToken, getLogs)
