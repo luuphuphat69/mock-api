@@ -1,22 +1,22 @@
 const Resources = require('../../model/resources');
-const Members = require('../../model/member');
 const {MongoServerError} = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 const retrieve = {
     getByProjectId: async(req, res) => {
         try{
             const projectId = toRequiredString(req.params.projectId);
-            const userId = toRequiredString(req.params.userid);
+            const userId = toRequiredString(req.user?.id);
             if (!projectId || !userId) {
                 return res.status(400).json({ message: "Project or user is invalid" });
             }
-            const isMemberValid = await Members.exists({projectId: projectId, userId: userId});
-            if(isMemberValid){
-                const resources = await Resources.find({projectId: projectId});
-                return res.status(200).json(resources);
+            const access = await getProjectMembership(req, projectId);
+            if (!access.member) {
+                return res.status(access.status).json({ message: access.message });
             }
-            return res.status(404).json({message: "Project not found"})
+            const resources = await Resources.find({projectId: projectId});
+            return res.status(200).json(resources);
         }catch(err){
             if(err instanceof MongoServerError)
                 return res.status(400).json(err)

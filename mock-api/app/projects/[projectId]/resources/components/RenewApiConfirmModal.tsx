@@ -51,7 +51,7 @@ export const RenewKeyConfirmModal: React.FC<RenewKeyConfirmModalProps> = ({
 
         try {
             setIsSubmitting(true)
-            const response = await renewKey(user.id, projectId)
+            const response = await renewKey(projectId)
             const newKey = response.data.newKey
             onConfirm(newKey)
         } catch (err) {

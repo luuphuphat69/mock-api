@@ -1,24 +1,22 @@
 const Logs = require('../../model/logs')
 const {MongoServerError} = require('mongodb');
-const Members = require('../../model/member');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canDelete } = require('../../utilities/authProjectAccess');
 
 async function clearLogs(req, res){
     try{
         const projectid = toRequiredString(req.params.projectid);
-        const requesterid = toRequiredString(req.params.requestid);
 
-        if (!projectid || !requesterid) {
+        if (!projectid) {
             return res.status(400).json({ message: "Project or requester is invalid" });
         }
 
-        const isRequesterValid = await Members.findOne({projectId: projectid, userId: requesterid});
-
-        if (!isRequesterValid) {
-            return res.status(404).json({ message: "Not found user nor project" });
+        const access = await getProjectMembership(req, projectid);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
         
-        if(isRequesterValid.role === 'owner' || isRequesterValid.permissions.canDelete){
+        if(canDelete(access.member)){
             await Logs.deleteMany({projectId: projectid});
             return res.status(200).json({message: "Logs clear"})
         }

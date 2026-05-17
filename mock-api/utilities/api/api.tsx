@@ -1,6 +1,6 @@
 import axios from "axios";
 const api = axios.create({
-  baseURL: "/api", 
+  baseURL: "/api",
   withCredentials: true,
 });
 
@@ -41,7 +41,7 @@ export async function register(registerPayload: IRegisterPayload) {
 export async function login(loginPayload: ILoginPayload) {
   try {
     const res = await api.post('/login', loginPayload, {
-      withCredentials: true 
+      withCredentials: true
     });
     return res;
   } catch (error: unknown) {
@@ -58,9 +58,9 @@ export async function logout() {
   }
 }
 
-export async function changePass(userid: string, currentPassword: string, newPassword: string) {
+export async function changePass(currentPassword: string, newPassword: string) {
   try {
-    const res = await api.post(`/change-password/${userid}`,
+    const res = await api.post(`/change-password`,
       {
         currentPassword: currentPassword,
         newPassword: newPassword
@@ -84,24 +84,34 @@ export async function me() {
 export async function searchUser(query: string) {
   try {
     const res = await api.get('/user/search', { params: { user: query } });
-    return res.data; 
+    return res.data;
   } catch (err) {
     console.log(err);
     throw err;
   }
 }
 
-export async function getProjectByUserID(userId: string) {
+export async function updateUser(payload: object) {
   try {
-    const res = await api.get(`/projects/user/${userId}`)
+    const res = await api.patch(`/user/update`, payload);
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+export async function getProjectByUserID() {
+  try {
+    const res = await api.get(`/projects/user`)
     return res.data;
   } catch (err: unknown) {
     throw err;
   }
 }
 
-export async function getProjectById(projectId: string){
-    try {
+export async function getProjectById(projectId: string) {
+  try {
     const res = await api.get(`/projects/${projectId}`)
     return res;
   } catch (err: unknown) {
@@ -109,11 +119,11 @@ export async function getProjectById(projectId: string){
   }
 }
 
-export async function getCollabProject(userid: string){
-  try{
-    const res = await api.get(`projects/collab/${userid}`);
+export async function getCollabProject() {
+  try {
+    const res = await api.get(`projects/collab`);
     return res.data;
-  }catch(err:unknown){
+  } catch (err: unknown) {
     console.log(err);
     throw err;
   }
@@ -128,61 +138,79 @@ export async function addNewProject(payload: object) {
   }
 }
 
-export async function deleteProjectByID(userid: string, id: string) {
+export async function deleteProjectByID(id: string) {
   try {
-    await api.delete(`/projects/${userid}/${id}`);
+    await api.delete(`/projects/${id}`);
   } catch (err) {
     throw err;
   }
 }
 
-export async function patchProject(userid: string, id: string, payload: object) {
+export async function patchProject(id: string, payload: object) {
   try {
-    await api.patch(`/projects/${userid}/${id}`, payload)
+    await api.patch(`/projects/${id}`, payload)
   } catch (err) {
     throw err
   }
 }
 
-export async function addResource(userid:string, projectId: string, payload: object) {
+export async function updateProjectVisibility(projectId: string, payload: object) {
   try {
-    const res = await api.post(`/resources/${userid}/${projectId}`, payload);
+    await api.patch(`/projects/set-visibility/${projectId}`, payload)
+  } catch (err) {
+    throw err
+  }
+}
+
+export async function searchProject(query: string) {
+  try {
+    const res = await api.get(`/projects/search?project=${query}`);
+    return Array.isArray(res.data) ? res.data : [];
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+export async function addResource(projectId: string, payload: object) {
+  try {
+    const res = await api.post(`/resources/${projectId}`, payload);
     return res;
   } catch (err) {
     throw err
   }
 }
 
-export async function getResourceByProjectId(userid: string, projectId: string) {
+export async function getResourceByProjectId(projectId: string) {
   try {
-    const res = await api.get(`/resources/${userid}/${projectId}`)
+    const res = await api.get(`/resources/${projectId}`)
     return res;
   } catch (err) {
     throw err
   }
 }
 
-export async function editResource(userid: string, projectId: string, id: string, payload: object) {
+export async function editResource(projectId: string, id: string, payload: object) {
   try {
-    const res = await api.patch(`/resources/${userid}/${projectId}/${id}`, payload)
+    const res = await api.patch(`/resources/${projectId}/${id}`, payload)
     return res;
   } catch (err) {
     throw err
   }
 }
 
-export async function deleteResource(userid: string, projectId: string, id: string) {
+export async function deleteResource(projectId: string, id: string) {
   try {
-    const res = await api.delete(`/resources/${userid}/${projectId}/${id}`)
+    const res = await api.delete(`/resources/${projectId}/${id}`)
     return res;
   } catch (err) {
     throw err
   }
 }
 
-export async function sendInvite(inviterId: string, projectId: string, payload: { users: object; project: IProject }) {
+export async function sendInvite(projectId: string, payload: { users: object; project: IProject }) {
   try {
-    const res = await api.post(`/members/send-invite/${inviterId}/${projectId}`, payload)
+    const res = await api.post(`/members/send-invite/${projectId}`, payload)
     return res.data;
   } catch (err) {
     console.error(err);
@@ -190,137 +218,147 @@ export async function sendInvite(inviterId: string, projectId: string, payload: 
   }
 }
 
-export async function getMembers(projectId: string){
-  try{
+export async function getMembers(projectId: string) {
+  try {
     const res = await api.get(`/members/${projectId}`);
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err;
   }
 }
 
-export async function removeMember(requesterid: string, userid: string, projectid: string){
-  try{
-    const res = await api.delete(`/members/${requesterid}/${userid}/${projectid}`);
+export async function leaveProject(projectId: string) {
+  try {
+    const res = await api.delete(`/members/leave/${projectId}`);
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function updateMemberRole(requesterid: string, userid: string, projectid: string, role: string){
-  try{
-    const res = await api.patch(`/members/update-role/${requesterid}/${userid}/${projectid}`,
-      {role: role.toLowerCase()}
+export async function removeMember(userid: string, projectid: string) {
+  try {
+    const res = await api.delete(`/members/${userid}/${projectid}`);
+    return res;
+  } catch (err) {
+    console.log(err);
+    throw err
+  }
+}
+
+export async function updateMemberRole(userid: string, projectid: string, role: string) {
+  try {
+    const res = await api.patch(`/members/update-role/${userid}/${projectid}`,
+      { role: role.toLowerCase() }
     )
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function getLogs(projectId: string){
-  try{
+export async function getLogs(projectId: string) {
+  try {
     const res = await api.get(`/logs/${projectId}`)
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err;
   }
 }
 
-export async function clearLogs(requestid: string, projectId: string){
-  try{
-    const res = await api.delete(`/logs/${requestid}/${projectId}`)
+export async function clearLogs(projectId: string) {
+  try {
+    const res = await api.delete(`/logs/${projectId}`)
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err;
   }
 }
 
-export async function requestResetPassword(email: string){
-  try{
+export async function requestResetPassword(email: string) {
+  try {
     const res = await api.post(`/reset-password?email=${email}`)
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function getGeneralMetrics(projectId: string){
-  try{
+export async function getGeneralMetrics(projectId: string) {
+  try {
     const res = await api.get(`/metrics/general/${projectId}`)
     return res.data;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function getMethodMetrics(projectId: string, method: string){
-  try{
+export async function getMethodMetrics(projectId: string, method: string) {
+  try {
     const res = await api.get(`/metrics/method/${projectId}?method=${method}`)
     return res.data;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function getMonthlyMetrics(projectId: string, month:number, year: number){
-  try{
+export async function getMonthlyMetrics(projectId: string, month: number, year: number) {
+  try {
     const res = await api.get(`/metrics/monthly/${projectId}?month=${month}&year=${year}`)
     return res.data;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function getMockLogs (projectId: string, params?: string | MockLogsQueryParams){
-  try{
+export async function getMockLogs(projectId: string, params?: string | MockLogsQueryParams) {
+  try {
     const res = typeof params === "string"
       ? await api.get(`/mock-logs/project/${projectId}?${params}`)
       : await api.get(`/mock-logs/project/${projectId}`, { params })
     return res.data;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function getMockLogsByMethod (projectId: string, params?: string | MockLogsQueryParams){
-  try{
+export async function getMockLogsByMethod(projectId: string, params?: string | MockLogsQueryParams) {
+  try {
     const res = typeof params === "string"
       ? await api.get(`/mock-logs/method/${projectId}?${params}`)
       : await api.get(`/mock-logs/method/${projectId}`, { params })
     return res.data;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function clearMockLogs(requestid: string, projectId: string, period: ClearMockLogsPeriod){
-  try{
-    const res = await api.delete(`/mock-logs/clear/${requestid}/${projectId}/${period}`)
+export async function clearMockLogs(projectId: string, period: ClearMockLogsPeriod) {
+  try {
+    const res = await api.delete(`/mock-logs/clear/${projectId}/${period}`)
     return res.data;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }
 }
 
-export async function renewKey(requestId: string, projectId: string){
-    try{
-    const res = await api.patch(`/projects/key/renew/${requestId}/${projectId}`)
+export async function renewKey(projectId: string) {
+  try {
+    const res = await api.patch(`/projects/key/renew/${projectId}`)
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err
   }

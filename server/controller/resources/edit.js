@@ -1,13 +1,13 @@
 const Resources = require('../../model/resources');
-const Member = require('../../model/member');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 const { toObjectId, toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canEdit } = require('../../utilities/authProjectAccess');
 
 async function edit(req, res) {
     try {
         const id = toObjectId(req.params.id);
-        const userid = toRequiredString(req.params.userid);
+        const userid = toRequiredString(req.user?.id);
         const projectId = toRequiredString(req.params.projectId);
 
         const { name, schemaFields, records } = req.body;
@@ -27,18 +27,17 @@ async function edit(req, res) {
         if (schemaFields !== undefined) update.schemaFields = schemaFields;
         if (records !== undefined) update.records = records;
 
-        const getUser = await Member.findOne({ projectId, userId: userid });
-
-        if (!getUser) {
-            return res.status(400).json({ message: 'Not found user nor project' });
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
 
-        if (!(getUser.role === 'owner' || getUser.permissions?.canEdit)) {
+        if (!canEdit(access.member)) {
             return res.status(400).json({ message: 'User not have permission to do this action' });
         }
 
-        const updatedResource = await Resources.findByIdAndUpdate(
-            id,
+        const updatedResource = await Resources.findOneAndUpdate(
+            { _id: id, projectId },
             update,
             { new: true, runValidators: true }
         );
@@ -50,7 +49,7 @@ async function edit(req, res) {
         await Logs.create({
             projectId,
             userId: userid,
-            username: getUser.username,
+            username: access.member.username,
             resourceName: updatedResource.name,
             action: `Updated resource ${updatedResource.name}`
         });

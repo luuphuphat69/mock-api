@@ -57,7 +57,7 @@ export default function LogsHeader({ projectId, pagination, loading, fetchLogs, 
                 return
             }
 
-            const result = await clearMockLogs(currentUser.id, projectId, period)
+            const result = await clearMockLogs(projectId, period)
             toast.success(`Mock logs cleared. Deleted ${result.deletedCount || 0} logs.`)
             fetchLogs()
         } catch (error) {

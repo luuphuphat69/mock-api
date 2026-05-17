@@ -1,6 +1,7 @@
 const MockLogs = require('../../model/mock_logs');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 async function getGeneralMetrics(req, res) {
     try {
@@ -8,6 +9,11 @@ async function getGeneralMetrics(req, res) {
 
         if (!projectId) {
             return res.status(400).json({ message: "Project not found" });
+        }
+
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
 
         const isProjectExist = await MockLogs.exists({ projectId });

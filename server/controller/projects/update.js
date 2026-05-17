@@ -1,26 +1,28 @@
 const Projects = require('../../model/projects');
-const Memeber = require('../../model/member');
 const Logs = require('../../model/logs')
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canEdit } = require('../../utilities/authProjectAccess');
 
 async function update(req, res) {
     try {
         const name = toRequiredString(req.body.name);
         const prefix = toRequiredString(req.body.prefix);
         const id = toRequiredString(req.params.id);
-        const userId = toRequiredString(req.params.userid);
-        const description = req.body.description
+        const description = req.body.description || "";
 
-        if (!name || !prefix || !id || !userId) {
+        if (!name || !prefix || !id) {
             return res.status(400).json({ message: "Missing required fields" });
         }
         
         if (description.length > 200)
             return res.status(400).json({ message: "Description cannot have over 200 characters" })
 
-        const getUser = await Memeber.findOne({ projectId: id, userId: userId });
-        if (getUser) {
-            if (getUser.role === 'owner' || getUser.permissions.canEdit) {
+        const access = await getProjectMembership(req, id);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
+        }
+
+        if (canEdit(access.member)) {
                 const updatedProject = await Projects.findOneAndUpdate(
                     { projectId: id },
                     { name, prefix, description},
@@ -33,17 +35,15 @@ async function update(req, res) {
                 await Logs.create(
                     {
                         projectId: id,
-                        userId: userId,
-                        username: getUser.username,
+                        userId: access.requesterId,
+                        username: access.member.username,
                         action: `Updated project's name and version to: ${name} and ${prefix}`
                     }
                 )
 
                 return res.status(200).json(updatedProject);
-            }
-            return res.status(400).json({ message: "User not have permission to do this action" });
         }
-        return res.status(404).json({ message: "Not found user nor project" })
+        return res.status(400).json({ message: "User not have permission to do this action" });
 
     } catch (err) {
         return res.status(500).json(err)

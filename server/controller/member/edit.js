@@ -1,15 +1,15 @@
 const Members = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 async function changeRole(req, res) {
     try {
-        const requesterId = toRequiredString(req.params.requesterid);
         const userId = toRequiredString(req.params.userid);
         const projectId = toRequiredString(req.params.projectid);
         const { role } = req.body;
 
-        if (!requesterId || !userId || !projectId) {
+        if (!userId || !projectId) {
             return res.status(400).json({ message: "Requester, user or project is invalid" });
         }
 
@@ -17,15 +17,13 @@ async function changeRole(req, res) {
             return res.status(400).json({ message: "Invalid role value" });
         }
 
-        // Check requester exists in project
-        const requester = await Members.findOne({ userId: requesterId, projectId });
-
-        if (!requester) {
-            return res.status(400).json({ message: "Requester not in this project" });
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
 
         // ONLY OWNER ALLOWED TO CHANGE ROLES
-        if (requester.role !== "owner") {
+        if (access.member.role !== "owner") {
             return res.status(403).json({ message: "User not have permission to change role" });
         }
 
@@ -47,7 +45,7 @@ async function changeRole(req, res) {
             }
         }
 
-        // 🔥 Assign permissions automatically based on role
+        // Assign permissions automatically based on role
         let permissions = {
             canEdit: false,
             canDelete: false,

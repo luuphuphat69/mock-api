@@ -79,7 +79,7 @@ export default function ChangePasswordPage() {
 
         try {
             setIsLoading(true)
-            await changePass(user.id, currentPassword, newPassword)
+            await changePass(currentPassword, newPassword)
 
             setCurrentPassword("")
             setNewPassword("")

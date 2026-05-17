@@ -1,5 +1,6 @@
 const MockLogs = require('../../model/mock_logs');
 const { toInteger, toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 async function getByTimeline(req, res) {
     try {
@@ -9,6 +10,11 @@ async function getByTimeline(req, res) {
 
         if (!projectId || !month || !year || month < 1 || month > 12) {
             return res.status(400).json({ message: "Invalid project, month or year" });
+        }
+
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
 
         const start = new Date(year, month - 1, 1);

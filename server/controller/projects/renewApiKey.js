@@ -1,29 +1,24 @@
-const Member = require('../../model/member');
 const Projects = require('../../model/projects');
 const crypto = require('crypto');
 const { MongoServerError } = require('mongodb');
 const Logs = require('../../model/logs');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 async function renewApiKey(req, res) {
   try {
-    const requestId = toRequiredString(req.params.requestid);
     const projectId = toRequiredString(req.params.projectid);
 
-    if (!requestId || !projectId) {
+    if (!projectId) {
       return res.status(400).json({ message: "Member or project is invalid" });
     }
 
-    const requester = await Member.findOne({
-      projectId: projectId,
-      userId: requestId
-    });
-
-    if (!requester) {
-      return res.status(404).json({ message: "Member not found" });
+    const access = await getProjectMembership(req, projectId);
+    if (!access.member) {
+      return res.status(access.status).json({ message: access.message });
     }
 
-    if (requester.role !== 'owner') {
+    if (access.member.role !== 'owner') {
       return res.status(403).json({ message: "Only owner can renew API key" });
     }
     const newKey = crypto.randomBytes(32).toString('hex')
@@ -34,8 +29,8 @@ async function renewApiKey(req, res) {
 
     await Logs.create({
       projectId: projectId,
-      userId: requestId,
-      username: requester.username,
+      userId: access.requesterId,
+      username: access.member.username,
       action: 'Generate new API key'
     })
 

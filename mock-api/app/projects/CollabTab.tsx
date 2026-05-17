@@ -47,7 +47,7 @@ export default function CollaborationTab() {
     const load = async () => {
       setIsLoading(true);
       try {
-        await fetchCollabProjects(user.id);
+        await fetchCollabProjects();
       } catch (err) {
         console.error(err);
       } finally {
