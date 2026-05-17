@@ -4,22 +4,23 @@ const Resources = require('../../model/resources');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 async function deletePrj(req, res) {
     try {
         const id = toRequiredString(req.params.id);
-        const userId = toRequiredString(req.params.userid);
 
         if (!id)
             return res.status(400).json({ message: "Bad request: missing id" });
-        if (!userId)
-            return res.status(400).json({ message: "Bad request: missing userID" });
 
-        const getUser = await Member.findOne({ projectId: id, userId: userId })
-        if (getUser) {
-            if (getUser.role === 'owner') {
+        const access = await getProjectMembership(req, id);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
+        }
+
+        if (access.member.role === 'owner') {
                 
-                const result = await Project.deleteOne({ projectId: id, userId: userId });
+                const result = await Project.deleteOne({ projectId: id });
 
                 await Member.deleteMany({ projectId: id });
                 await Resources.deleteMany({ projectId: id });
@@ -30,10 +31,8 @@ async function deletePrj(req, res) {
                 }
 
                 return res.status(200).json({ message: "Project deleted successfully" });
-            }
-            return res.status(400).json({message: "User not have permission to do this action"});
         }
-        return res.status(404).json({message: "Not found user nor project"})
+        return res.status(400).json({message: "User not have permission to do this action"});
     } catch (err) {
         if (err instanceof MongoServerError) {
             return res.status(400).json({ message: err.message });

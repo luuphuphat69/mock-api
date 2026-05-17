@@ -1,6 +1,7 @@
 const MockLogs = require('../../model/mock_logs');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 
 const validMethods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
@@ -152,6 +153,11 @@ const getMockLogs = {
                 return res.status(400).json({ message: "Missing projectId" });
             }
 
+            const access = await getProjectMembership(req, projectId);
+            if (!access.member) {
+                return res.status(access.status).json({ message: access.message });
+            }
+
             const queryOptions = buildMockLogsQuery(projectId, req.query, req.query.method);
             if (queryOptions.error) {
                 return res.status(400).json({ message: queryOptions.error });
@@ -190,6 +196,11 @@ const getMockLogs = {
             // Validate projectId
             if (!projectId) {
                 return res.status(400).json({ message: "Missing projectid" });
+            }
+
+            const access = await getProjectMembership(req, projectId);
+            if (!access.member) {
+                return res.status(access.status).json({ message: access.message });
             }
 
             // Validate method

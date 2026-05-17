@@ -3,5 +3,6 @@ interface IProject {
   name: string;
   prefix: string;
   userId: string;
-  description: string
+  description: string;
+  isPublic?: boolean;
 }

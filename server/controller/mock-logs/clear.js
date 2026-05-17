@@ -1,7 +1,7 @@
 const MockLogs = require('../../model/mock_logs');
-const Members = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 const { toInteger, toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canDelete } = require('../../utilities/authProjectAccess');
 
 const ALLOWED_PERIODS = [7, 30, 90];
 const ALL_TIME_PERIOD = 'all';
@@ -9,12 +9,11 @@ const ALL_TIME_PERIOD = 'all';
 async function clearMockLogs(req, res) {
     try {
         const projectId = toRequiredString(req.params.projectid || req.params.projectId);
-        const requesterId = toRequiredString(req.params.requestid || req.params.requestId);
         const rawPeriod = toRequiredString(req.params.days || req.query.days || req.query.period);
         const isAllTime = rawPeriod && rawPeriod.toLowerCase() === ALL_TIME_PERIOD;
         const periodDays = isAllTime ? null : toInteger(rawPeriod);
 
-        if (!projectId || !requesterId) {
+        if (!projectId) {
             return res.status(400).json({ message: "Project or requester is invalid" });
         }
 
@@ -22,13 +21,12 @@ async function clearMockLogs(req, res) {
             return res.status(400).json({ message: "Clear period must be 7, 30, 90 days, or all" });
         }
 
-        const requester = await Members.findOne({ projectId, userId: requesterId });
-
-        if (!requester) {
-            return res.status(404).json({ message: "Not found user nor project" });
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
 
-        if (requester.role !== 'owner' && !requester.permissions?.canDelete) {
+        if (!canDelete(access.member)) {
             return res.status(400).json({ message: "User not have permission to clear mock logs" });
         }
 

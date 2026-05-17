@@ -1,22 +1,21 @@
-const Members = require('../../model/member');
 const axios = require('axios');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canInvite } = require('../../utilities/authProjectAccess');
 
 async function sendInvite(req, res) {
     try {
-        const inviterId = toRequiredString(req.params.inviterId);
         const projectId = toRequiredString(req.params.projectId);
         const payload = req.body;
 
-        if (!inviterId || !projectId) {
+        if (!projectId) {
             return res.status(400).json({ message: "Inviter or project is invalid" });
         }
 
-        const member = await Members.findOne({ projectId: projectId, userId: inviterId });
-        if (!member) {
-            return res.status(404).json({ message: "Member not found" });
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
-        if (member.permissions.canInvite || member.role === 'owner') {
+        if (canInvite(access.member)) {
             await axios.post(
                 "https://6q3ponujge.execute-api.us-east-1.amazonaws.com/default/send-invite",
                 payload,

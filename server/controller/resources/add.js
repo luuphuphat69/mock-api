@@ -1,22 +1,26 @@
 const Resources = require('../../model/resources');
-const Member = require('../../model/member');
 const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 const User = require('../../model/user');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canEdit } = require('../../utilities/authProjectAccess');
 
 async function add(req, res) {
     try {
         const projectId = toRequiredString(req.params.projectId);
-        const userid = toRequiredString(req.params.userid);
+        const userid = toRequiredString(req.user?.id);
         const name = toRequiredString(req.body.name);
-        const { schemaFields, records } = req.body;
+        const { schemaFields, records = [] } = req.body;
 
         if (!projectId || !userid || !name) {
             return res.status(400).json({ message: "Project, user or resource name is invalid" });
         }
 
-        const memberExistInProject = await Member.findOne({ projectId: projectId, userId: userid });
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
+        }
+
         const totalResourcesOfProject = await Resources.countDocuments({projectId: projectId});
         const userInfo = await User.findOne({id: userid});
         
@@ -26,10 +30,7 @@ async function add(req, res) {
         if(records.length > 100 && userInfo.type === 'free')
             return res.status(400).json({message: 'Maximum 100 records for free tier'})
 
-        if (!memberExistInProject)
-            return res.status(400).json({ message: "Project not found" });
-
-        if (memberExistInProject.role === 'owner' || memberExistInProject.permissions.canEdit) {
+        if (canEdit(access.member)) {
 
             // Clean name (trim spaces)
             const cleanedName = name;
@@ -53,7 +54,7 @@ async function add(req, res) {
                 projectId: projectId,
                 userId: userid,
                 resourceName: cleanedName,
-                username: memberExistInProject.username,
+                username: access.member.username,
                 action: `Create new resource ${cleanedName}`
             })
 

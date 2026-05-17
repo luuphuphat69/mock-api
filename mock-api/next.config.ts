@@ -24,7 +24,8 @@ const nextConfig: NextConfig = {
         // This makes /api/login actually call your Render server
         // but the browser THINKS it is calling your frontend domain
         source: '/api/:path*',
-        destination: 'https://api.mockapi.io.vn/api/:path*',
+        //destination: 'https://api.mockapi.io.vn/api/:path*',
+        destination: 'http://localhost:8000/api/:path*',
       },
     ];
   },

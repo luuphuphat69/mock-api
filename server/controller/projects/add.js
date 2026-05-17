@@ -7,10 +7,10 @@ const Logs = require('../../model/logs');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 async function Add(req, res) {
 
-    const userId = toRequiredString(req.body.userId);
+    const userId = toRequiredString(req.user?.id);
     const name = toRequiredString(req.body.name);
     const prefix = toRequiredString(req.body.prefix);
-    const description = req.body.description
+    const description = req.body.description || "";
 
     try {
         if (!userId || !name || !prefix) {

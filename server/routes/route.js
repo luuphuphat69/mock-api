@@ -16,6 +16,8 @@ const retrieveProject = require('../controller/projects/retrieve');
 const deleteProject = require('../controller/projects/delete');
 const updateProject = require('../controller/projects/update');
 const renewApiKey = require('../controller/projects/renewApiKey');
+const searchProject = require('../controller/projects/search');
+const updateVisibility = require('../controller/projects/updateVisibility');
 
 // resource controller
 const addResource = require('../controller/resources/add');
@@ -25,12 +27,14 @@ const editResource = require('../controller/resources/edit');
 
 // user controller
 const searchUser = require('../controller/user/search');
+const updateUser = require('../controller/user/update');
 
 //memeber controller
 const getMembers = require('../controller/member/retrieve');
 const removeMember = require('../controller/member/remove');
 const sendInvite = require('../controller/member/sendInvite');
 const changeRole = require('../controller/member/edit');
+const leaveProject = require('../controller/member/leave');
 
 // logs controller
 const getLogs = require('../controller/activitylogs/retrieve');
@@ -53,46 +57,50 @@ router.post('/register', writeLimit,register);
 router.post('/login', writeLimit,login);
 router.post('/logout', logout);
 router.post('/reset-password', ResetPassword)
-router.post('/change-password/:id', ChangePassword);
+router.post('/change-password', verifyToken, ChangePassword);
 
 // projects route
-router.get('/projects/user/:userID',verifyToken, retrieveProject.getByUserID)
+router.get('/projects/search', verifyToken, searchProject)
+router.get('/projects/user', verifyToken, retrieveProject.getByUserID)
+router.get('/projects/collab', verifyToken, retrieveProject.getProjectAsMemberAndGuest)
 router.get('/projects/:id', verifyToken, retrieveProject.getById)
 router.get('/projects', verifyToken, retrieveProject.getAll)
-router.patch('/projects/key/renew/:requestid/:projectid', verifyToken, renewApiKey)
-router.post('/projects', verifyToken, writeLimit,addProject)
-router.delete('/projects/:userid/:id', verifyToken, deleteProject)
-router.patch('/projects/:userid/:id', verifyToken, updateProject);
-router.get('/projects/collab/:userid', verifyToken, retrieveProject.getProjectAsMemberAndGuest)
+router.patch('/projects/key/renew/:projectid', verifyToken, renewApiKey)
+router.post('/projects', verifyToken, writeLimit, addProject)
+router.delete('/projects/:id', verifyToken, deleteProject)
+router.patch('/projects/:id', verifyToken, updateProject)
+router.patch('/projects/set-visibility/:projectId', verifyToken, updateVisibility)
 
 //resources route
-router.post('/resources/:userid/:projectId', verifyToken, writeLimit ,addResource)
-router.get('/resources/:userid/:projectId', verifyToken, getResource.getByProjectId)
-router.delete('/resources/:userid/:projectId/:id', verifyToken, deleteResourceById);
-router.patch('/resources/:userid/:projectId/:id', verifyToken, editResource);
+router.post('/resources/:projectId', verifyToken, writeLimit ,addResource)
+router.get('/resources/:projectId', verifyToken, getResource.getByProjectId)
+router.delete('/resources/:projectId/:id', verifyToken, deleteResourceById);
+router.patch('/resources/:projectId/:id', verifyToken, editResource);
 
 //user route
 router.get('/user/search', verifyToken, searchUser)
+router.patch('/user/update', verifyToken, updateUser)
 
 //member route
 router.get('/members/:id', verifyToken, getMembers)
-router.delete('/members/:requesterid/:userid/:projectid', verifyToken, removeMember)
-router.post('/members/send-invite/:inviterId/:projectId', verifyToken, writeLimit,sendInvite)
-router.patch('/members/update-role/:requesterid/:userid/:projectid', verifyToken, changeRole)
+router.delete('/members/:userid/:projectid', verifyToken, removeMember)
+router.post('/members/send-invite/:projectId', verifyToken, writeLimit,sendInvite)
+router.patch('/members/update-role/:userid/:projectid', verifyToken, changeRole)
+router.delete('/members/leave/:projectId', verifyToken, leaveProject)
 
 // logs route
 router.get('/logs/:projectid', verifyToken, getLogs)
-router.delete('/logs/:requestid/:projectid', verifyToken, clearLogs);
+router.delete('/logs/:projectid', verifyToken, clearLogs);
 
 // mock logs route
-router.get('/mock-logs/project/:projectId', getMockLogs.byProject)
-router.get('/mock-logs/method/:projectId', getMockLogs.byMethod);
-router.delete('/mock-logs/clear/:requestid/:projectid/:days', verifyToken, clearMockLogs);
+router.get('/mock-logs/project/:projectId', verifyToken, getMockLogs.byProject)
+router.get('/mock-logs/method/:projectId', verifyToken, getMockLogs.byMethod);
+router.delete('/mock-logs/clear/:projectid/:days', verifyToken, clearMockLogs);
 
 //metrics route
-router.get('/metrics/general/:projectId', getGeneralMetrics)
-router.get('/metrics/method/:projectId', getMethodMetrics)
-router.get('/metrics/monthly/:projectId', getByTimeline)
+router.get('/metrics/general/:projectId', verifyToken, getGeneralMetrics)
+router.get('/metrics/method/:projectId', verifyToken, getMethodMetrics)
+router.get('/metrics/monthly/:projectId', verifyToken, getByTimeline)
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {

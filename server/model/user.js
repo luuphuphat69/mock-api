@@ -6,6 +6,11 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     type: { type: String, enum: ["free", "plus"], default: "free" },
+    isVisible: {
+        type: Boolean,
+        require: true,
+        default: true
+    }
 }, { timestamps: true });
 
 const User = mongoose.model("Users", userSchema, "Users");

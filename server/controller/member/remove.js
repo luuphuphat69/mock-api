@@ -1,23 +1,22 @@
 const Member = require('../../model/member');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership, canDelete } = require('../../utilities/authProjectAccess');
 
 async function removeMember(req, res) {
     try {
-        const requesterId = toRequiredString(req.params.requesterid);
         const userid = toRequiredString(req.params.userid);
         const projectid = toRequiredString(req.params.projectid);
 
-        if (!requesterId || !userid || !projectid)
+        if (!userid || !projectid)
             return res.status(400).json({ message: "Requester, user or project is invalid" });
 
-        const isRequesterValid = await Member.findOne({ userId: requesterId, projectId: projectid });
-
-        if (!isRequesterValid) {
-            return res.status(404).json({ message: "Not found user nor project" });
+        const access = await getProjectMembership(req, projectid);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
         }
 
-        if (isRequesterValid.role === 'owner' || isRequesterValid.permissions.canDelete) {
+        if (canDelete(access.member)) {
             const member = await Member.findOne({ projectId: projectid, userId: userid })
             if (!member) {
                 return res.status(404).json({ message: 'Member not found' })

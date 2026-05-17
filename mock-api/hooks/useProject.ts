@@ -3,13 +3,13 @@ import { getProjectByUserID, addNewProject, deleteProjectByID, patchProject, get
 
 export const useProjects = create<IProjectStore>((set, get) => ({
     projects: [],
-    collabProjects:[],
+    collabProjects: [],
     loading: false,
 
-    fetchProjects: async (userId: string) => {
+    fetchProjects: async () => {
         set({ loading: true });
         try {
-            const res = await getProjectByUserID(userId);
+            const res = await getProjectByUserID();
             set({ projects: res });
         } catch (err) {
             console.error("Failed to fetch projects:", err);
@@ -18,11 +18,11 @@ export const useProjects = create<IProjectStore>((set, get) => ({
         }
     },
 
-    fetchCollabProjects: async (userId: string) => {
-        set({loading: true});
-        try{
-            const res = await getCollabProject(userId);
-            set({collabProjects: res})
+    fetchCollabProjects: async () => {
+        set({ loading: true });
+        try {
+            const res = await getCollabProject();
+            set({ collabProjects: res })
         } catch (err) {
             console.error("Failed to fetch projects:", err);
         } finally {
@@ -48,9 +48,9 @@ export const useProjects = create<IProjectStore>((set, get) => ({
         });
     },
 
-    deleteProject: async (userid:string, id: string) => {
+    deleteProject: async (id: string) => {
         try {
-            await deleteProjectByID(userid, id)
+            await deleteProjectByID(id)
             set({ projects: get().projects.filter(p => p.projectId !== id) });
         } catch (err) {
             console.log(err);
@@ -63,9 +63,9 @@ export const useProjects = create<IProjectStore>((set, get) => ({
             loading: false
         });
     },
-    patchProject: async (userid: string, id: string, payload: { name?: string; prefix?: string; description?: string }) => {
+    patchProject: async (id: string, payload: { name?: string; prefix?: string; description?: string }) => {
         try {
-            const res = await patchProject(userid, id, payload);
+            const res = await patchProject(id, payload);
 
             set({
                 projects: get().projects.map((p) =>
@@ -78,5 +78,12 @@ export const useProjects = create<IProjectStore>((set, get) => ({
             console.error("Patch project failed:", err);
             throw err;
         }
-    }
+    },
+    deleteCollabProject: (id: string) => {
+        set({
+            collabProjects: get().collabProjects.filter(
+                (p) => p.projectId !== id
+            ),
+        });
+    },
 }));

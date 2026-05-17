@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw, Copy, Key, Activity, Database, AlertCircle } from 'lucide-react'
+import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw, Copy, Key, Activity, Database, AlertCircle, Bell } from 'lucide-react'
 import Link from "next/link"
 import { useParams } from 'next/navigation'
 import gsap from "gsap"
@@ -16,6 +16,7 @@ import { ResourceFormModal } from "./components/ResourceFormModal"
 import { ResourceDataModal } from "./components/ResourceDataModal"
 import { LoadingScreen } from "@/components/loading-screen"
 import { RenewKeyConfirmModal } from "./components/RenewApiConfirmModal"
+import { NotificationPanel } from "./components/NotificationPanel"
 
 export default function ResourcesPage() {
   const params = useParams()
@@ -29,6 +30,7 @@ export default function ResourcesPage() {
 
   // Modals State
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<IResource | null>(null)
   const [viewingResource, setViewingResource] = useState<IResource | null>(null)
 
@@ -44,7 +46,7 @@ export default function ResourcesPage() {
     setIsLoading(true)
     try {
       if (user) {
-        const res = await getResourceByProjectId(user.id, projectId)
+        const res = await getResourceByProjectId(projectId)
         setResource(res.data)
         setProjectNotFound(false);
       }
@@ -107,7 +109,7 @@ export default function ResourcesPage() {
   const handleSave = async (data: { name: string; schema: ISchemaField[]; records?: any[] }) => {
     try {
       if (editingResource && user) {
-        await editResource(user.id, projectId, editingResource._id, {
+        await editResource(projectId, editingResource._id, {
           name: data.name,
           schemaFields: data.schema,
           ...(data.records && { records: data.records }),
@@ -118,7 +120,7 @@ export default function ResourcesPage() {
           toast.error("You must log in first")
           return
         }
-        await addResource(user.id, projectId, {
+        await addResource(projectId, {
           name: data.name,
           schemaFields: data.schema,
           records: data.records || [],
@@ -146,7 +148,7 @@ export default function ResourcesPage() {
         ease: "power2.in",
       });
 
-      await deleteResource(user.id, projectId, id);
+      await deleteResource(projectId, id);
       await fetchResources();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to delete");
@@ -159,9 +161,9 @@ export default function ResourcesPage() {
     }
   };
 
-  const hanldeClearLog = async (requestid: string, projectId: string) => {
+  const hanldeClearLog = async (projectId: string) => {
     try {
-      await clearLogs(requestid, projectId);
+      await clearLogs(projectId);
       toast.success("Logs cleared");
       fetchLogs();
     } catch (err: any) {
@@ -228,12 +230,26 @@ export default function ResourcesPage() {
 
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
             {/* Header & Action */}
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Database className="w-6 h-6 text-[#2F6FEB]" />
-                <h1 className="text-3xl font-bold tracking-tight text-[#111111]">
-                  {project.name || "Resources"}
-                </h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center gap-3">
+                  <Database className="w-6 h-6 text-[#2F6FEB]" />
+                  <h1 className="text-3xl font-bold tracking-tight text-[#111111]">
+                    {project.name || "Resources"}
+                  </h1>
+                </div>
+                <button
+                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                  className={`p-2 rounded-lg transition-all relative ${
+                    isNotificationOpen
+                    ? 'bg-[#2F6FEB] text-white shadow-lg shadow-blue-500/20'
+                    : 'bg-white border border-[#E5E5E5] text-[#6B6B6B] hover:text-[#2F6FEB] hover:border-[#2F6FEB] shadow-sm'
+                  }`}
+                  title="Project Notifications"
+                >
+                  <Bell className="w-4 h-4" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+                </button>
               </div>
               <p className="text-[#6B6B6B]">Manage your API endpoints and mock data schemas</p>
             </div>
@@ -314,7 +330,7 @@ export default function ResourcesPage() {
               <Button 
                 variant="outline"
                 onClick={() => setIsFormOpen(true)}
-                className="border-[#E5E5E5] hover:bg-[#FAFAFA]"
+                className="border-[#E5E5E5]"
               >
                 Add first resource
               </Button>
@@ -342,7 +358,7 @@ export default function ResourcesPage() {
                     <RotateCcw className={`w-4 h-4 ${isLogsLoading ? 'animate-spin' : ''}`} />
                   </button>
                   <button
-                    onClick={() => user && hanldeClearLog(user.id, projectId)}
+                    onClick={() => user && hanldeClearLog(projectId)}
                     className="p-2 text-[#6B6B6B] hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                     title="Clear activity"
                   >
@@ -400,6 +416,11 @@ export default function ResourcesPage() {
           isOpen={!!viewingResource}
           resource={viewingResource}
           onClose={() => setViewingResource(null)}
+        />
+
+        <NotificationPanel
+          isOpen={isNotificationOpen}
+          onClose={() => setIsNotificationOpen(false)}
         />
       </div>
 

@@ -1,6 +1,7 @@
 const MockLogs = require('../../model/mock_logs')
 const {MongoServerError} = require('mongodb')
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getProjectMembership } = require('../../utilities/authProjectAccess');
 async function getMethodsMetric(req, res){
     try{
         const projectId = toRequiredString(req.params.projectId);
@@ -8,6 +9,11 @@ async function getMethodsMetric(req, res){
 
         if(!projectId)
             return res.status(400).json({messsage: "Project not found"})
+
+        const access = await getProjectMembership(req, projectId);
+        if (!access.member) {
+            return res.status(access.status).json({ message: access.message });
+        }
 
         if (!method)
             return res.status(400).json({message: "Method not allowed"})

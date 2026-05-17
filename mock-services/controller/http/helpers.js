@@ -18,10 +18,8 @@ function scheduleLog(res, logData) {
 
 async function getProjectAuth(projectId) {
   const cacheKey = `project:${projectId}`;
-  console.log(cacheKey)
   try {
     const cached = await redis.get(cacheKey);
-    console.log(cached)
     if (cached) {
       return JSON.parse(cached);
     }

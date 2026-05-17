@@ -4,7 +4,7 @@ const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 
 async function ChangePassword(req, res) {
     try {
-        const userId = toRequiredString(req.params.id);
+        const userId = toRequiredString(req.user?.id);
         const { currentPassword, newPassword } = req.body;
 
         if (!userId || !currentPassword || !newPassword) {

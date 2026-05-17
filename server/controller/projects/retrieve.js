@@ -3,12 +3,13 @@ const Project = require('../../model/projects');
 const User = require('../../model/user');
 const Members = require('../../model/member');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { getAuthenticatedUserId, getProjectMembership } = require('../../utilities/authProjectAccess');
 const retrieve = {
     getByUserID: async (req, res) => {
         try {
-            const userId = toRequiredString(req.params.userID);
+            const userId = getAuthenticatedUserId(req);
             if (!userId) {
-                return res.status(400).json({ message: "User not found" });
+                return res.status(401).json({ message: "Unauthorized" });
             }
             const user = await User.exists({ id: userId });
             if (!user)
@@ -30,6 +31,10 @@ const retrieve = {
             if (!id) {
                 return res.status(400).json({ message: "Project not found" });
             }
+            const access = await getProjectMembership(req, id);
+            if (!access.member) {
+                return res.status(access.status).json({ message: access.message });
+            }
             const project = await Project.findOne({ projectId: id});
             return res.status(200).json(project);
         } catch (err) {
@@ -41,7 +46,12 @@ const retrieve = {
 
     getAll: async (req, res) => {
         try {
-            const projects = await Project.find();
+            const userId = getAuthenticatedUserId(req);
+            if (!userId) {
+                return res.status(401).json({ message: "Unauthorized" });
+            }
+
+            const projects = await Project.find({ userId });
             return res.status(200).json(projects);
         } catch (err) {
             if (err instanceof MongoServerError)
@@ -52,10 +62,10 @@ const retrieve = {
     
     getProjectAsMemberAndGuest: async (req, res) => {
         try {
-            const userId = toRequiredString(req.params.userid);
+            const userId = getAuthenticatedUserId(req);
 
             if (!userId) {
-                return res.status(400).json({ error: "User is invalid" });
+                return res.status(401).json({ error: "Unauthorized" });
             }
 
             const memberships = await Members.find({

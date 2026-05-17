@@ -135,7 +135,7 @@ export default function ShareMemberModal({
 
     if (user) {
       try {
-        await sendInvite(user.id, selectedProjectForSettings.projectId, {
+        await sendInvite(selectedProjectForSettings.projectId, {
           users: pendingInvites,
           project: selectedProjectForSettings,
         });
@@ -149,9 +149,9 @@ export default function ShareMemberModal({
     }
   };
 
-  const handleRemoveMember = async (requesterid: string, userid: string, projectid: string) => {
+  const handleRemoveMember = async (userid: string, projectid: string) => {
     try {
-      await removeMember(requesterid, userid, projectid);
+      await removeMember(userid, projectid);
       setMembers(prev => prev.filter(m => m.userId !== userid));
       toast.success("Member removed");
     } catch (err: any) {
@@ -159,9 +159,9 @@ export default function ShareMemberModal({
     }
   };
 
-  const handleUpdateMemberRole = async(requestid: string, userid: string, projectid: string, role: string) => {
+  const handleUpdateMemberRole = async(userid: string, projectid: string, role: string) => {
     try {
-      await updateMemberRole(requestid, userid, projectid, role);
+      await updateMemberRole(userid, projectid, role);
       setMembers(prev => prev.map(m => m.userId === userid ? { ...m, role } : m));
       toast.success('Role updated successfully');
     } catch(err: any) {
@@ -314,7 +314,6 @@ export default function ShareMemberModal({
                                 onChange={(e) => {
                                   if (!user) return;
                                   handleUpdateMemberRole(
-                                    user.id,
                                     member.userId,
                                     selectedProjectForSettings.projectId,
                                     e.target.value
@@ -351,7 +350,7 @@ export default function ShareMemberModal({
                               size="sm"
                               onClick={() => {
                                 if (user)
-                                  handleRemoveMember(user?.id, member.userId, selectedProjectForSettings.projectId)
+                                  handleRemoveMember(member.userId, selectedProjectForSettings.projectId)
                               }}
                               className="h-7 w-7 p-0 text-muted-foreground hover:text-[#DC2626] hover:bg-[#DC2626]/5 rounded transition-all"
                               title="Revoke access"

@@ -114,7 +114,7 @@ export default function ProjectsTab() {
     const load = async () => {
       setIsLoading(true);
       try {
-        await fetchProjects(user.id);
+        await fetchProjects();
       } catch (err) {
         console.error(err);
       } finally {
@@ -171,7 +171,7 @@ export default function ProjectsTab() {
 
     try {
       if (isEditMode && editingId) {
-        await patchProject(user.id, editingId, {
+        await patchProject(editingId, {
           name: formData.name,
           prefix: formData.prefix,
           description: formData.description
@@ -181,11 +181,10 @@ export default function ProjectsTab() {
           name: formData.name,
           prefix: formData.prefix,
           description: formData.description,
-          userId: user.id,
         });
       }
 
-      await fetchProjects(user.id);
+      await fetchProjects();
       setIsModalOpen(false);
 
     } catch (err) {
@@ -204,7 +203,7 @@ export default function ProjectsTab() {
     setShowDeleteConfirm(true)
   }
 
-  const handleConfirmDelete = (userid: string, id: string) => {
+  const handleConfirmDelete = (id: string) => {
     const card = document.querySelector(`[data-project-id="${id}"]`);
     if (card) {
       gsap.to(card, {
@@ -213,7 +212,7 @@ export default function ProjectsTab() {
         duration: 0.3,
         ease: "power2.in",
         onComplete: () => {
-          deleteProject(userid, id);
+          deleteProject(id);
           setShowDeleteConfirm(false);
           setProjectToDelete(null);
         },
@@ -381,7 +380,7 @@ export default function ProjectsTab() {
                 <Button
                   onClick={() => {
                     if (user?.id && projectToDelete) {
-                      handleConfirmDelete(user.id, projectToDelete)
+                      handleConfirmDelete(projectToDelete)
                     }
                   }}
                   className="flex-1 bg-red-600 text-white hover:bg-red-700"

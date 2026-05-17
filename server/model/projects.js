@@ -8,7 +8,9 @@ const projectSchema = new Schema({
     name: { type: String, required: true },
     prefix: {type: String, required: true},
     description: {type: String, required: false},
-    apiKey: { type: String, unique: true, select: false }, 
+    apiKey: { type: String, unique: true, select: false },
+    accessKey: { type: String, unique: true, select: false },
+    isPublic: {type: Boolean, default: true},
     dataLimit: { type: Number, default: 100 },
 }, { timestamps: true });
 
@@ -17,6 +19,7 @@ projectSchema.pre("save", function(next) {
     if (this.isNew) {
         // Generate a 32-byte (64 character hex string) key
         this.apiKey = crypto.randomBytes(32).toString('hex');
+        this.accessKey = crypto.randomBytes(32).toString('hex');
     }
     next();
 });
