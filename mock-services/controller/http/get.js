@@ -1,6 +1,7 @@
 const Resource = require('../../model/resources');
 const { getProjectAuth, scheduleLog } = require('./helpers');
 const { getCachedResource } = require('../../caching/invalidation');
+const authKey = require('../../utilities/keyValidate');
 
 const handler = async (req, res) => {
 
@@ -26,7 +27,8 @@ const handler = async (req, res) => {
   }
 
   // Validate API Key
-  if (!apiKey || apiKey !== project.apiKey) {
+  const isApiKeyValid = await authKey(apiKey, projectId);
+  if (!isApiKeyValid) {
     scheduleLog(res, {
       projectId,
       endpoint,

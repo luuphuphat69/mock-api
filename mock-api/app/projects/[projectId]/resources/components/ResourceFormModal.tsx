@@ -101,7 +101,9 @@ export function ResourceFormModal({
   useEffect(() => {
     if (!isOpen) return
 
-    void fetchUser()
+    if (!user) {
+      void fetchUser()
+    }
     setOpenFakerDropdown(null)
     setFakeModuleSearch({})
 
@@ -113,7 +115,7 @@ export function ResourceFormModal({
 
     setFormData({ name: "", schema: DEFAULT_SCHEMA })
     setGenerateCount(50)
-  }, [fetchUser, initialData, isOpen])
+  }, [fetchUser, initialData, isOpen, user])
 
   useEffect(() => {
     if (!isOpen || !modalRef.current || !overlayRef.current) return

@@ -1,9 +1,11 @@
 const Resources = require('../../model/resources');
 const Logs = require('../../model/logs');
+const Project = require('../../model/projects');
 
 const { MongoServerError } = require('mongodb');
 const { toObjectId, toRequiredString } = require('../../utilities/sanitizeRequestData');
 const { getProjectMembership, canDelete } = require('../../utilities/authProjectAccess');
+const { createProjectNotify, clearProjectNotifies } = require('../project-notify/projectNotifyService');
 
 async function deleteById(req, res) {
     try {
@@ -34,6 +36,38 @@ async function deleteById(req, res) {
                     username: access.member.username,
                     action: `Delete resource ${resource.name}`
                 })
+
+                const project = await Project.findOne({ projectId: projectid });
+                const projectName = project?.name || projectid;
+
+                await createProjectNotify({
+                    projectId: projectid,
+                    code: '301',
+                    sender: requestid,
+                    data: {
+                        resource: resource.name,
+                        project: projectName,
+                    },
+                    metadata: {
+                        userId: requestid,
+                        username: access.member.username,
+                        projectName,
+                        resourceId: resource._id.toString(),
+                        resourceName: resource.name,
+                    },
+                })
+
+                await clearProjectNotifies({
+                    projectId: projectid,
+                    code: '303',
+                    metadata: { resourceId: resource._id.toString() },
+                })
+
+                const remainingResourceCount = await Resources.countDocuments({ projectId: projectid });
+                if (remainingResourceCount < 3) {
+                    await clearProjectNotifies({ projectId: projectid, code: '203' })
+                }
+
                 return res.status(200).json({ message: 'Resource is deleted' });
         }
         return res.status(400).json({ message: 'User not have permission to do this action' })

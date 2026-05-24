@@ -2,6 +2,7 @@ const Projects = require('../../model/projects');
 const Logs = require('../../model/logs')
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 const { getProjectMembership, canEdit } = require('../../utilities/authProjectAccess');
+const { createProjectNotify } = require('../project-notify/projectNotifyService');
 
 async function update(req, res) {
     try {
@@ -40,6 +41,18 @@ async function update(req, res) {
                         action: `Updated project's name and version to: ${name} and ${prefix}`
                     }
                 )
+
+                await createProjectNotify({
+                    projectId: id,
+                    code: '200',
+                    sender: access.requesterId,
+                    data: { project: updatedProject.name },
+                    metadata: {
+                        userId: access.requesterId,
+                        username: access.member.username,
+                        projectName: updatedProject.name,
+                    },
+                })
 
                 return res.status(200).json(updatedProject);
         }

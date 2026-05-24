@@ -15,7 +15,7 @@ const addProject = require('../controller/projects/add');
 const retrieveProject = require('../controller/projects/retrieve');
 const deleteProject = require('../controller/projects/delete');
 const updateProject = require('../controller/projects/update');
-const renewApiKey = require('../controller/projects/renewApiKey');
+const renewKey = require('../controller/projects/renewKeys');
 const searchProject = require('../controller/projects/search');
 const updateVisibility = require('../controller/projects/updateVisibility');
 
@@ -35,6 +35,7 @@ const removeMember = require('../controller/member/remove');
 const sendInvite = require('../controller/member/sendInvite');
 const changeRole = require('../controller/member/edit');
 const leaveProject = require('../controller/member/leave');
+const joinProject = require('../controller/member/join');
 
 // logs controller
 const getLogs = require('../controller/activitylogs/retrieve');
@@ -43,6 +44,10 @@ const clearLogs = require('../controller/activitylogs/clear');
 // mock logs controller
 const getMockLogs = require('../controller/mock-logs/get');
 const clearMockLogs = require('../controller/mock-logs/clear');
+
+// project notify controller
+const getProjectNotify = require('../controller/project-notify/get');
+const clearProjectNotify = require('../controller/project-notify/clear');
 
 // metrics controller
 const getGeneralMetrics = require('../controller/metrics/getGeneral');
@@ -65,7 +70,7 @@ router.get('/projects/user', verifyToken, retrieveProject.getByUserID)
 router.get('/projects/collab', verifyToken, retrieveProject.getProjectAsMemberAndGuest)
 router.get('/projects/:id', verifyToken, retrieveProject.getById)
 router.get('/projects', verifyToken, retrieveProject.getAll)
-router.patch('/projects/key/renew/:projectid', verifyToken, renewApiKey)
+router.patch('/projects/renew-keys/:projectid', verifyToken, renewKey)
 router.post('/projects', verifyToken, writeLimit, addProject)
 router.delete('/projects/:id', verifyToken, deleteProject)
 router.patch('/projects/:id', verifyToken, updateProject)
@@ -87,6 +92,7 @@ router.post('/members/send-invite/:projectId', verifyToken, writeLimit,sendInvit
 router.patch('/members/update-role/:userid/:projectid', verifyToken, changeRole)
 router.delete('/members/leave/:projectId', verifyToken, leaveProject)
 router.delete('/members/:userid/:projectid', verifyToken, removeMember)
+router.post('/members/join-in/:projectId', verifyToken, joinProject)
 
 // logs route
 router.get('/logs/:projectid', verifyToken, getLogs)
@@ -96,6 +102,10 @@ router.delete('/logs/:projectid', verifyToken, clearLogs);
 router.get('/mock-logs/project/:projectId', verifyToken, getMockLogs.byProject)
 router.get('/mock-logs/method/:projectId', verifyToken, getMockLogs.byMethod);
 router.delete('/mock-logs/clear/:projectid/:days', verifyToken, clearMockLogs);
+
+// project notify route
+router.get('/project-notify/:projectId', verifyToken, getProjectNotify);
+router.delete('/project-notify/:projectId', verifyToken, clearProjectNotify);
 
 //metrics route
 router.get('/metrics/general/:projectId', verifyToken, getGeneralMetrics)

@@ -27,7 +27,7 @@ async function getProjectAuth(projectId) {
     console.error("Valkey get project error:", err);
   }
 
-  const project = await Project.findOne({ projectId }).select('+apiKey').lean();
+  const project = await Project.findOne({ projectId }).lean();
   if (project) {
     try {
       await redis.set(cacheKey, JSON.stringify(project), 'EX', PROJECT_CACHE_TTL);

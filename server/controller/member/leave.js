@@ -1,5 +1,7 @@
 const Member = require('../../model/member');
+const Project = require('../../model/projects');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
+const { createProjectNotify } = require('../project-notify/projectNotifyService');
 
 const leaveProject = async (req, res) => {
   try {
@@ -32,6 +34,22 @@ const leaveProject = async (req, res) => {
     await Member.findOneAndDelete({
       projectId,
       userId: requesterId,
+    });
+
+    const project = await Project.findOne({ projectId });
+    await createProjectNotify({
+      projectId,
+      code: '102',
+      sender: requesterId,
+      data: {
+        user: member.username || req.user?.name || requesterId,
+        project: project?.name || projectId,
+      },
+      metadata: {
+        userId: requesterId,
+        username: member.username || req.user?.name,
+        projectName: project?.name || projectId,
+      },
     });
 
     return res.status(200).json({

@@ -10,16 +10,24 @@ export function proxy(req: NextRequest) {
 
   let token = req.cookies.get("token")?.value;
 
-  if (path.startsWith("/login") && token) {
+  const isAuthPage = path === "/login";
+  const isProtectedPage =
+    path === "/projects" ||
+    path.startsWith("/projects/") ||
+    path === "/profile" ||
+    path.startsWith("/profile/");
+
+  if (isAuthPage && token) {
     return NextResponse.redirect(new URL("/", req.url));
   }
-  
-  if (!token && path.startsWith("/projects")) {
+
+  if (!token && isProtectedPage) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/projects/:path*", "/login"],
+  matcher: ["/projects/:path*", "/profile/:path*", "/login"],
 };

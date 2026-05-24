@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const saltRounds = 10;
 
 const projectSchema = new Schema({
     projectId: {type: String, require: true, unique: true},
@@ -8,20 +10,26 @@ const projectSchema = new Schema({
     name: { type: String, required: true },
     prefix: {type: String, required: true},
     description: {type: String, required: false},
-    apiKey: { type: String, unique: true, select: false },
+    apiKey: { type: String, select: false},
     accessKey: { type: String, unique: true, select: false },
     isPublic: {type: Boolean, default: true},
     dataLimit: { type: Number, default: 100 },
 }, { timestamps: true });
 
-projectSchema.pre("save", function(next) {
-    // Only generate a new key if the document is new (isNew) or if apiKey is missing
+projectSchema.pre("save", async function (next) {
+  try {
     if (this.isNew) {
-        // Generate a 32-byte (64 character hex string) key
-        this.apiKey = crypto.randomBytes(32).toString('hex');
-        this.accessKey = crypto.randomBytes(32).toString('hex');
+      const rawApiKey = crypto.randomBytes(32).toString("hex");
+      const rawAccessKey = crypto.randomBytes(32).toString("hex");
+
+      this.apiKey = await bcrypt.hash(rawApiKey, saltRounds);
+      this.accessKey = await bcrypt.hash(rawAccessKey, saltRounds);
     }
+
     next();
+  } catch (err) {
+    next(err);
+  }
 });
 
 const Project = mongoose.model("Projects", projectSchema, "Projects");

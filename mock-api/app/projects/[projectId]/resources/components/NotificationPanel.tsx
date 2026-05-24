@@ -2,6 +2,9 @@
 import { X, Check, Bell, Trash2, Info } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import gsap from 'gsap'
+import { toast } from 'sonner'
+
+import { clearProjectNotify, getProjectNotify } from '@/utilities/api/api'
 
 interface Notification {
   id: string
@@ -11,18 +14,58 @@ interface Notification {
   type: 'info' | 'success' | 'warning'
 }
 
+interface ProjectNotificationResponse {
+  _id: string
+  code: string
+  type: 'minor' | 'medium' | 'urgent'
+  message: string
+  createdAt: string
+}
+
 interface NotificationPanelProps {
   isOpen: boolean
   onClose: () => void
+  projectId: string
 }
 
-export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    { id: '1', message: 'New member Jordan Smith joined the project.', time: '2m ago', hasAction: false, type: 'info' },
-    { id: '2', message: 'API Key rotation requested by administrator.', time: '15m ago', hasAction: true, type: 'warning' },
-    { id: '3', message: 'Resource "Users" successfully deployed to production.', time: '1h ago', hasAction: false, type: 'success' },
-    { id: '4', message: 'Deployment failed: Invalid schema in "Orders" resource.', time: '3h ago', hasAction: true, type: 'warning' },
-  ])
+function formatRelativeTime(rawDate: string) {
+  const timestamp = new Date(rawDate).getTime()
+  if (Number.isNaN(timestamp)) return "Just now"
+
+  const diffInSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000))
+  if (diffInSeconds < 60) return "Just now"
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60)
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+
+  const diffInHours = Math.floor(diffInMinutes / 60)
+  if (diffInHours < 24) return `${diffInHours}h ago`
+
+  const diffInDays = Math.floor(diffInHours / 24)
+  if (diffInDays < 7) return `${diffInDays}d ago`
+
+  return new Date(rawDate).toLocaleDateString()
+}
+
+function mapNotificationType(notification: ProjectNotificationResponse): Notification["type"] {
+  if (notification.code === "300") return "success"
+  if (notification.type === "urgent" || notification.type === "medium") return "warning"
+  return "info"
+}
+
+function mapNotification(notification: ProjectNotificationResponse): Notification {
+  return {
+    id: notification._id,
+    message: notification.message,
+    time: formatRelativeTime(notification.createdAt),
+    hasAction: notification.type === "urgent",
+    type: mapNotificationType(notification),
+  }
+}
+
+export function NotificationPanel({ isOpen, onClose, projectId }: NotificationPanelProps) {
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -33,24 +76,69 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
     }
   }, [isOpen])
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id))
+  useEffect(() => {
+    if (!isOpen || !projectId) return
+
+    let isMounted = true
+
+    async function fetchNotifications() {
+      setIsLoading(true)
+      try {
+        const data = await getProjectNotify(projectId)
+        if (!isMounted) return
+
+        const nextNotifications = Array.isArray(data)
+          ? data.map((notification: ProjectNotificationResponse) => mapNotification(notification))
+          : []
+
+        setNotifications(nextNotifications)
+      } catch (err) {
+        console.error(err)
+        if (isMounted) {
+          toast.error("Failed to load project notifications")
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    fetchNotifications()
+
+    return () => {
+      isMounted = false
+    }
+  }, [isOpen, projectId])
+
+  const deleteNotification = async (id: string) => {
+    try {
+      await clearProjectNotify(projectId, { notifyId: id })
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to clear notification")
+    }
   }
 
-  const clearAll = () => {
-    gsap.to(".notification-item", {
-      opacity: 0,
-      x: 20,
-      stagger: 0.05,
-      duration: 0.3,
-      onComplete: () => setNotifications([])
-    })
+  const clearAll = async () => {
+    try {
+      await clearProjectNotify(projectId)
+      gsap.to(".notification-item", {
+        opacity: 0,
+        x: 20,
+        stagger: 0.05,
+        duration: 0.3,
+        onComplete: () => setNotifications([])
+      })
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to clear notifications")
+    }
   }
 
-  const handleAction = (id: string) => {
-    // Action logic here
-    console.log(`Action taken for notification ${id}`)
-    deleteNotification(id)
+  const handleAction = async (id: string) => {
+    await deleteNotification(id)
   }
 
   if (!isOpen) return null
@@ -71,7 +159,12 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-        {notifications.length > 0 ? (
+        {isLoading ? (
+          <div className="h-full flex flex-col items-center justify-center opacity-60">
+            <Bell className="w-8 h-8 mb-3 text-gray-300 animate-pulse" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Loading</p>
+          </div>
+        ) : notifications.length > 0 ? (
           <>
             <div className="flex justify-end">
               <button 
