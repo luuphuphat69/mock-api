@@ -22,18 +22,6 @@ export default function ProjectGrid({
   const router = useRouter();
   const gridRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!gridRef.current) return;
-
-    const cards = gridRef.current.querySelectorAll("[data-project-card]");
-
-    gsap.fromTo(
-      cards,
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.28, stagger: 0.04, ease: "power3.out" }
-    );
-  }, [projects]);
-
   const openProject = (projectId: string) => {
     router.push(`/projects/${projectId}/resources`);
   };

@@ -390,7 +390,7 @@ export default function ProjectsSection({ mode }: ProjectsSectionProps) {
 
                             {mode === 'owned' && (
                               <th className="px-4 py-2 text-right uppercase">
-                                Ops
+                                Action
                               </th>
                             )}
                           </tr>

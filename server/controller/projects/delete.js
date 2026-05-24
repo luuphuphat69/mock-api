@@ -5,6 +5,7 @@ const Logs = require('../../model/logs');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 const { getProjectMembership } = require('../../utilities/authProjectAccess');
+const { clearProjectNotifies } = require('../project-notify/projectNotifyService');
 
 async function deletePrj(req, res) {
     try {
@@ -25,6 +26,7 @@ async function deletePrj(req, res) {
                 await Member.deleteMany({ projectId: id });
                 await Resources.deleteMany({ projectId: id });
                 await Logs.deleteMany({projectId: id});
+                await clearProjectNotifies({ projectId: id });
 
                 if (result.deletedCount === 0) {
                     return res.status(404).json({ message: "Project not found" });

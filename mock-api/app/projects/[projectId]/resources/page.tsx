@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { ChevronRight, Plus, Trash2, RotateCcw, RefreshCw, Copy, Key, Activity, Database, AlertCircle, Bell } from 'lucide-react'
 import Link from "next/link"
 import { useParams } from 'next/navigation'
@@ -41,6 +41,17 @@ export default function ResourcesPage() {
   const [activityLogs, setActivityLogs] = useState<ILogs[]>([]);
 
   const gridRef = useRef<HTMLDivElement>(null)
+  const resourceFormInitialData = useMemo(
+    () =>
+      editingResource
+        ? {
+            name: editingResource.name,
+            schema: editingResource.schemaFields,
+            records: [],
+          }
+        : null,
+    [editingResource],
+  )
 
   const fetchResources = async () => {
     setIsLoading(true)
@@ -99,12 +110,6 @@ export default function ResourcesPage() {
     fetchLogs()
   }, [projectId, user])
 
-  useEffect(() => {
-    if (gridRef.current) {
-      const cards = gridRef.current.querySelectorAll("[data-resource-card]")
-      gsap.fromTo(cards, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" })
-    }
-  }, [resources])
 
   const handleSave = async (data: { name: string; schema: ISchemaField[]; records?: any[] }) => {
     try {
@@ -409,7 +414,7 @@ export default function ResourcesPage() {
           isOpen={isFormOpen}
           onClose={() => setIsFormOpen(false)}
           onSubmit={handleSave}
-          initialData={editingResource ? { name: editingResource.name, schema: editingResource.schemaFields, records: [] } : null}
+          initialData={resourceFormInitialData}
         />
 
         <ResourceDataModal
@@ -421,6 +426,7 @@ export default function ResourcesPage() {
         <NotificationPanel
           isOpen={isNotificationOpen}
           onClose={() => setIsNotificationOpen(false)}
+          projectId={projectId}
         />
       </div>
 

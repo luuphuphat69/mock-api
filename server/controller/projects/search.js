@@ -6,6 +6,7 @@ async function Search(req, res) {
     try {
         const query = req.query.project
         const searchString = toRequiredString(query);
+
         if (!searchString) {
             return res.status(400).json({
                 message: "Search value is invalid"
@@ -16,22 +17,37 @@ async function Search(req, res) {
             {
                 $search: {
                     index: "default",
-                    // Highlight-start: Convert to a compound query
                     compound: {
-                        must: [{
-                            text: {
-                                query: searchString,
-                                path: ["projectId", "name"]
+                        should: [
+                            {
+                                autocomplete: {
+                                    query: searchString,
+                                    path: "name",
+                                    fuzzy: {
+                                        maxEdits: 1
+                                    }
+                                }
+                            },
+                            {
+                                autocomplete: {
+                                    query: searchString,
+                                    path: "projectId",
+                                    fuzzy: {
+                                        maxEdits: 1
+                                    }
+                                }
                             }
-                        }],
-                        filter: [{
-                            equals: {
-                                value: true,
-                                path: "isPublic"
+                        ],
+                        minimumShouldMatch: 1,
+                        filter: [
+                            {
+                                equals: {
+                                    value: true,
+                                    path: "isPublic"
+                                }
                             }
-                        }]
+                        ]
                     }
-                    // Highlight-end
                 }
             },
             {
@@ -41,9 +57,7 @@ async function Search(req, res) {
                     name: 1,
                     prefix: 1,
                     description: 1,
-                    score: {
-                        $meta: "searchScore"
-                    }
+                    score: { $meta: "searchScore" }
                 }
             },
             {

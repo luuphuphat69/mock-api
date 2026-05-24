@@ -1,7 +1,9 @@
 const Member = require('../../model/member');
+const Project = require('../../model/projects');
 const { MongoServerError } = require('mongodb');
 const { toRequiredString } = require('../../utilities/sanitizeRequestData');
 const { getProjectMembership, canDelete } = require('../../utilities/authProjectAccess');
+const { createProjectNotify } = require('../project-notify/projectNotifyService');
 
 async function removeMember(req, res) {
     try {
@@ -25,6 +27,21 @@ async function removeMember(req, res) {
                 return res.status(404).json({ message: `Cannot remove project's owner` })
             }
             await Member.deleteOne({ _id: member._id })
+            const project = await Project.findOne({ projectId: projectid });
+            await createProjectNotify({
+                projectId: projectid,
+                code: '101',
+                sender: access.requesterId,
+                data: {
+                    user: member.username || userid,
+                    project: project?.name || projectid,
+                },
+                metadata: {
+                    userId: userid,
+                    username: member.username,
+                    projectName: project?.name || projectid,
+                },
+            })
             return res.status(200).json({ message: 'Member is removed' })
         }
         return res.status(400).json({ message: 'User not have enough rights to do it' })

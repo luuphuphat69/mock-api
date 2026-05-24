@@ -218,6 +218,16 @@ export async function sendInvite(projectId: string, payload: { users: object; pr
   }
 }
 
+export async function joinProject(projectId: string, payload: {accessKey: string}){
+  try{
+    const res = await api.post(`members/join-in/${projectId}`, payload)
+    return res.data;
+  }catch(err){
+    console.error(err);
+    throw err;
+  }
+}
+
 export async function getMembers(projectId: string) {
   try {
     const res = await api.get(`/members/${projectId}`);
@@ -354,10 +364,38 @@ export async function clearMockLogs(projectId: string, period: ClearMockLogsPeri
   }
 }
 
-export async function renewKey(projectId: string) {
+export async function renewKey(projectId: string, type: string) {
   try {
-    const res = await api.patch(`/projects/key/renew/${projectId}`)
-    return res;
+    const res = await api.patch(`/projects/renew-keys/${projectId}?type=${type}`)
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    throw err
+  }
+}
+
+export async function getProjectNotify(projectId: string) {
+  try {
+    const res = await api.get(`/project-notify/${projectId}`)
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    throw err
+  }
+}
+
+export async function clearProjectNotify(
+  projectId: string,
+  params?: {
+    code?: string;
+    type?: string;
+    notifyId?: string;
+    id?: string;
+  }
+) {
+  try {
+    const res = await api.delete(`/project-notify/${projectId}`, { params })
+    return res.data;
   } catch (err) {
     console.log(err);
     throw err
