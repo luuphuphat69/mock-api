@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Search, Globe, Key, Send, Check } from 'lucide-react';
-import { searchProject, joinProject, sendInvite } from '@/utilities/api/api';
+import { searchProject, joinProject, addToWaitingList } from '@/utilities/api/api';
 import { toast } from 'sonner';
 
 interface ProjectResult {
@@ -12,6 +12,14 @@ interface ProjectResult {
   description?: string;
 }
 
+function getApiErrorMessage(err: unknown) {
+  if (typeof err !== 'object' || err === null || !('response' in err)) {
+    return 'Unknown error';
+  }
+
+  const response = (err as { response?: { data?: { message?: string } } }).response;
+  return response?.data?.message || 'Unknown error';
+}
 
 export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState('');
@@ -19,8 +27,9 @@ export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
   const [keyInputs, setKeyInputs] = useState<Record<string, string>>({});
   const [activeKeyInputId, setActiveKeyInputId] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
-  const [isRequesting, setIsRequesting] = useState<string | null>(null);
   const [isJoiningByKey, setIsJoiningByKey] = useState<string | null>(null);
+  const [requestedProjectIds, setRequestedProjectIds] = useState<Set<string>>(new Set());
+  const [requestingProjectId, setRequestingProjectId] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
 
@@ -47,11 +56,21 @@ export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(delayDebounce);
   }, [query]);
 
-  const handleJoin = (id: string) => {
-    setIsRequesting(id);
+  const handleJoin = async (projectId: string) => {
+    setRequestingProjectId(projectId);
+    try {
+      const response = await addToWaitingList(projectId);
+      toast.success(response.data.message)
+      setRequestedProjectIds((prev) => new Set(prev).add(projectId));
+    } catch (err: unknown) {
+      console.error(err);
+      toast.error(getApiErrorMessage(err))
+    } finally {
+      setRequestingProjectId(null);
+    }
   };
 
-  const handleJoinByKey = async(id: string) => {
+  const handleJoinByKey = async (id: string) => {
     const key = keyInputs[id];
     if (!key) return;
     setIsJoiningByKey(id);
@@ -59,10 +78,10 @@ export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
       await joinProject(id, {
         accessKey: key
       });
-      alert('Joined successfully!');
-    } catch (err: any) {
+      toast.success('Joined successfully!');
+    } catch (err: unknown) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Unknown error")
+      toast.error(getApiErrorMessage(err))
     } finally {
       setIsJoiningByKey(null);
     }
@@ -109,11 +128,11 @@ export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
                 className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded px-10 py-2.5 text-xs text-gray-900 dark:text-white focus:ring-1 focus:ring-[#2F6FEB] outline-none"
               />
             </div>
-          {searching && (
-            <p className="text-xs text-gray-500 mt-2">
-              Searching directory...
-            </p>
-          )}
+            {searching && (
+              <p className="text-xs text-gray-500 mt-2">
+                Searching directory...
+              </p>
+            )}
             {results.length > 0 && (
               <div className="mt-4 space-y-3">
                 {results.map(project => (
@@ -131,25 +150,24 @@ export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleJoin(project.projectId)}
-                          disabled={isRequesting === project.projectId || isJoiningByKey === project.projectId}
+                          disabled={isJoiningByKey === project.projectId || requestingProjectId === project.projectId || requestedProjectIds.has(project.projectId)}
                           className="flex items-center gap-2 px-3 py-1.5 bg-[#2F6FEB] text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+                          title={requestedProjectIds.has(project.projectId) ? "Request sent" : "Request to join"}
                         >
-                          <Send size={12} />
-                          {isRequesting === project.projectId ? 'Sending...' : 'Request'}
+                          {requestedProjectIds.has(project.projectId) ? <Check size={12} /> : <Send size={12} />}
                         </button>
                         <button
                           onClick={() => setActiveKeyInputId(activeKeyInputId === project.projectId ? null : project.projectId)}
-                          className={`p-1.5 rounded border transition-all ${
-                            activeKeyInputId === project.projectId 
-                            ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-black dark:border-white' 
+                          className={`p-1.5 rounded border transition-all ${activeKeyInputId === project.projectId
+                            ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-black dark:border-white'
                             : 'bg-white text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 hover:border-[#2F6FEB] hover:text-[#2F6FEB]'
-                          }`}
+                            }`}
                         >
                           <Key size={14} />
                         </button>
                       </div>
                     </div>
-                    
+
                     {activeKeyInputId === project.projectId && (
                       <div className="p-4 bg-gray-50 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800 animate-in">
                         <div className="flex gap-2">
@@ -162,10 +180,10 @@ export default function JoinProjectModal({ onClose }: { onClose: () => void }) {
                           />
                           <button
                             onClick={() => handleJoinByKey(project.projectId)}
-                            disabled={!keyInputs[project.projectId] || isJoiningByKey === project.projectId || isRequesting === project.projectId}
+                            disabled={!keyInputs[project.projectId] || isJoiningByKey === project.projectId}
                             className="px-4 py-2 bg-[#2F6FEB] text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
                           >
-                            {isJoiningByKey === project.projectId ? 'Joining...' : 'Join'}
+                            Join
                           </button>
                         </div>
                       </div>

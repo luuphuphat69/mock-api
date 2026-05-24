@@ -3,14 +3,16 @@ import { X, Check, Bell, Trash2, Info } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import gsap from 'gsap'
 import { toast } from 'sonner'
-
+import { useRouter } from 'next/navigation'
 import { clearProjectNotify, getProjectNotify } from '@/utilities/api/api'
+import { Spinner } from '@/components/ui/shadcn-io/spinner'
 
 interface Notification {
   id: string
   message: string
   time: string
   hasAction?: boolean
+  code: string
   type: 'info' | 'success' | 'warning'
 }
 
@@ -60,12 +62,14 @@ function mapNotification(notification: ProjectNotificationResponse): Notificatio
     time: formatRelativeTime(notification.createdAt),
     hasAction: notification.type === "urgent",
     type: mapNotificationType(notification),
+    code: notification.code
   }
 }
 
 export function NotificationPanel({ isOpen, onClose, projectId }: NotificationPanelProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     if (isOpen) {
@@ -138,7 +142,7 @@ export function NotificationPanel({ isOpen, onClose, projectId }: NotificationPa
   }
 
   const handleAction = async (id: string) => {
-    await deleteNotification(id)
+    router.push('/profile')
   }
 
   if (!isOpen) return null
@@ -162,7 +166,8 @@ export function NotificationPanel({ isOpen, onClose, projectId }: NotificationPa
         {isLoading ? (
           <div className="h-full flex flex-col items-center justify-center opacity-60">
             <Bell className="w-8 h-8 mb-3 text-gray-300 animate-pulse" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Loading</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Please wait</p>
+            <Spinner/>
           </div>
         ) : notifications.length > 0 ? (
           <>
@@ -204,7 +209,7 @@ export function NotificationPanel({ isOpen, onClose, projectId }: NotificationPa
                   </button>
                 </div>
                 
-                {notification.hasAction && (
+                {notification.hasAction && notification.code === '104' && (
                   <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-end">
                     <button 
                       onClick={() => handleAction(notification.id)}

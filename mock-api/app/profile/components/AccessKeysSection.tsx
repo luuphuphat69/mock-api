@@ -115,6 +115,21 @@ export default function AccessKeysSection() {
             </div>
           );
         })}
+
+        {projects.length === 0 && (
+          <div className="py-20 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded bg-gray-50/30 dark:bg-gray-900/10 animate-in fade-in zoom-in duration-300">
+            <Database
+              size={32}
+              className="mx-auto text-gray-300 mb-4 opacity-30"
+            />
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              No Projects Found
+            </p>
+            <p className="text-[10px] text-gray-400 mt-2">
+              Keys are generated per workspace. Create a project to begin.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -55,6 +55,12 @@ const getMethodMetrics = require('../controller/metrics/getMethods');
 const getByTimeline = require('../controller/metrics/getByTimeline');
 const { writeLimit } = require('./rate-limit');
 
+// waiting list controller
+const GetList = require('../controller/waitingList/get');
+const RemoveFromWaitingList = require('../controller/waitingList/remove');
+const addToWaitingList = require('../controller/waitingList/add');
+const AcceptWaitingListRequest = require('../controller/waitingList/accept');
+
 // ------------------------ route begin ------------------------
 
 //authen route
@@ -111,6 +117,12 @@ router.delete('/project-notify/:projectId', verifyToken, clearProjectNotify);
 router.get('/metrics/general/:projectId', verifyToken, getGeneralMetrics)
 router.get('/metrics/method/:projectId', verifyToken, getMethodMetrics)
 router.get('/metrics/monthly/:projectId', verifyToken, getByTimeline)
+
+// waiting list route
+router.get('/waiting-list/:projectId', verifyToken, GetList)
+router.patch('/waiting-list/:projectId/accept', verifyToken, AcceptWaitingListRequest);
+router.delete('/waiting-list/:projectId', verifyToken, RemoveFromWaitingList);
+router.post('/waiting-list/:projectId', verifyToken, addToWaitingList)
 
 // token verification
 router.get('/me', verifyToken, (req, res) => {
