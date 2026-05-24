@@ -1,64 +1,90 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { 
   User, 
   Users,
-  Mail, 
   LayoutGrid, 
-  LogOut, 
   Moon, 
   Sun, 
   Settings, 
   Bell, 
-  Search,
   ChevronRight,
   Plus,
-  Shield,
   Lock,
   Database,
   ArrowRight
 } from 'lucide-react';
 import Image from 'next/image';
-import { Toaster } from 'sonner';
 
 // --- Modular Components ---
 import ProfileInfoSection from './components/ProfileInfoSection';
 import ProjectsSection from './components/ProjectsSection';
 import AccessKeysSection from './components/AccessKeysSection';
 import PreferencesSection from './components/PreferencesSection';
+import WaitingListSection from './components/WaitingListSection';
 import JoinProjectModal from './components/JoinProjectModal';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { getProjectByUserID, getWaitingList } from '@/utilities/api/api';
+import Header from '@/components/header';
 
 export default function UserProfilePage() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
   const [activeTab, setActiveTab] = useState('profile');
   const [showJoinModal, setShowJoinModal] = useState(false);
-
-  useEffect(() => {
-    // Initial theme check
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDark(true);
-    }
-
-  }, []);
+  const [waitingListCount, setWaitingListCount] = useState(0);
 
   const toggleTheme = () => setIsDark(!isDark);
+  const handleWaitingListCountChange = useCallback((count: number) => {
+    setWaitingListCount(count);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadWaitingListCount() {
+      try {
+        const projects = await getProjectByUserID();
+        if (!Array.isArray(projects) || projects.length === 0) {
+          if (isMounted) setWaitingListCount(0);
+          return;
+        }
+
+        const results = await Promise.all(
+          projects.map(async (project: IProject) => {
+            const response = await getWaitingList(project.projectId);
+            return Array.isArray(response?.data) ? response.data.length : 0;
+          })
+        );
+
+        if (isMounted) {
+          setWaitingListCount(results.reduce((total, count) => total + count, 0));
+        }
+      } catch (err) {
+        console.error(err);
+        if (isMounted) setWaitingListCount(0);
+      }
+    }
+
+    loadWaitingListCount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className={`min-h-screen font-sans selection:bg-[#2F6FEB]/20 ${isDark ? 'dark bg-[#0A0A0A]' : 'bg-[#FAFAFA]'}`}>
-      <div className="flex min-h-screen">
+      <Header />
+      
+      <div className="flex pt-16 min-h-screen">
         {/* Sidebar: Tech Posture */}
-        <aside className="sidebar-nav w-72 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0D0D0D] hidden lg:flex flex-col sticky top-0 h-screen">
+        <aside className="sidebar-nav w-72 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0D0D0D] hidden lg:flex flex-col sticky top-16 h-[calc(100vh-64px)]">
           <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded flex items-center justify-center">
-                <Link href={'/'}>
-                  <Image title="logo" src='/icon.png' width={100} height={100} alt="logo" />
-                </Link>
-              </div>
-              <span className="text-sm font-bold dark:text-white uppercase tracking-tighter">Console</span>
+              <span className="text-sm font-bold dark:text-white uppercase">Profile Management</span>
             </div>
             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
               v1.0
@@ -102,6 +128,26 @@ export default function UserProfilePage() {
                 <span>Shared Projects</span>
               </div>
               {activeTab === 'shared' && <ChevronRight size={14} />}
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('waiting')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded font-medium text-sm transition-all ${
+                activeTab === 'waiting' ? 'text-[#2F6FEB] bg-blue-50/50 dark:bg-blue-900/10' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Bell size={16} />
+                <span>Waiting List</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {waitingListCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
+                    {waitingListCount}
+                  </span>
+                )}
+                {activeTab === 'waiting' && <ChevronRight size={14} />}
+              </div>
             </button>
             
             <div className="px-3 pt-6 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Security & Ops</div>
@@ -153,7 +199,7 @@ export default function UserProfilePage() {
         <main className="flex-1 min-w-0">
           
           {/* Header Bar */}
-          <header className="header-bar h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0A0A0A] flex items-center justify-between px-8 sticky top-0 z-20">
+          <header className="header-bar h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0A0A0A] flex items-center justify-between px-8 sticky top-16 z-20">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 text-xs font-mono text-gray-400">
                 <span>USERS</span>
@@ -202,6 +248,10 @@ export default function UserProfilePage() {
             {activeTab === 'projects' && <ProjectsSection mode="owned" />}
 
             {activeTab === 'shared' && <ProjectsSection mode="joined" />}
+
+            {activeTab === 'waiting' && (
+              <WaitingListSection onPendingCountChange={handleWaitingListCountChange} />
+            )}
 
             {activeTab === 'keys' && <AccessKeysSection />}
             

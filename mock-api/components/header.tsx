@@ -30,7 +30,7 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  
+
   const handleSignOut = async () => {
     try {
       await logout() // Backend clears cookie 
@@ -46,7 +46,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0D0D0D]/80 backdrop-blur-md z-50">
-      <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="px-6 h-16 flex items-center justify-between">
         <Link title="logo" href="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 rounded flex items-center justify-center transition-transform group-hover:scale-105">
             <Image title="logo" src='/icon.png' width={32} height={32} alt="logo" />
@@ -58,15 +58,15 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-6">
-          <Link 
-            title="docs" 
-            href="/docs" 
+          <Link
+            title="docs"
+            href="/docs"
             className="flex items-center gap-2 text-gray-500 hover:text-[#2F6FEB] transition-colors text-xs font-bold uppercase tracking-widest"
           >
             <BookOpen className="w-3.5 h-3.5" />
-            Docs 
+            Docs
           </Link>
-          
+
           {!loading && user ? (
             <div className="flex items-center gap-4">
               <div ref={dropdownRef} className="relative">
@@ -87,6 +87,16 @@ export default function Header() {
                   <div className="absolute top-full right-0 mt-2 w-52 bg-white dark:bg-[#0D0D0D] border border-gray-200 dark:border-gray-800 rounded shadow-xl py-1 z-50 animate-in">
                     <button
                       onClick={() => {
+                        router.push("/projects")
+                        setShowDropdown(false)
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-[#2F6FEB] transition-colors uppercase tracking-widest"
+                    >
+                      <Database className="w-3.5 h-3.5" />
+                      Projects
+                    </button>
+                                        <button
+                      onClick={() => {
                         router.push("/profile")
                         setShowDropdown(false)
                       }}
@@ -97,23 +107,13 @@ export default function Header() {
                     </button>
                     <button
                       onClick={() => {
-                        router.push("/projects")
-                        setShowDropdown(false)
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-[#2F6FEB] transition-colors uppercase tracking-widest"
-                    >
-                      <Database className="w-3.5 h-3.5" />
-                      Projects
-                    </button>
-                    <button
-                      onClick={() => {
                         router.push("/change-password")
                         setShowDropdown(false)
                       }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-[#2F6FEB] transition-colors border-t border-gray-100 dark:border-gray-800 uppercase tracking-widest"
                     >
                       <LockIcon className="w-3.5 h-3.5" />
-                    Changes pass
+                      Changes pass
                     </button>
                     <button
                       onClick={handleSignOut}

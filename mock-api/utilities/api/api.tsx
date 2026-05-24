@@ -401,3 +401,43 @@ export async function clearProjectNotify(
     throw err
   }
 }
+
+export async function addToWaitingList(projectId:string) {
+  try{
+    const res = await api.post(`/waiting-list/${projectId}`);
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function removeFromWaitingList(projectId: string, userId: string){
+  try{
+    const res = await api.delete(`/waiting-list/${projectId}?user=${userId}`);
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function acceptWaitingListRequest(projectId: string, userId: string){
+  try{
+    const res = await api.patch(`/waiting-list/${projectId}/accept?user=${userId}`);
+    return res;
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
+
+export async function getWaitingList(projectId:string) {
+  try{
+    const res = await api.get(`/waiting-list/${projectId}`);
+    return res.data
+  }catch(err){
+    console.log(err);
+    throw err
+  }
+}
